@@ -1,0 +1,520 @@
+/* Screen layouts. Components are styled in components.css; this file only places them. */
+
+#app {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(90% 70% at 0% 0%, #18202b 0%, transparent 60%),
+    var(--bg);
+  transition: filter var(--d-med);
+}
+#stage {
+  position: absolute;
+  inset: 0;
+}
+#overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+#overlay > * {
+  pointer-events: auto;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transition: opacity var(--d-slow) var(--ease);
+}
+.screen.is-entering {
+  opacity: 0;
+}
+.screen__scroll {
+  position: absolute;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding-bottom: 4rem;
+}
+.screen__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Boot ---------- */
+.screen--boot {
+  display: grid;
+  place-items: center;
+  background: #000000;
+}
+.boot__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-5);
+}
+.boot__mark svg {
+  width: clamp(72px, 13vmin, 120px);
+  height: auto;
+  animation: boot-in 900ms var(--ease) both;
+}
+.boot__word svg {
+  height: clamp(16px, 2.6vmin, 26px);
+  width: auto;
+  animation: boot-in 900ms 250ms var(--ease) both;
+}
+.boot__prompt {
+  position: absolute;
+  bottom: calc(14% + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--fg-3);
+  font: 600 var(--t-sm) / 1 var(--font-ui);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity var(--d-med);
+}
+.boot__prompt:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.boot__prompt:focus-visible {
+  outline: 2px solid var(--fg-2);
+}
+.screen--boot.is-starting .boot__prompt {
+  opacity: 0;
+}
+.screen--boot.is-starting .boot__center {
+  animation: boot-out 1.4s var(--ease) both;
+}
+@keyframes boot-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+@keyframes boot-out {
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+/* ---------- Home ---------- */
+.home__hero {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: min(70vh, 40rem);
+  overflow: hidden;
+}
+.home__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  opacity: 0;
+  transition: opacity 500ms var(--ease);
+}
+.home__bg.is-on {
+  opacity: 1;
+}
+.home__shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgb(13 17 23 / 0.45), transparent 20%),
+    linear-gradient(to top, var(--bg) 3%, rgb(13 17 23 / 0.55) 38%, transparent 70%),
+    linear-gradient(to right, rgb(13 17 23 / 0.6), transparent 50%);
+}
+.screen--home .v-topbar,
+.home__intro,
+.screen--home .v-row {
+  position: relative;
+}
+.home__intro {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--s-3);
+  min-height: min(26vh, 14rem);
+  padding: var(--s-4) var(--gutter-r) 0 var(--gutter-l);
+}
+.home__logo {
+  display: block;
+  width: auto;
+  max-width: min(26rem, 80%);
+  max-height: 7.5rem;
+  object-fit: contain;
+  object-position: left bottom;
+}
+.home__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s-4);
+  color: var(--fg-2);
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+.home__meta span + span::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin-right: var(--s-4);
+  border-radius: 50%;
+  background: var(--fg-3);
+  vertical-align: middle;
+}
+.screen--home .v-row {
+  margin-top: var(--s-4);
+}
+
+/* ---------- Game page ---------- */
+.game__hero {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: min(58vh, 34rem);
+  overflow: hidden;
+}
+.game__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.game__shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgb(13 17 23 / 0.5), transparent 25%),
+    linear-gradient(to top, var(--bg) 2%, transparent 55%);
+}
+.game__logo {
+  position: absolute;
+  left: var(--gutter-l);
+  bottom: var(--s-6);
+  max-width: min(28rem, 70%);
+  max-height: 8rem;
+  object-fit: contain;
+  object-position: left bottom;
+}
+.screen--game .v-topbar {
+  position: relative;
+}
+.game__bar {
+  position: relative;
+  margin-top: calc(min(58vh, 34rem) - 3.4rem);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-4) var(--s-6);
+  padding: var(--s-4) var(--gutter-r) var(--s-4) var(--gutter-l);
+  background: var(--bg-2);
+  box-shadow: inset 0 1px 0 var(--line), inset 0 -1px 0 var(--line);
+}
+.game__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-6);
+  flex: 1;
+}
+.game__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.game__stat span {
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.game__stat strong {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.game__ach {
+  display: inline-block;
+  width: 6rem;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--track);
+  overflow: hidden;
+}
+.game__ach span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+.game__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: var(--s-5);
+  padding: var(--s-5) var(--gutter-r) var(--s-6) var(--gutter-l);
+  align-items: start;
+}
+.game__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  min-width: 0;
+}
+.game__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+  min-width: 0;
+  padding: var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--bg-2);
+}
+.game__card .v-control {
+  align-self: stretch;
+}
+.game__card-title {
+  margin: 0;
+  font: 700 var(--t-lg) / 1.2 var(--font-ui);
+}
+.game__card-note {
+  margin: 0 0 var(--s-2);
+  color: var(--fg-3);
+  font-size: var(--t-sm);
+}
+.game__dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--s-2) var(--s-5);
+  margin: 0;
+  font-size: var(--t-sm);
+}
+.game__dl dt {
+  color: var(--fg-3);
+}
+.game__dl dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* ---------- Library ---------- */
+.library__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--gutter-r) var(--s-2) var(--gutter-l);
+  box-shadow: inset 0 -1px 0 var(--line);
+}
+.library__count {
+  color: var(--fg-3);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.library__sub {
+  padding: var(--s-3) var(--gutter-r) 0 var(--gutter-l);
+}
+.library__sub:empty {
+  display: none;
+}
+.library__grid {
+  padding-top: var(--s-2);
+}
+.library__empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  max-width: 34rem;
+  margin: var(--s-6) var(--gutter-r) 0 var(--gutter-l);
+  color: var(--fg-2);
+}
+.library__empty strong {
+  color: var(--fg);
+  font-size: var(--t-lg);
+}
+code {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 0.9em;
+  color: var(--fg);
+}
+
+/* ---------- Settings ---------- */
+.settings {
+  display: grid;
+  grid-template-columns: minmax(13rem, 18rem) minmax(0, 1fr);
+  gap: var(--s-5);
+  padding: var(--s-3) var(--gutter-r) var(--s-6) var(--gutter-l);
+  align-items: start;
+}
+.settings__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: sticky;
+  top: 0;
+}
+.settings__nav .v-control {
+  box-shadow: none;
+  padding-block: 0.75rem;
+}
+.settings__pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 46rem;
+}
+.settings__pane-title {
+  margin: var(--s-2) 0 var(--s-3) var(--s-3);
+  font: 700 var(--t-xl) / 1.2 var(--font-ui);
+}
+.settings__label {
+  margin: var(--s-5) var(--s-3) var(--s-2);
+  font: 700 var(--t-xs) / 1 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.settings__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  padding: 0 var(--s-3);
+}
+.settings__note {
+  margin: var(--s-3);
+  color: var(--fg-3);
+  font-size: var(--t-sm);
+  max-width: 60ch;
+}
+.settings__link {
+  margin: var(--s-3);
+  color: var(--accent-hi);
+  font-weight: 600;
+}
+
+/* ---------- Main menu ---------- */
+.menu__profile {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding-bottom: var(--s-3);
+}
+.menu__profile strong {
+  display: block;
+  font-size: var(--t-md);
+}
+.menu__profile span span {
+  font-size: var(--t-sm);
+  color: var(--good);
+}
+.menu__avatar {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: var(--r-sm);
+  background: var(--surface-3);
+  font-weight: 800;
+  font-size: var(--t-sm);
+}
+.menu__item {
+  box-shadow: none;
+  font-size: var(--t-lg);
+}
+
+@media (max-width: 760px) {
+  .settings,
+  .game__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .settings__nav {
+    position: static;
+  }
+}
+
+/* ---------- Launch ---------- */
+.launch {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  background: #000000;
+  opacity: 0;
+  transition: opacity 300ms var(--ease);
+}
+.launch.is-in {
+  opacity: 1;
+}
+.launch__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.35;
+  animation: launch-zoom 3s var(--ease) both;
+}
+.launch__center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-5);
+  padding-inline: var(--gutter-l) var(--gutter-r);
+}
+.launch__logo {
+  max-width: min(30rem, 80vw);
+  max-height: 9rem;
+  object-fit: contain;
+}
+.launch__status {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  color: var(--fg-2);
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+.launch__spinner {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 2px solid var(--track);
+  border-top-color: var(--fg);
+  animation: spin 800ms linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes launch-zoom {
+  from {
+    transform: scale(1.08);
+  }
+}

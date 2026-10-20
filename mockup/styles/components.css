@@ -1,0 +1,859 @@
+/* Vanta OS component styles. Every block here belongs to one component in js/components/.
+   Focus is the main state. .is-focused is set by FocusManager for controller, keyboard and mouse alike.
+   Focus language: a crisp white outline on art, a lighter surface on rows, inverted (white) buttons. No glows. */
+
+.v-icon {
+  width: 1.25em;
+  height: 1.25em;
+  flex: none;
+}
+
+.v-focusable {
+  outline: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.is-disabled {
+  opacity: 0.45;
+}
+
+/* ---------- VButton ---------- */
+.v-button {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  padding: 0.75em 1.35em;
+  border-radius: var(--r-sm);
+  font: 600 var(--t-md) / 1 var(--font-ui);
+  color: var(--fg);
+  background: var(--surface-2);
+  white-space: nowrap;
+  transition:
+    background var(--d-fast),
+    color var(--d-fast),
+    box-shadow var(--d-fast),
+    transform var(--d-fast) var(--ease);
+}
+.v-button .v-icon {
+  width: 1.15em;
+  height: 1.15em;
+}
+.v-button--primary {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.v-button--ghost {
+  background: transparent;
+  color: var(--fg-2);
+}
+.v-button--danger {
+  color: var(--bad);
+}
+.v-button--sm {
+  font-size: var(--t-sm);
+  padding: 0.6em 1em;
+}
+.v-button--lg {
+  font-size: var(--t-lg);
+  padding: 0.75em 1.8em;
+  min-width: 9rem;
+}
+.v-button--icon {
+  padding: 0.75em;
+  aspect-ratio: 1;
+}
+.v-button--block {
+  width: 100%;
+  justify-content: flex-start;
+}
+.v-button.is-focused {
+  background: var(--fg);
+  color: var(--on-light);
+}
+.v-button--primary.is-focused {
+  background: var(--accent-hi);
+  color: var(--accent-fg);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--fg);
+}
+.v-button--danger.is-focused {
+  background: var(--bad);
+  color: var(--fg);
+}
+.v-button:active {
+  transform: scale(0.98);
+}
+
+/* ---------- VBadge ---------- */
+.v-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.3em 0.5em;
+  border-radius: var(--r-xs);
+  font: 700 var(--t-xs) / 1 var(--font-ui);
+  letter-spacing: 0.02em;
+  color: var(--fg);
+  background: rgb(13 17 23 / 0.82);
+  white-space: nowrap;
+}
+.v-badge .v-icon {
+  width: 1.05em;
+  height: 1.05em;
+}
+.v-badge--accent {
+  color: var(--accent-fg);
+  background: var(--accent);
+}
+.v-badge--good {
+  color: var(--good);
+  background: rgb(91 208 138 / 0.12);
+}
+.v-badge--warn {
+  color: var(--warn);
+  background: rgb(240 178 63 / 0.12);
+}
+.v-badge--muted {
+  color: var(--fg-2);
+  background: var(--surface-2);
+}
+
+/* ---------- VTile: capsule (portrait), landscape, and card (image + text below) ---------- */
+.v-tile {
+  position: relative;
+  flex: none;
+  width: var(--capsule);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.v-tile__art {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  max-width: 100%;
+  border-radius: var(--r-xs);
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.35);
+  transition:
+    transform var(--d-med) var(--ease),
+    box-shadow var(--d-med) var(--ease);
+}
+.v-tile__art img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.v-tile--landscape {
+  width: calc(var(--capsule) * 1.95);
+}
+.v-tile--landscape .v-tile__art,
+.v-tile--card .v-tile__art {
+  aspect-ratio: 16 / 9;
+}
+.v-tile--card {
+  width: calc(var(--capsule) * 2.3);
+}
+.v-tile__glyph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.5rem;
+  color: var(--fg-2);
+  font-weight: 600;
+  font-size: var(--t-sm);
+  text-align: center;
+  padding: var(--s-3);
+}
+.v-tile__glyph .v-icon {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+.v-tile__badge {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.4rem;
+}
+.v-tile__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.v-tile__kicker {
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-hi);
+}
+.v-tile__title {
+  font-weight: 600;
+  font-size: var(--t-sm);
+  line-height: 1.3;
+  color: var(--fg-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.v-tile__sub {
+  font-size: var(--t-xs);
+  color: var(--fg-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.v-tile.is-focused .v-tile__art {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 0 2px var(--fg),
+    0 14px 34px rgb(0 0 0 / 0.6);
+}
+.v-tile.is-focused .v-tile__title {
+  color: var(--fg);
+}
+.v-tile.is-picked .v-tile__art {
+  box-shadow:
+    0 0 0 2px var(--accent),
+    0 4px 14px rgb(0 0 0 / 0.35);
+}
+
+/* ---------- VRow (shelf) ---------- */
+.v-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+}
+.v-row__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  padding-left: var(--gutter-l);
+  padding-right: var(--gutter-r);
+}
+.v-row__title {
+  margin: 0;
+  font: 600 var(--t-lg) / 1.2 var(--font-ui);
+  color: var(--fg);
+}
+.v-row__meta {
+  font-size: var(--t-sm);
+  color: var(--fg-3);
+}
+.v-row__track {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  padding: 0.9rem var(--gutter-r) 1.2rem var(--gutter-l);
+  scroll-padding-inline: var(--gutter-l) var(--gutter-r);
+}
+.v-row__track::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Grid ---------- */
+.v-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--capsule), 1fr));
+  gap: var(--s-4) var(--s-3);
+  padding: var(--s-3) var(--gutter-r) var(--s-7) var(--gutter-l);
+}
+.v-grid .v-tile {
+  width: auto;
+}
+
+/* ---------- VTabs ---------- */
+.v-tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.v-tab {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--fg-3);
+  font: 600 var(--t-md) / 1 var(--font-ui);
+  padding: 0.7em 0.9em;
+  border-radius: var(--r-sm);
+  position: relative;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  transition:
+    color var(--d-fast),
+    background var(--d-fast);
+}
+.v-tab.is-active {
+  color: var(--fg);
+}
+.v-tab.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0.9em;
+  right: 0.9em;
+  bottom: 0.1em;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.v-tab.is-focused {
+  color: var(--on-light);
+  background: var(--fg);
+}
+.v-tab.is-focused::after {
+  background: var(--on-light);
+}
+.v-tabs__bumper {
+  display: inline-grid;
+  place-items: center;
+  height: 1.6rem;
+  padding: 0 0.45em;
+  border-radius: var(--r-xs);
+  background: var(--surface-2);
+  color: var(--fg-2);
+  font: 700 var(--t-xs) / 1 var(--font-ui);
+}
+
+/* Chips: small secondary filters */
+.v-tabs--chips .v-tab {
+  font-size: var(--t-sm);
+  padding: 0.5em 0.8em;
+  background: var(--surface-2);
+  color: var(--fg-2);
+}
+.v-tabs--chips .v-tab.is-active {
+  background: var(--accent-soft);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.v-tabs--chips .v-tab.is-active::after {
+  display: none;
+}
+.v-tabs--chips .v-tab.is-focused {
+  background: var(--fg);
+  color: var(--on-light);
+}
+
+/* Rail: vertical icon tabs (quick access menu) */
+.v-tabs--rail {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: var(--s-1);
+}
+.v-tabs--rail .v-tab {
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  justify-content: center;
+}
+.v-tabs--rail .v-tab .v-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+.v-tabs--rail .v-tab.is-active {
+  background: var(--surface-2);
+}
+.v-tabs--rail .v-tab.is-active::after {
+  left: auto;
+  right: -0.45rem;
+  top: 0.7rem;
+  bottom: 0.7rem;
+  width: 3px;
+  height: auto;
+}
+.v-tabs--rail .v-tab.is-focused {
+  background: var(--fg);
+}
+
+/* ---------- Control rows: VToggle, VSlider, VChoice, VListItem ---------- */
+.v-control {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "icon label trail"
+    "icon detail trail";
+  align-items: center;
+  column-gap: var(--s-3);
+  row-gap: 0.2rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 -1px 0 var(--line);
+  transition: background var(--d-fast);
+}
+.v-control__icon {
+  grid-area: icon;
+  display: grid;
+  place-items: center;
+  color: var(--fg-2);
+}
+.v-control__icon:empty {
+  display: none;
+}
+.v-control__label {
+  grid-area: label;
+  font-weight: 600;
+  min-width: 0;
+}
+.v-control__detail {
+  grid-area: detail;
+  font-size: var(--t-sm);
+  color: var(--fg-3);
+  min-width: 0;
+}
+.v-control__detail:empty {
+  display: none;
+}
+.v-control__trail {
+  grid-area: trail;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--fg-2);
+}
+.v-control__value {
+  font-weight: 600;
+  font-size: var(--t-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+}
+.v-control.is-focused {
+  background: var(--surface-3);
+  box-shadow: none;
+}
+.v-control.is-focused .v-control__icon {
+  color: var(--fg);
+}
+
+/* Toggle switch */
+.v-switch {
+  width: 2.75rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: var(--track);
+  position: relative;
+  transition: background var(--d-med);
+}
+.v-switch::after {
+  content: "";
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: var(--fg);
+  transition: transform var(--d-med) var(--ease);
+}
+.v-toggle.is-on .v-switch {
+  background: var(--accent);
+}
+.v-toggle.is-on .v-switch::after {
+  transform: translateX(1.25rem);
+}
+
+/* Slider */
+.v-slider {
+  grid-template-areas:
+    "icon label trail"
+    "icon track track";
+  row-gap: 0.7rem;
+}
+.v-slider__track {
+  grid-area: track;
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--track);
+  touch-action: none;
+}
+.v-slider__track::before {
+  content: "";
+  position: absolute;
+  inset: -0.8rem 0;
+}
+.v-slider__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: var(--accent);
+}
+.v-slider__thumb {
+  position: absolute;
+  top: 50%;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--fg);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.5);
+  transition: transform var(--d-fast) var(--ease);
+}
+.v-slider.is-focused .v-slider__thumb {
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* Choice: looks like a compact dropdown; left/right cycles */
+.v-choice__box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 9rem;
+  justify-content: space-between;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--r-xs);
+  background: var(--surface-2);
+}
+.v-choice.is-focused .v-choice__box {
+  background: var(--bg);
+}
+.v-choice__arrow {
+  display: inline-grid;
+  color: var(--fg-3);
+}
+.v-choice__arrow .v-icon {
+  width: 0.95em;
+  height: 0.95em;
+}
+.v-choice__arrow--prev .v-icon {
+  transform: scaleX(-1);
+}
+.v-choice.is-focused .v-choice__arrow {
+  color: var(--fg);
+}
+
+/* List item */
+.v-list-item .v-chevron {
+  width: 1em;
+  height: 1em;
+  color: var(--fg-3);
+}
+.v-list-item.is-selected:not(.is-focused) {
+  background: var(--surface-2);
+}
+
+/* ---------- Overlays: VPanel (drawer), VDialog ---------- */
+.v-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+}
+.v-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  opacity: 0;
+  transition: opacity var(--d-med);
+}
+.v-layer.is-open .v-backdrop {
+  opacity: 1;
+}
+
+.v-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: min(25rem, 100%);
+  display: flex;
+  background: var(--bg-2);
+  box-shadow: -18px 0 48px rgb(0 0 0 / 0.5);
+  transform: translateX(102%);
+  transition: transform var(--d-med) var(--ease);
+}
+.v-panel--left {
+  right: auto;
+  left: 0;
+  width: min(20rem, 100%);
+  box-shadow: 18px 0 48px rgb(0 0 0 / 0.5);
+  transform: translateX(-102%);
+}
+.v-layer.is-open .v-panel {
+  transform: none;
+}
+.v-panel__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.v-panel__head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: calc(var(--s-5) + env(safe-area-inset-top, 0px)) var(--s-5) var(--s-3);
+}
+.v-panel__title {
+  margin: 0;
+  font: 700 var(--t-lg) / 1.2 var(--font-ui);
+}
+.v-panel__sub {
+  font-size: var(--t-sm);
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+}
+.v-panel__sub:empty,
+.v-panel__title:empty {
+  display: none;
+}
+.v-panel__body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--s-1) var(--s-3) var(--s-6);
+  scrollbar-width: thin;
+}
+.v-panel__section {
+  margin: var(--s-5) var(--s-3) var(--s-2);
+  font: 700 var(--t-xs) / 1 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.v-panel__rail {
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--s-4) + env(safe-area-inset-top, 0px)) max(var(--s-2), env(safe-area-inset-right, 0px)) var(--s-4) var(--s-2);
+  background: var(--bg);
+  border-left: 1px solid var(--line);
+}
+
+.v-dialog {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(28rem, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding: var(--s-6);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 0.6);
+  transform: translate(-50%, -48%);
+  opacity: 0;
+  transition:
+    transform var(--d-med) var(--ease),
+    opacity var(--d-med);
+}
+.v-layer.is-open .v-dialog {
+  transform: translate(-50%, -50%);
+  opacity: 1;
+}
+.v-dialog__title {
+  margin: 0;
+  font: 700 var(--t-xl) / 1.2 var(--font-ui);
+  text-wrap: balance;
+}
+.v-dialog__body {
+  margin: 0;
+  color: var(--fg-2);
+}
+.v-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  justify-content: flex-end;
+}
+.v-dialog__actions--stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* ---------- VToast ---------- */
+.v-toasts {
+  position: absolute;
+  right: var(--gutter-r);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 3.6rem);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--s-2);
+  pointer-events: none;
+  max-width: calc(100% - 32px);
+}
+.v-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: min(22rem, 100%);
+  padding: 0.85rem 1rem;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  box-shadow: 0 12px 34px rgb(0 0 0 / 0.5);
+  font-size: var(--t-sm);
+  transform: translateY(10px);
+  opacity: 0;
+  transition:
+    transform var(--d-med) var(--ease),
+    opacity var(--d-med);
+}
+.v-toast.is-in {
+  transform: none;
+  opacity: 1;
+}
+.v-toast .v-icon {
+  color: var(--accent-hi);
+  width: 1.4rem;
+  height: 1.4rem;
+}
+.v-toast--bad .v-icon {
+  color: var(--bad);
+}
+
+/* ---------- VTopBar ---------- */
+.v-topbar {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  height: 3.4rem;
+  padding: 0 var(--gutter-r) 0 var(--gutter-l);
+}
+.v-topbar__menu {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.35rem 0.5rem 0.35rem 0;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  font: 700 var(--t-lg) / 1 var(--font-ui);
+}
+.v-topbar__menu svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.v-topbar__spacer {
+  flex: 1;
+}
+.v-topbar__status {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  color: var(--fg-2);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.v-topbar__status .v-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+.v-topbar__qam {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--fg-2);
+  display: inline-grid;
+  place-items: center;
+  padding: 0.3rem;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.v-topbar__clock {
+  color: var(--fg);
+}
+.v-battery {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+.v-battery__cell {
+  position: relative;
+  width: 1.55rem;
+  height: 0.8rem;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+}
+.v-battery__cell::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: 25%;
+  width: 2px;
+  height: 50%;
+  border-radius: 1px;
+  background: currentColor;
+}
+.v-battery__level {
+  position: absolute;
+  inset: 1.5px;
+  right: auto;
+  border-radius: 1px;
+  background: var(--fg);
+}
+
+/* ---------- VHintBar ---------- */
+.v-hintbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-5);
+  padding: 0.7rem var(--gutter-r) calc(0.7rem + env(safe-area-inset-bottom, 0px)) var(--gutter-l);
+  background: var(--bg-2);
+  box-shadow: 0 -1px 0 var(--line);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--fg-2);
+}
+.v-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.v-hint__btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.55em;
+  height: 1.55em;
+  padding: 0 0.4em;
+  border-radius: 999px;
+  background: var(--fg-2);
+  color: var(--on-light);
+  font: 800 var(--t-xs) / 1 var(--font-ui);
+}
+
+@media (max-width: 640px) {
+  .v-topbar__status .v-wifi,
+  .v-battery__pct,
+  .v-tabs__bumper {
+    display: none;
+  }
+  .v-hintbar {
+    display: none;
+  }
+}

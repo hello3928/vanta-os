@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vanta OS Logos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&display=swap">
+<style>
+  /* Layout: one sheet per direction. A large mark on black, then the same mark tested at
+     real sizes, on light, as an app tile, and in the top bar it would live in. */
+  :root {
+    color-scheme: dark;
+    --bg: #0d1117;
+    --sheet: #141a22;
+    --line: rgb(255 255 255 / 0.08);
+    --fg: #ffffff;
+    --fg-2: #c2c9d3;
+    --fg-3: #8a93a1;
+    --paper: #f2f4f7;
+    --ink: #0d1117;
+    --accent: #2f80ed;
+    --font: "Figtree", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.5 var(--font);
+    padding: 32px max(16px, env(safe-area-inset-right, 0px)) 64px max(16px, env(safe-area-inset-left, 0px));
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+  header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  h1 { margin: 0; font-size: clamp(24px, 3vw, 32px); font-weight: 800; letter-spacing: -0.01em; }
+  header p { margin: 6px 0 0; color: var(--fg-2); max-width: 62ch; }
+  a { color: var(--fg); font-weight: 600; }
+  .sheet { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); border-radius: 10px; overflow: hidden; background: var(--sheet); }
+  .stage { display: grid; place-items: center; min-height: 300px; padding: 40px; background: #000; }
+  .stage svg { width: min(160px, 40vw); height: auto; }
+  .info { display: flex; flex-direction: column; gap: 18px; padding: 28px; min-width: 0; }
+  .label { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-3); }
+  h2 { margin: 2px 0 0; font-size: 26px; font-weight: 800; }
+  .summary { margin: 0; color: var(--fg-2); max-width: 52ch; }
+  .lock svg { height: 40px; width: auto; max-width: 100%; display: block; }
+  .tests { display: flex; flex-wrap: wrap; gap: 12px; }
+  .test { display: flex; align-items: center; justify-content: center; gap: 14px; min-height: 72px; padding: 12px 16px; border-radius: 6px; background: var(--bg); flex: 1 1 auto; }
+  .test.light { background: var(--paper); color: var(--ink); }
+  .test.accent { background: var(--accent); }
+  .test svg { display: block; }
+  .bar { justify-content: flex-start; gap: 10px; font-weight: 700; font-size: 17px; }
+  .cap { display: block; margin-top: 6px; font-size: 12px; color: var(--fg-3); text-align: center; }
+  @media (max-width: 760px) {
+    .sheet { grid-template-columns: minmax(0, 1fr); }
+    .stage { min-height: 220px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Vanta OS logo directions</h1>
+      <p>Three solid, single-color marks with one shared wordmark. Each is shown large, at real UI sizes, on light, as an app tile and in the top bar. Pick one in the mockup under Settings → Appearance → Logo.</p>
+    </div>
+    <a href="index.html">Back to the mockup</a>
+  </header>
+  <div id="sheets" style="display:flex;flex-direction:column;gap:24px"></div>
+</div>
+<script type="module">
+  import { DIRECTIONS, mark, lockup } from './js/brand.js';
+  const host = document.getElementById('sheets');
+  Object.entries(DIRECTIONS).forEach(([id, d], i) => {
+    const s = document.createElement('section');
+    s.className = 'sheet';
+    s.innerHTML = `
+      <div class="stage">${mark(id, { size: 160, color: '#ffffff' })}</div>
+      <div class="info">
+        <div><span class="label">Direction ${'ABC'[i]}</span><h2>${d.name}</h2></div>
+        <p class="summary">${d.summary}</p>
+        <div class="lock">${lockup(id, { height: 40, color: '#ffffff' })}</div>
+        <div class="tests">
+          <div class="test">${mark(id, { size: 48, color: '#fff' })}${mark(id, { size: 24, color: '#fff' })}${mark(id, { size: 16, color: '#fff' })}</div>
+          <div class="test light">${mark(id, { size: 48, color: '#0d1117' })}${mark(id, { size: 24, color: '#0d1117' })}</div>
+          <div class="test accent">${mark(id, { size: 56, color: '#ffffff', tile: '#0d1117' })}</div>
+          <div class="test bar">${mark(id, { size: 24, color: '#fff' })}<span>Home</span></div>
+        </div>
+      </div>`;
+    host.append(s);
+  });
+</script>
+</body>
+</html>

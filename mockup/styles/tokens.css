@@ -1,0 +1,122 @@
+/* Vanta OS design tokens.
+   Layout: Big Picture style. Thin top bar, full-bleed hero for the selected game, shelves of
+   portrait capsules, drawers for the main menu (left) and quick access (right), button prompts in the footer.
+   One deliberate dark world (a console UI), so there is no light theme.
+   QML port: this file becomes the Theme.qml singleton. */
+
+:root {
+  color-scheme: dark;
+
+  /* Neutrals: blue-black, cool greys */
+  --bg: #0d1117;
+  --bg-2: #141a22;
+  --surface: #1b222c;
+  --surface-2: #252d39;
+  --surface-3: #323b49;
+  --track: #48515f;
+  --line: rgb(255 255 255 / 0.08);
+  --scrim: rgb(5 7 10 / 0.6);
+
+  --fg: #ffffff;
+  --fg-2: #c2c9d3;
+  --fg-3: #8a93a1;
+  --on-light: #0d1117;
+
+  /* Accent (Ion by default; Settings → Appearance switches it) */
+  --accent: #2f80ed;
+  --accent-hi: #5a9cf5;
+  --accent-fg: #ffffff;
+  --accent-soft: rgb(47 128 237 / 0.18);
+
+  /* Status */
+  --good: #5bd08a;
+  --warn: #f0b23f;
+  --bad: #ff5f5f;
+
+  /* Type */
+  --font-ui: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --t-xs: 0.75rem;
+  --t-sm: 0.875rem;
+  --t-md: 1rem;
+  --t-lg: 1.2rem;
+  --t-xl: 1.6rem;
+  --t-2xl: 2.2rem;
+
+  /* Space */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+
+  --pad: clamp(16px, 3.2vw, 56px);
+  --gutter-l: max(var(--pad), env(safe-area-inset-left, 0px));
+  --gutter-r: max(var(--pad), env(safe-area-inset-right, 0px));
+
+  /* Shape: small radii, like console UIs */
+  --r-xs: 3px;
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --d-fast: 110ms;
+  --d-med: 200ms;
+  --d-slow: 450ms;
+
+  /* Capsules (portrait game art, 2:3) */
+  --capsule: clamp(6.5rem, 10.5vw, 9.5rem);
+}
+
+:root[data-accent="ember"] {
+  --accent: #f26b2a;
+  --accent-hi: #ff8a50;
+  --accent-fg: #ffffff;
+  --accent-soft: rgb(242 107 42 / 0.18);
+}
+
+:root[data-accent="mint"] {
+  --accent: #22c38e;
+  --accent-hi: #45dba7;
+  --accent-fg: #05140e;
+  --accent-soft: rgb(34 195 142 / 0.18);
+}
+
+html {
+  height: 100%;
+  font-size: clamp(13px, 0.5vw + 9.5px, 20px);
+  background: var(--bg);
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: var(--t-md);
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --d-fast: 1ms;
+    --d-med: 1ms;
+    --d-slow: 1ms;
+  }
+}
