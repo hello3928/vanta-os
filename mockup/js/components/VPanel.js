@@ -8,6 +8,7 @@ import { Overlays } from '../core/Overlays.js';
 import { Sound } from '../core/Sound.js';
 import { Haptics } from '../core/Haptics.js';
 import { esc, h, afterLayout } from '../core/util.js';
+import { Motion } from '../core/motion.js';
 
 export class VPanel extends VComponent {
   constructor({ title = '', subtitle = '', side = 'right', rail = null, header = null } = {}) {
@@ -23,7 +24,9 @@ export class VPanel extends VComponent {
     this.titleEl = h('h2', 'v-panel__title', esc(title));
     this.subEl = h('div', 'v-panel__sub', esc(subtitle));
     this.head.append(this.titleEl, this.subEl);
+    this.side = side;
     this.body = h('div', 'v-panel__body');
+    this.body.dataset.highlight = '';
     main.append(this.head, this.body);
     this.panel.append(main);
     if (rail) {
@@ -41,7 +44,14 @@ export class VPanel extends VComponent {
 
   addItems(...items) {
     items.flat().forEach((c) => this.body.append(c.el || c));
+    if (this.isOpen) this.animateIn(80);
     return this;
+  }
+
+  // Rows slide in one after another from the panel's edge.
+  animateIn(delay = 120) {
+    const dx = this.side === 'left' ? -18 : 18;
+    Motion.stagger([...this.body.children].filter((c) => !c.classList.contains('v-highlight')), { from: `translateX(${dx}px)`, step: 24, delay });
   }
 
   clear() {
@@ -59,8 +69,9 @@ export class VPanel extends VComponent {
     Sound.play('open');
     Haptics.play('tick');
     afterLayout(this.el, () => this.el.classList.add('is-open'));
-    FocusManager.pushScope(this.panel, { onBack: () => this.close({ silent: true }), initial });
     this.isOpen = true;
+    this.animateIn();
+    FocusManager.pushScope(this.panel, { onBack: () => this.close({ silent: true }), initial });
     return this;
   }
 

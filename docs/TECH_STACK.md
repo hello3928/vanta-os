@@ -41,7 +41,17 @@ The interface follows the Steam Big Picture / Steam Deck model:
 - A main menu on the left (Guide/View button)
 - A quick access menu on the right (Start button) with notifications, quick settings and performance
 
-The look is deliberately plain: neutral blue-black surfaces, one UI typeface (Figtree), small corner radii, and a white focus outline. The game art is meant to carry the screen.
+The look is deliberately plain: neutral blue-black surfaces, one UI typeface (Albert Sans), Material Symbols icons, small corner radii, and a white focus outline. The game art carries the screen. Art comes from Steam's library assets and, for emulated games, SteamGridDB/libretro-thumbnails.
+
+Motion is driven by one spring, so everything moves with the same physical feel:
+- Focused tiles lift with a light sweep across the art.
+- Shelves glide to the selection.
+- A highlight slides between rows in menus.
+- The hero art crossfades, settles and drifts slowly.
+- The hero and logo morph between screens.
+- Launching a game pushes into its art before it takes over the screen.
+
+In QML these map to `SpringAnimation` and shared-element transitions.
 
 The mockup in `mockup/` is the reference for the QML build. Its components map 1:1 to QML components (see [COMPONENTS.md](COMPONENTS.md)), and `mockup/styles/tokens.css` becomes the `Theme.qml` singleton.
 

@@ -7,6 +7,7 @@ import { Sound } from '../core/Sound.js';
 import { Haptics } from '../core/Haptics.js';
 import { icon } from '../core/icons.js';
 import { esc } from '../core/util.js';
+import { Motion } from '../core/motion.js';
 
 export class VChoice extends VComponent {
   constructor({ label, detail = '', icon: iconName, options = [], value, bind, onChange } = {}) {
@@ -46,6 +47,7 @@ export class VChoice extends VComponent {
     else this.render(next);
     Sound.play('slider', { t: this.options.indexOf(next) / Math.max(1, this.options.length - 1) });
     Haptics.play('slider');
+    Motion.play(this.valueEl, [{ opacity: 0, transform: `translateX(${delta * 12}px)` }, { opacity: 1, transform: 'none' }]);
     this.emit('change', next);
   }
 

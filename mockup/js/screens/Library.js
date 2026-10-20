@@ -5,6 +5,7 @@ import { VTopBar } from '../components/VTopBar.js';
 import { VTabs } from '../components/VTabs.js';
 import { VHintBar } from '../components/VHintBar.js';
 import { FocusManager } from '../core/FocusManager.js';
+import { Motion } from '../core/motion.js';
 import { esc, h } from '../core/util.js';
 import { GAMES, SYSTEMS } from '../data.js';
 import { gameCapsule } from './shared.js';
@@ -44,7 +45,8 @@ export class LibraryScreen {
   }
 
   enter() {
-    const first = this.gridHost.querySelector('.v-focusable')?.__v;
+    const last = [...this.gridHost.querySelectorAll('.v-tile')].find((t) => t.__v.game === this.app.lastGame);
+    const first = last?.__v || this.gridHost.querySelector('.v-focusable')?.__v;
     FocusManager.focus(first || this.tabs.activeTab, { silent: true });
   }
 
@@ -87,6 +89,7 @@ export class LibraryScreen {
     const grid = h('div', 'v-grid');
     list.forEach((g) => grid.append(gameCapsule(this.app, g).el));
     this.gridHost.replaceChildren(grid);
+    Motion.stagger(grid.children, { from: 'translateY(14px) scale(0.97)', step: 16, max: 24 });
   }
 
   onTab(d) {

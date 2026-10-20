@@ -6,7 +6,7 @@
 <title>Vanta OS Logos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;600;700;800&family=Michroma&family=Outfit:wght@700&family=Saira:ital,wght@1,800&display=swap">
 <style>
   /* Layout: one sheet per direction. A large mark on black, then the same mark tested at
      real sizes, on light, as an app tile, and in the top bar it would live in. */
@@ -21,7 +21,7 @@
     --paper: #f2f4f7;
     --ink: #0d1117;
     --accent: #2f80ed;
-    --font: "Figtree", "Segoe UI", system-ui, sans-serif;
+    --font: "Albert Sans", "Segoe UI", system-ui, sans-serif;
   }
   * { box-sizing: border-box; }
   body {
@@ -38,7 +38,7 @@
   a { color: var(--fg); font-weight: 600; }
   .sheet { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); border-radius: 10px; overflow: hidden; background: var(--sheet); }
   .stage { display: grid; place-items: center; min-height: 300px; padding: 40px; background: #000; }
-  .stage svg { width: min(160px, 40vw); height: auto; }
+  .stage svg { width: min(420px, 70vw); height: auto; }
   .info { display: flex; flex-direction: column; gap: 18px; padding: 28px; min-width: 0; }
   .label { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-3); }
   h2 { margin: 2px 0 0; font-size: 26px; font-weight: 800; }
@@ -62,29 +62,29 @@
   <header>
     <div>
       <h1>Vanta OS logo directions</h1>
-      <p>Three solid, single-color marks with one shared wordmark. Each is shown large, at real UI sizes, on light, as an app tile and in the top bar. Pick one in the mockup under Settings → Appearance → Logo.</p>
+      <p>Consoles brand themselves with a wordmark, so each direction is a wordmark plus a one-letter monogram for small spaces. Each is shown large, on light, as an app icon and in the menu. Pick one in the mockup under Settings → Appearance → Logo.</p>
     </div>
     <a href="index.html">Back to the mockup</a>
   </header>
   <div id="sheets" style="display:flex;flex-direction:column;gap:24px"></div>
 </div>
 <script type="module">
-  import { DIRECTIONS, mark, lockup } from './js/brand.js';
+  import { DIRECTIONS, mark, wordmark } from './js/brand.js';
+  await document.fonts.ready;
   const host = document.getElementById('sheets');
   Object.entries(DIRECTIONS).forEach(([id, d], i) => {
     const s = document.createElement('section');
     s.className = 'sheet';
     s.innerHTML = `
-      <div class="stage">${mark(id, { size: 160, color: '#ffffff' })}</div>
+      <div class="stage">${wordmark(id, { height: 64, color: '#ffffff' })}</div>
       <div class="info">
-        <div><span class="label">Direction ${'ABC'[i]}</span><h2>${d.name}</h2></div>
+        <div><span class="label">Direction ${'ABC'[i]} · ${d.font}</span><h2>${d.name}</h2></div>
         <p class="summary">${d.summary}</p>
-        <div class="lock">${lockup(id, { height: 40, color: '#ffffff' })}</div>
         <div class="tests">
-          <div class="test">${mark(id, { size: 48, color: '#fff' })}${mark(id, { size: 24, color: '#fff' })}${mark(id, { size: 16, color: '#fff' })}</div>
-          <div class="test light">${mark(id, { size: 48, color: '#0d1117' })}${mark(id, { size: 24, color: '#0d1117' })}</div>
-          <div class="test accent">${mark(id, { size: 56, color: '#ffffff', tile: '#0d1117' })}</div>
-          <div class="test bar">${mark(id, { size: 24, color: '#fff' })}<span>Home</span></div>
+          <div class="test light">${wordmark(id, { height: 28, color: '#0d1117' })}</div>
+          <div class="test accent">${mark(id, { size: 56, color: '#ffffff', tile: '#0d1117' })}${mark(id, { size: 40, color: '#ffffff', tile: '#2f80ed' })}</div>
+          <div class="test">${mark(id, { size: 32, color: '#fff' })}${mark(id, { size: 20, color: '#fff' })}</div>
+          <div class="test bar">${wordmark(id, { height: 16, color: '#fff' })}</div>
         </div>
       </div>`;
     host.append(s);

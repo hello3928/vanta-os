@@ -7,6 +7,24 @@
   height: 1.25em;
   flex: none;
 }
+/* Material Symbols (filled). Sized in em so icons follow the text they sit next to. */
+.ms {
+  font-family: "Material Symbols Rounded";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.35em;
+  line-height: 1;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  letter-spacing: normal;
+  text-transform: none;
+  direction: ltr;
+  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+  -webkit-font-smoothing: antialiased;
+}
 
 .v-focusable {
   outline: none;
@@ -37,12 +55,11 @@
   transition:
     background var(--d-fast),
     color var(--d-fast),
-    box-shadow var(--d-fast),
-    transform var(--d-fast) var(--ease);
+    box-shadow var(--d-med),
+    transform var(--d-spring) var(--spring);
 }
-.v-button .v-icon {
-  width: 1.15em;
-  height: 1.15em;
+.v-button .ms {
+  font-size: 1.3em;
 }
 .v-button--primary {
   background: var(--accent);
@@ -85,8 +102,10 @@
   background: var(--bad);
   color: var(--fg);
 }
+.v-button.is-pressed,
 .v-button:active {
-  transform: scale(0.98);
+  transform: scale(0.94);
+  transition-duration: 60ms;
 }
 
 /* ---------- VBadge ---------- */
@@ -140,9 +159,10 @@
   overflow: hidden;
   background: var(--surface);
   box-shadow: 0 4px 14px rgb(0 0 0 / 0.35);
+  transform: translateZ(0);
   transition:
-    transform var(--d-med) var(--ease),
-    box-shadow var(--d-med) var(--ease);
+    transform var(--d-spring) var(--spring),
+    box-shadow var(--d-spring) var(--ease-out);
 }
 .v-tile__art img {
   position: absolute;
@@ -151,6 +171,33 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+/* Retro box art: the box is shown whole, over a blurred, darkened copy that fills the tile */
+.v-tile__art--box .v-tile__blur {
+  filter: blur(14px) brightness(0.55) saturate(1.2);
+  transform: scale(1.25);
+}
+.v-tile__art--box .v-tile__img {
+  object-fit: contain;
+  padding: 10% 7%;
+  filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.6));
+}
+/* Light sweep across the art when a tile gains focus */
+.v-tile__art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgb(255 255 255 / 0.22) 47%, rgb(255 255 255 / 0.05) 55%, transparent 70%);
+  transform: translateX(-130%);
+  pointer-events: none;
+}
+.v-tile.is-focused .v-tile__art::after {
+  animation: v-sheen 950ms 60ms var(--ease-out) both;
+}
+@keyframes v-sheen {
+  to {
+    transform: translateX(130%);
+  }
 }
 .v-tile--landscape {
   width: calc(var(--capsule) * 1.95);
@@ -215,10 +262,29 @@
   text-overflow: ellipsis;
 }
 .v-tile.is-focused .v-tile__art {
-  transform: scale(1.05);
+  transform: scale(1.08);
   box-shadow:
     0 0 0 2px var(--fg),
-    0 14px 34px rgb(0 0 0 / 0.6);
+    0 18px 40px rgb(0 0 0 / 0.65);
+}
+.v-tile.is-pressed .v-tile__art {
+  transform: scale(1.01);
+  transition-duration: 70ms;
+}
+.v-tile__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--fg-3);
+}
+.v-tile__icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 3px;
+  object-fit: cover;
+  object-position: center 30%;
 }
 .v-tile.is-focused .v-tile__title {
   color: var(--fg);
@@ -387,6 +453,8 @@
 
 /* ---------- Control rows: VToggle, VSlider, VChoice, VListItem ---------- */
 .v-control {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   grid-template-areas:
@@ -462,7 +530,10 @@
   height: 1.1rem;
   border-radius: 50%;
   background: var(--fg);
-  transition: transform var(--d-med) var(--ease);
+  transition: transform var(--d-spring) var(--spring);
+}
+.v-toggle.is-pressed .v-switch::after {
+  width: 1.35rem;
 }
 .v-toggle.is-on .v-switch {
   background: var(--accent);
@@ -506,7 +577,12 @@
   background: var(--fg);
   transform: translate(-50%, -50%);
   box-shadow: 0 1px 4px rgb(0 0 0 / 0.5);
-  transition: transform var(--d-fast) var(--ease);
+  transition:
+    transform var(--d-spring) var(--spring),
+    left var(--d-spring) var(--spring);
+}
+.v-slider__fill {
+  transition: width var(--d-spring) var(--spring);
 }
 .v-slider.is-focused .v-slider__thumb {
   transform: translate(-50%, -50%) scale(1.2);
@@ -578,7 +654,7 @@
   background: var(--bg-2);
   box-shadow: -18px 0 48px rgb(0 0 0 / 0.5);
   transform: translateX(102%);
-  transition: transform var(--d-med) var(--ease);
+  transition: transform var(--d-spring) var(--spring-soft);
 }
 .v-panel--left {
   right: auto;
@@ -622,7 +698,10 @@
   flex-direction: column;
   gap: 2px;
   padding: var(--s-1) var(--s-3) var(--s-6);
-  scrollbar-width: thin;
+  scrollbar-width: none;
+}
+.v-panel__body::-webkit-scrollbar {
+  display: none;
 }
 .v-panel__section {
   margin: var(--s-5) var(--s-3) var(--s-2);
@@ -748,9 +827,9 @@
   cursor: pointer;
   font: 700 var(--t-lg) / 1 var(--font-ui);
 }
-.v-topbar__menu svg {
-  width: 1.5rem;
-  height: 1.5rem;
+.v-topbar__menu .ms {
+  font-size: 1.4rem;
+  color: var(--fg-2);
 }
 .v-topbar__spacer {
   flex: 1;
@@ -764,9 +843,11 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-.v-topbar__status .v-icon {
-  width: 1.15rem;
-  height: 1.15rem;
+.v-topbar__status .ms {
+  font-size: 1.25rem;
+}
+.v-battery__icon {
+  transform: rotate(90deg);
 }
 .v-topbar__qam {
   appearance: none;
@@ -787,31 +868,6 @@
   align-items: center;
   gap: 0.35em;
 }
-.v-battery__cell {
-  position: relative;
-  width: 1.55rem;
-  height: 0.8rem;
-  border: 1.5px solid currentColor;
-  border-radius: 3px;
-}
-.v-battery__cell::after {
-  content: "";
-  position: absolute;
-  right: -4px;
-  top: 25%;
-  width: 2px;
-  height: 50%;
-  border-radius: 1px;
-  background: currentColor;
-}
-.v-battery__level {
-  position: absolute;
-  inset: 1.5px;
-  right: auto;
-  border-radius: 1px;
-  background: var(--fg);
-}
-
 /* ---------- VHintBar ---------- */
 .v-hintbar {
   position: absolute;
@@ -849,6 +905,7 @@
 
 @media (max-width: 640px) {
   .v-topbar__status .v-wifi,
+  .v-topbar__bell,
   .v-battery__pct,
   .v-tabs__bumper {
     display: none;
@@ -856,4 +913,31 @@
   .v-hintbar {
     display: none;
   }
+}
+
+/* ---------- Sliding highlight (lists with [data-highlight]) ---------- */
+[data-highlight] {
+  position: relative;
+}
+.v-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  border-radius: var(--r-sm);
+  background: var(--surface-3);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--d-spring) var(--spring),
+    width var(--d-spring) var(--spring),
+    height var(--d-spring) var(--spring),
+    opacity var(--d-med);
+}
+.v-highlight.is-active {
+  opacity: 1;
+}
+[data-highlight] > .v-control.is-focused,
+[data-highlight] .v-control.is-focused {
+  background: transparent;
 }

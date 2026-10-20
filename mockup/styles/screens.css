@@ -50,21 +50,23 @@
   place-items: center;
   background: #000000;
 }
-.boot__center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--s-5);
-}
-.boot__mark svg {
-  width: clamp(72px, 13vmin, 120px);
-  height: auto;
-  animation: boot-in 900ms var(--ease) both;
+.boot__word {
+  position: relative;
+  overflow: hidden;
+  padding: 0.5rem 1rem;
 }
 .boot__word svg {
-  height: clamp(16px, 2.6vmin, 26px);
+  display: block;
+  height: clamp(28px, 5vmin, 44px);
   width: auto;
-  animation: boot-in 900ms 250ms var(--ease) both;
+}
+.boot__sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 35%, rgb(0 0 0 / 0) 40%, rgb(255 255 255 / 0.55) 50%, transparent 60%);
+  mix-blend-mode: overlay;
+  transform: translateX(-120%);
+  pointer-events: none;
 }
 .boot__prompt {
   position: absolute;
@@ -76,40 +78,18 @@
   background: transparent;
   color: var(--fg-3);
   font: 600 var(--t-sm) / 1 var(--font-ui);
+  letter-spacing: 0.02em;
   padding: var(--s-3) var(--s-4);
   border-radius: var(--r-sm);
   cursor: pointer;
   white-space: nowrap;
-  transition: opacity var(--d-med);
 }
 .boot__prompt:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: default;
 }
 .boot__prompt:focus-visible {
   outline: 2px solid var(--fg-2);
-}
-.screen--boot.is-starting .boot__prompt {
-  opacity: 0;
-}
-.screen--boot.is-starting .boot__center {
-  animation: boot-out 1.4s var(--ease) both;
-}
-@keyframes boot-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-}
-@keyframes boot-out {
-  50% {
-    opacity: 1;
-    transform: scale(1.02);
-  }
-  to {
-    opacity: 0;
-    transform: scale(1.04);
-  }
 }
 
 /* ---------- Home ---------- */
@@ -127,12 +107,40 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 35%;
+  object-position: center 30%;
   opacity: 0;
-  transition: opacity 500ms var(--ease);
+  transform: scale(1.06);
+  transition:
+    opacity 650ms var(--ease-out),
+    transform 1600ms var(--ease-out);
 }
 .home__bg.is-on {
   opacity: 1;
+  transform: scale(1);
+  animation: home-drift 26s 1.6s ease-in-out infinite alternate;
+}
+@keyframes home-drift {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.06) translate(-1.2%, -0.8%);
+  }
+}
+.is-pixel {
+  image-rendering: pixelated;
+}
+.screen--home.is-booting .home__hero {
+  transform: scale(1.08);
+  opacity: 0;
+}
+.home__hero {
+  transition:
+    transform 1400ms var(--ease-out),
+    opacity 900ms var(--ease-out);
+}
+.home__live {
+  color: var(--accent-hi);
 }
 .home__shade {
   position: absolute;
@@ -157,11 +165,11 @@
 }
 .home__logo {
   display: block;
-  width: auto;
-  max-width: min(26rem, 80%);
-  max-height: 7.5rem;
+  width: min(24rem, 75%);
+  height: 7rem;
   object-fit: contain;
   object-position: left bottom;
+  filter: drop-shadow(0 4px 18px rgb(0 0 0 / 0.5));
 }
 .home__meta {
   display: flex;
@@ -212,10 +220,22 @@
   position: absolute;
   left: var(--gutter-l);
   bottom: var(--s-6);
-  max-width: min(28rem, 70%);
-  max-height: 8rem;
+  width: min(26rem, 65%);
+  height: 8rem;
   object-fit: contain;
   object-position: left bottom;
+  filter: drop-shadow(0 4px 18px rgb(0 0 0 / 0.5));
+}
+.game__bar,
+.game__body {
+  transition:
+    opacity 500ms 120ms var(--ease-out),
+    transform 650ms 120ms var(--ease-out);
+}
+.screen--game.is-entering .game__bar,
+.screen--game.is-entering .game__body {
+  opacity: 0;
+  transform: translateY(18px);
 }
 .screen--game .v-topbar {
   position: relative;
@@ -456,28 +476,32 @@ code {
   }
 }
 
-/* ---------- Launch ---------- */
-.launch {
+/* ---------- Launch, in game, sleep ---------- */
+.launch,
+.ingame,
+.sleep {
   position: absolute;
   inset: 0;
   z-index: 30;
+  background: #000000;
+}
+.launch {
   display: grid;
   place-items: center;
-  background: #000000;
-  opacity: 0;
-  transition: opacity 300ms var(--ease);
+  overflow: hidden;
 }
-.launch.is-in {
-  opacity: 1;
-}
-.launch__bg {
+.launch__bg,
+.ingame__art {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.35;
-  animation: launch-zoom 3s var(--ease) both;
+}
+.launch__veil {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 60% at 50% 50%, rgb(0 0 0 / 0.2), rgb(0 0 0 / 0.75));
 }
 .launch__center {
   position: relative;
@@ -488,9 +512,10 @@ code {
   padding-inline: var(--gutter-l) var(--gutter-r);
 }
 .launch__logo {
-  max-width: min(30rem, 80vw);
-  max-height: 9rem;
+  width: min(30rem, 80vw);
+  height: 9rem;
   object-fit: contain;
+  filter: drop-shadow(0 6px 24px rgb(0 0 0 / 0.6));
 }
 .launch__status {
   display: flex;
@@ -504,7 +529,7 @@ code {
   width: 1rem;
   height: 1rem;
   border-radius: 50%;
-  border: 2px solid var(--track);
+  border: 2px solid rgb(255 255 255 / 0.2);
   border-top-color: var(--fg);
   animation: spin 800ms linear infinite;
 }
@@ -513,8 +538,79 @@ code {
     transform: rotate(360deg);
   }
 }
-@keyframes launch-zoom {
-  from {
-    transform: scale(1.08);
-  }
+.ingame {
+  z-index: 15;
+}
+.ingame__hint {
+  position: absolute;
+  left: var(--gutter-l);
+  bottom: calc(var(--s-5) + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0.5rem 0.8rem;
+  border-radius: var(--r-md);
+  background: rgb(13 17 23 / 0.75);
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+.sleep {
+  z-index: 50;
+  cursor: pointer;
+}
+
+/* ---------- Main menu: brand and now playing ---------- */
+.menu__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+.menu__brand svg {
+  display: block;
+  height: 1.1rem;
+  width: auto;
+}
+.menu__now {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: 0 var(--s-2) var(--s-2);
+}
+.menu__now-art {
+  width: 100%;
+  aspect-ratio: 460 / 215;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+}
+.menu__now-text span {
+  display: block;
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent-hi);
+}
+.menu__rule {
+  height: 1px;
+  margin: var(--s-2) var(--s-3);
+  background: var(--line);
+}
+
+/* ---------- Screen-to-screen morphs (View Transitions) ---------- */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 320ms;
+}
+::view-transition-group(hero),
+::view-transition-group(game-logo) {
+  animation-duration: 560ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+::view-transition-image-pair(hero) {
+  isolation: isolate;
+}
+::view-transition-old(hero),
+::view-transition-new(hero) {
+  height: 100%;
+  object-fit: cover;
 }

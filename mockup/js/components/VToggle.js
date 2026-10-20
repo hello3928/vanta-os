@@ -36,6 +36,7 @@ export class VToggle extends VComponent {
     else this.render(next);
     Sound.play(next ? 'toggleOn' : 'toggleOff');
     Haptics.play('toggle');
+    this.press();
     this.emit('change', next);
   }
 }

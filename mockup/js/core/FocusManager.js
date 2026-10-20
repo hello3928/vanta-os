@@ -4,7 +4,7 @@
 // - Each [data-focus-group] (a row, a list) remembers its last focused item, so going back
 //   into a row returns you to where you were, like on a console.
 
-import { reducedMotion } from './util.js';
+import { Motion, Highlight } from './motion.js';
 
 function gap(a1, a2, b1, b2) {
   if (b2 < a1) return a1 - b2;
@@ -70,18 +70,41 @@ export const FocusManager = {
       /* ignore */
     }
     this.reveal(comp.el);
+    Highlight.move(comp.el);
     const group = comp.el.closest('[data-focus-group]');
     if (group && this.scope) this.scope.memory.set(group, comp);
   },
 
+  // Keeps the focused element in view with eased scrolling: shelves glide sideways,
+  // screens and drawers glide vertically.
   reveal(el) {
-    const behavior = reducedMotion() ? 'auto' : 'smooth';
-    el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior });
-    const track = el.closest('[data-align="start"]');
+    const track = el.closest('.v-row__track');
     if (track) {
-      const pad = parseFloat(getComputedStyle(track).paddingLeft) || 0;
-      track.scrollTo({ left: Math.max(0, el.offsetLeft - pad), behavior });
+      const cs = getComputedStyle(track);
+      const padL = parseFloat(cs.paddingLeft) || 0;
+      const padR = parseFloat(cs.paddingRight) || 0;
+      const start = el.offsetLeft - padL;
+      const end = el.offsetLeft + el.offsetWidth + padR - track.clientWidth;
+      if (track.dataset.align === 'start') Motion.scrollTo(track, { left: Math.max(0, start) });
+      else if (start < track.scrollLeft) Motion.scrollTo(track, { left: Math.max(0, start) });
+      else if (end > track.scrollLeft) Motion.scrollTo(track, { left: end });
     }
+    const sc = el.closest('.screen__scroll, .v-panel__body');
+    if (!sc) return;
+    if (el.closest('[data-scroll-top]')) {
+      Motion.scrollTo(sc, { top: 0 });
+      return;
+    }
+    const block = el.closest('.v-row') || el;
+    const sr = sc.getBoundingClientRect();
+    const br = block.getBoundingClientRect();
+    const er = el.getBoundingClientRect();
+    const topGap = sc.classList.contains('screen__scroll') ? sr.height * 0.12 : 24;
+    const bottomGap = sc.classList.contains('screen__scroll') ? 96 : 24;
+    let target = sc.scrollTop;
+    if (br.top < sr.top + topGap) target += br.top - sr.top - topGap;
+    else if (er.bottom > sr.bottom - bottomGap) target += er.bottom - (sr.bottom - bottomGap);
+    Motion.scrollTo(sc, { top: Math.max(0, target) });
   },
 
   move(dir) {

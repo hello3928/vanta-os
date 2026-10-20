@@ -11,7 +11,7 @@ A console-style gaming OS for x86 PCs and handhelds. It boots straight into a co
 | [docs/TECH_STACK.md](docs/TECH_STACK.md) | Recommended stack, gaming tweaks, interface direction, roadmap |
 | [docs/COMPONENTS.md](docs/COMPONENTS.md) | The reusable UI components and controls |
 | [mockup/](mockup/) | Clickable UI mockup (plain HTML/CSS/JS modules, no build step) |
-| [brand/](brand/) | Logo directions as SVG, generated from `mockup/js/brand.js` |
+| [brand/](brand/) | Logo directions (wordmarks) as SVG, generated from `mockup/js/brand.js` |
 | [tools/export-logos.mjs](tools/export-logos.mjs) | Regenerates `brand/` |
 
 ## Run the mockup
@@ -30,4 +30,6 @@ Then open http://localhost:4173. Use a controller, the keyboard (arrows, Enter, 
 node tools/export-logos.mjs
 ```
 
-All game titles and art in the mockup are made up and generated in code.
+## Game art
+
+The mockup uses real games so the screens look like they will on a device. Their art loads live from Steam's CDN, and retro box art from [libretro-thumbnails](https://github.com/libretro-thumbnails) (what RetroArch uses). No images are stored in this repo. Without network access, or in the published preview (which blocks outside images), each game falls back to generated stand-in art. Play times and achievements are sample values.

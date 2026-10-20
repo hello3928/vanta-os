@@ -8,10 +8,10 @@ export function openPowerMenu(app) {
     title: 'Power',
     stack: true,
     actions: [
-      { label: 'Sleep', icon: 'moon', onActivate: () => VToast.show('Mockup: the device would sleep now', { icon: 'moon' }) },
-      { label: 'Restart', icon: 'restart', onActivate: () => app.go('boot', {}, { replace: true }) },
-      { label: 'Switch to desktop', icon: 'desktop', onActivate: () => VToast.show('Mockup: this would open the KDE Plasma desktop session', { icon: 'desktop' }) },
-      { label: 'Shut down', icon: 'power', onActivate: () => app.go('boot', {}, { replace: true }) },
+      { label: 'Sleep', icon: 'moon', onActivate: () => app.sleep() },
+      { label: 'Restart', icon: 'restart', onActivate: () => app.restart() },
+      { label: 'Switch to desktop', icon: 'desktop', onActivate: () => VToast.show('Desktop mode is not available in this preview', { icon: 'desktop' }) },
+      { label: 'Shut down', icon: 'power', onActivate: () => app.restart() },
       { label: 'Cancel', variant: 'ghost' },
     ],
   }).open();

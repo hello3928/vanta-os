@@ -2,11 +2,11 @@
 // write here, so a change in one place shows up everywhere.
 // Saved in this browser only (a viewer convenience); the mockup works fine without it.
 
-const KEY = 'vanta.mockup.settings.v2';
+const KEY = 'vanta.mockup.settings.v3';
 
 const DEFAULTS = {
   accent: 'ion',
-  brand: 'notch',
+  brand: 'extended',
   brightness: 85,
   volume: 70,
   sfx: true,

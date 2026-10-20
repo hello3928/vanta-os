@@ -11,6 +11,7 @@ import { VDialog } from '../components/VDialog.js';
 import { VToast } from '../components/VToast.js';
 import { VHintBar } from '../components/VHintBar.js';
 import { FocusManager } from '../core/FocusManager.js';
+import { Motion } from '../core/motion.js';
 import { Settings } from '../core/Settings.js';
 import { Sound } from '../core/Sound.js';
 import { Haptics } from '../core/Haptics.js';
@@ -75,7 +76,7 @@ const SECTIONS = [
         new VChoice({ label: 'Haptics strength', detail: 'Rumble in games and in menus', icon: 'vibrate', options: ['Off', 'Low', 'High'], bind: 'haptics' }),
         new VToggle({ label: 'Haptics in menus', detail: 'A light tick each time the selection moves', icon: 'vibrate', bind: 'menuHaptics' }),
         new VListItem({ label: 'Test haptics', detail: 'Left motor, right motor, then both', icon: 'vibrate', chevron: true, onActivate: () => Haptics.play('test', { force: true }) }),
-        new VListItem({ label: 'Button layout', detail: 'Remap buttons and back paddles', icon: 'gamepad', chevron: true, onActivate: () => VToast.show('Mockup: button remapping comes in a later milestone', { icon: 'info' }) }),
+        new VListItem({ label: 'Button layout', detail: 'Remap buttons and back paddles', icon: 'gamepad', chevron: true, onActivate: () => VToast.show('Not available in this preview', { icon: 'info' }) }),
       ];
     },
   },
@@ -145,7 +146,7 @@ const SECTIONS = [
             confirmLabel: 'Roll back and restart',
             danger: true,
           });
-          if (ok) VToast.show('Mockup: the device would restart into 0.0.9', { icon: 'restart' });
+          if (ok) VToast.show('Rollback scheduled. Restart to finish.', { icon: 'restart' });
         },
       }),
     ],
@@ -155,10 +156,9 @@ const SECTIONS = [
     label: 'About',
     icon: 'info',
     build: () => [
-      new VListItem({ label: 'Device', detail: 'Sample handheld · AMD Ryzen Z1 Extreme · 16 GB', icon: 'chip' }),
+      new VListItem({ label: 'Device', detail: 'ROG Ally X · AMD Ryzen Z1 Extreme · 24 GB', icon: 'chip' }),
       new VListItem({ label: 'Storage', detail: '412 GB free of 1 TB', icon: 'storage' }),
       new VListItem({ label: 'Software', detail: 'Fedora Atomic (bootc) · Mesa RADV · gamescope · Proton', icon: 'info' }),
-      note('Sample values. The real OS reads these from the system.'),
     ],
   },
 ];
@@ -171,8 +171,10 @@ export class SettingsScreen {
     const layout = h('div', 'settings');
     const nav = h('nav', 'settings__nav');
     nav.dataset.focusGroup = '';
+    nav.dataset.highlight = '';
     this.pane = h('div', 'settings__pane');
     this.pane.dataset.focusGroup = '';
+    this.pane.dataset.highlight = '';
     this.items = SECTIONS.map((s) => {
       const item = new VListItem({ label: s.label, icon: s.icon });
       item.on('focus', () => this.show(s));
@@ -206,6 +208,8 @@ export class SettingsScreen {
     this.section = section;
     this.items.forEach((it, i) => it.setSelected(SECTIONS[i] === section));
     this.pane.replaceChildren(h('h2', 'settings__pane-title', esc(section.label)), ...section.build().map((c) => c.el || c));
+    if (this.built) Motion.stagger(this.pane.children, { from: 'translateY(6px)', step: 14, duration: 260 });
+    this.built = true;
   }
 
   onBack() {

@@ -10,30 +10,59 @@ import { VToggle } from '../components/VToggle.js';
 import { VChoice } from '../components/VChoice.js';
 import { VToast } from '../components/VToast.js';
 import { FocusManager } from '../core/FocusManager.js';
-import { h } from '../core/util.js';
+import { esc, h } from '../core/util.js';
+import { Settings } from '../core/Settings.js';
+import { wordmark } from '../brand.js';
+import { artImg } from '../art/index.js';
 
 export function openMainMenu(app) {
-  const profile = h('div', 'menu__profile', '<span class="menu__avatar">P1</span><span><strong>Player One</strong><span>Online</span></span>');
-  const panel = new VPanel({ side: 'left', header: profile });
+  const header = h('div', 'menu__header');
+  const brand = h('div', 'menu__brand', wordmark(Settings.get('brand'), { height: 18, color: '#ffffff' }));
+  const profile = h('div', 'menu__profile', '<span class="menu__avatar">H</span><span><strong>hello3928</strong><span>Online</span></span>');
+  header.append(brand, profile);
+  const panel = new VPanel({ side: 'left', header });
   const current = app.screen?.name;
-  const items = [
+  const items = [];
+
+  if (app.running) {
+    const g = app.running;
+    const now = h('div', 'menu__now');
+    now.append(artImg(g, 'header', 'menu__now-art'), h('div', 'menu__now-text', `<span>Now playing</span><strong>${esc(g.title)}</strong>`));
+    panel.addItems(now);
+    const resume = new VListItem({ label: 'Resume game', icon: 'resume' });
+    resume.on('activate', () => {
+      panel.close({ silent: true });
+      app.resume();
+    });
+    const exit = new VListItem({ label: 'Exit game', icon: 'exit' });
+    exit.on('activate', () => {
+      panel.close({ silent: true });
+      app.exitGame();
+    });
+    items.push(resume, exit);
+    panel.addItems(resume, exit, h('div', 'menu__rule'));
+  }
+
+  [
     ['home', 'Home', 'home', () => app.go('home')],
     ['library', 'Library', 'library', () => app.go('library')],
     ['emu', 'Emulation', 'disc', () => app.go('library', { filter: 'emu' })],
     ['downloads', 'Downloads', 'download', () => VToast.show('No downloads in progress', { icon: 'download' })],
     ['settings', 'Settings', 'sliders', () => app.go('settings')],
     ['power', 'Power', 'power', () => app.openPower()],
-  ].map(([id, label, ic, go]) => {
+  ].forEach(([id, label, ic, go]) => {
     const item = new VListItem({ label, icon: ic });
     item.el.classList.add('menu__item');
-    if (id === current) item.setSelected(true);
+    if (id === current && !app.inGame) item.setSelected(true);
     item.on('activate', () => {
       panel.close({ silent: true });
+      if (app.inGame && id !== 'power' && id !== 'downloads') app.leaveGameView({ refresh: false });
       go();
     });
-    return item;
+    items.push(item);
+    panel.addItems(item);
   });
-  panel.addItems(items).open({ initial: items.find((i) => i.el.classList.contains('is-selected')) || items[0] });
+  panel.open({ initial: items.find((i) => i.el.classList.contains('is-selected')) || items[0] });
   return panel;
 }
 

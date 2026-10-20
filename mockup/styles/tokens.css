@@ -34,7 +34,7 @@
   --bad: #ff5f5f;
 
   /* Type */
-  --font-ui: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-ui: "Albert Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
   --t-xs: 0.75rem;
   --t-sm: 0.875rem;
   --t-md: 1rem;
@@ -61,11 +61,16 @@
   --r-md: 6px;
   --r-lg: 10px;
 
-  /* Motion */
+  /* Motion. --spring is replaced at startup with a real spring curve (js/core/motion.js);
+     the cubic-bezier here is the fallback for browsers without linear() easing. */
   --ease: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --spring: cubic-bezier(0.3, 1.35, 0.5, 1);
+  --spring-soft: cubic-bezier(0.25, 1.1, 0.4, 1);
   --d-fast: 110ms;
-  --d-med: 200ms;
-  --d-slow: 450ms;
+  --d-med: 220ms;
+  --d-spring: 420ms;
+  --d-slow: 500ms;
 
   /* Capsules (portrait game art, 2:3) */
   --capsule: clamp(6.5rem, 10.5vw, 9.5rem);
@@ -117,6 +122,7 @@ body {
   :root {
     --d-fast: 1ms;
     --d-med: 1ms;
+    --d-spring: 1ms;
     --d-slow: 1ms;
   }
 }

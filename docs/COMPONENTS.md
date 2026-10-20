@@ -15,7 +15,7 @@ Every screen in the mockup is built from these components. Each one lives in `mo
 | Component | What it is | Key options | Notes |
 |---|---|---|---|
 | `VButton` | Button | `label`, `icon`, `variant` (primary, secondary, ghost, danger), `size` (sm, md, lg), `block` | Focused buttons invert to white. Icon-only when there is no label. |
-| `VTile` | Art you can focus: game capsule, landscape tile, news card | `image`, `shape` (capsule, landscape, card), `badge`, `kicker`, `subtitle`, `glyph` | White outline and slight lift on focus. |
+| `VTile` | Art you can focus: game capsule, landscape tile, card | `game` + `kind`, `fit` (cover, box), `shape` (capsule, landscape, card), `badge`, `glyph` | Lifts on a spring with a light sweep across the art. Retro box art sits whole over a blurred copy. |
 | `VRow` | Titled horizontal shelf | `title`, `meta`, `align` (`start` pins focus to the left edge) | A focus group. |
 | `VTabs` | Tabs | `tabs`, `value`, `variant` (line, chips, rail), `bumpers` | LB/RB step through tabs. The rail variant is the quick access menu's icon column. |
 | `VToggle` | On/off row | `label`, `detail`, `icon`, `bind` | Separate on/off sounds. |
@@ -38,7 +38,8 @@ Every screen in the mockup is built from these components. Each one lives in `mo
 | `Sound` | UI sound set. Synthesized in the mockup, loads designed WAVs with `Sound.useFiles()` |
 | `Haptics` | Rumble patterns through the Gamepad API (SDL3 in the real OS) |
 | `Settings` | Small reactive store. Every control and live effect reads from it |
-| `art/` | Generates the placeholder game art and logos (mockup only) |
+| `motion` | One spring curve for all motion, eased scrolling, staggered entrances, and the sliding list highlight |
+| `art/` | Loads real game art (Steam, libretro-thumbnails) with generated stand-ins as the fallback |
 
 ## Controls in the mockup
 

@@ -104,7 +104,17 @@ export class VComponent {
     }
     if (this.activateSound) Sound.play(this.activateSound);
     if (this.activateHaptic) Haptics.play(this.activateHaptic);
+    this.press();
     this.emit('activate', meta);
+  }
+
+  // Quick squash so every press has physical feedback, from any input.
+  press() {
+    this.el.classList.remove('is-pressed');
+    void this.el.offsetWidth;
+    this.el.classList.add('is-pressed');
+    clearTimeout(this.pressTimer);
+    this.pressTimer = setTimeout(() => this.el.classList.remove('is-pressed'), 130);
   }
 
   options() {
