@@ -44,24 +44,34 @@ export const GameMusic = {
     this.select(g);
   },
 
-  select(g) {
+  select(g, { now = false } = {}) {
     if (g === this.game && this.video?.classList.contains('is-playing')) return;
     clearTimeout(this.timer);
     if (g !== this.game) this.stop();
     this.game = g;
-    if (!g?.trailer || !this.enabled) return;
-    this.timer = setTimeout(() => this.start(g), SETTLE_MS);
+    if (!g?.trailer || (!this.enabled && !now)) return;
+    this.timer = setTimeout(() => this.start(g), now ? 0 : SETTLE_MS);
+  },
+
+  get playing() {
+    return !!this.video?.classList.contains('is-playing');
   },
 
   start(g) {
-    if (g !== this.game || !this.enabled) return;
+    if (g !== this.game) return;
     const v = this.ensure();
     const Hls = window.Hls;
     this.teardown();
     if (Hls?.isSupported()) {
-      const hls = new Hls({ startPosition: START_AT, capLevelToPlayerSize: true, maxBufferLength: 20, startLevel: 1 });
+      // Always the best stream Steam offers (1080p), never scaled down to the hero's size.
+      const hls = new Hls({ startPosition: START_AT, capLevelToPlayerSize: false, maxBufferLength: 30, abrEwmaDefaultEstimate: 20e6 });
       hls.on(Hls.Events.ERROR, (_, data) => data.fatal && this.stop({ fade: false }));
-      hls.on(Hls.Events.MANIFEST_PARSED, () => this.play(g));
+      hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
+        const best = data.levels.reduce((bi, l, i, all) => (l.height > all[bi].height ? i : bi), 0);
+        hls.currentLevel = best;
+        hls.startLevel = best;
+        this.play(g);
+      });
       hls.loadSource(g.trailer);
       hls.attachMedia(v);
       this.hls = hls;
@@ -80,7 +90,7 @@ export const GameMusic = {
     v.play()
       .then(() => {
         if (g !== this.game) return;
-        v.classList.toggle('is-visible', this.showVideo);
+        v.classList.toggle('is-visible', this.showVideo || this.expanded);
         v.classList.add('is-playing');
         this.fadeTo(this.volume);
       })

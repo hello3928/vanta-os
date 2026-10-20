@@ -9,7 +9,8 @@ import { Haptics } from '../core/Haptics.js';
 import { Settings } from '../core/Settings.js';
 import { Motion } from '../core/motion.js';
 import { promptGlyph } from '../components/VHintBar.js';
-import { h } from '../core/util.js';
+import { h, esc } from '../core/util.js';
+import { t } from '../core/i18n.js';
 import { systemOf } from '../data.js';
 import { artImg } from '../art/index.js';
 
@@ -20,7 +21,7 @@ export function launchGame(layer, g, done) {
   const center = h('div', 'launch__center');
   const logo = artImg(g, 'logo', 'launch__logo');
   logo.alt = g.title;
-  const status = h('div', 'launch__status', `<span class="launch__spinner"></span><span>Launching</span>`);
+  const status = h('div', 'launch__status', `<span class="launch__spinner"></span><span>${esc(t('launching'))}</span>`);
   center.append(logo, status);
   el.append(bg, h('div', 'launch__veil'), center);
   layer.append(el);
@@ -33,7 +34,7 @@ export function launchGame(layer, g, done) {
   Motion.play(status, [{ opacity: 0 }, { opacity: 1 }], { delay: 700, duration: 400, fill: 'both' });
 
   const how = sys ? sys.emulator : 'Proton 10';
-  setTimeout(() => (status.lastChild.textContent = `Starting · ${how} · ${Settings.get('tdp')} W`), 1100);
+  setTimeout(() => (status.lastChild.textContent = `${t('starting')} · ${how} · ${Settings.get('tdp')} W`), 1100);
   setTimeout(() => {
     Motion.play(el, [{ opacity: 1 }, { opacity: 0 }], { duration: 380, easing: 'ease-in', fill: 'both' });
     setTimeout(() => {
@@ -48,7 +49,7 @@ export function gameView(layer, g) {
   const sys = systemOf(g);
   const el = h('div', 'ingame');
   el.append(artImg(g, 'hero', `ingame__art${sys ? ' is-pixel' : ''}`));
-  const hint = h('div', 'ingame__hint', `${promptGlyph('mainMenu')}<span>Vanta menu</span>`);
+  const hint = h('div', 'ingame__hint', `${promptGlyph('mainMenu')}<span>${esc(t('vantaMenu'))}</span>`);
   el.append(hint);
   layer.append(el);
   Motion.play(el, [{ opacity: 0 }, { opacity: 1 }], { duration: 600, easing: Motion.out, fill: 'both' });

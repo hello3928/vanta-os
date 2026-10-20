@@ -65,7 +65,7 @@ export const FocusManager = {
     this.current = comp;
     comp.onFocus({ silent });
     try {
-      comp.el.focus({ preventScroll: true });
+      if (!comp.el.contains(document.activeElement)) comp.el.focus({ preventScroll: true });
     } catch {
       /* ignore */
     }
@@ -187,3 +187,6 @@ export const FocusManager = {
     this.scope?.onBack?.();
   },
 };
+
+// Keep the sliding highlight on its row when the window size changes.
+window.addEventListener('resize', () => FocusManager.current && Highlight.move(FocusManager.current.el));

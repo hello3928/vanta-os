@@ -11,7 +11,8 @@ import { GameMusic } from './core/GameMusic.js';
 import { afterLayout, h, reducedMotion } from './core/util.js';
 import { VToast } from './components/VToast.js';
 import { VDialog } from './components/VDialog.js';
-import { BootScreen } from './screens/Boot.js';
+import { SetupScreen } from './screens/Setup.js';
+import { UsersScreen } from './screens/Users.js';
 import { HomeScreen } from './screens/Home.js';
 import { LibraryScreen } from './screens/Library.js';
 import { GameScreen } from './screens/Game.js';
@@ -20,9 +21,11 @@ import { openMainMenu, openQuickAccess } from './screens/Menus.js';
 import { openPowerMenu } from './screens/PowerMenu.js';
 import { launchGame, gameView } from './screens/Launch.js';
 import { GAMES } from './data.js';
+import { t, i18n } from './core/i18n.js';
+import { Profiles } from './core/Profiles.js';
 import { loadFonts, preload } from './art/index.js';
 
-const SCREENS = { boot: BootScreen, home: HomeScreen, library: LibraryScreen, game: GameScreen, settings: SettingsScreen };
+const SCREENS = { setup: SetupScreen, users: UsersScreen, home: HomeScreen, library: LibraryScreen, game: GameScreen, settings: SettingsScreen };
 
 Motion.init();
 const appEl = document.getElementById('app');
@@ -56,14 +59,13 @@ const App = {
     }
     const swap = () => {
       GameMusic.claimed = false;
-      const screen = new SCREENS[name](App, name === 'boot' ? { ready } : params);
+      const screen = new SCREENS[name](App, params);
       screen.name = name;
       screen.key = key;
       screen.el.classList.add('is-entering');
-      if (transition === 'boot') screen.el.classList.add('is-booting');
       stage.replaceChildren(screen.el);
       if (!GameMusic.claimed) GameMusic.release();
-      afterLayout(screen.el, () => screen.el.classList.remove('is-entering', 'is-booting'));
+      afterLayout(screen.el, () => screen.el.classList.remove('is-entering'));
       this.screen = screen;
       FocusManager.setRoot(screen.el, {
         onBack: () => {
@@ -73,7 +75,7 @@ const App = {
       screen.enter?.();
     };
     // Morph shared elements (hero art, logo) between screens where the browser supports it.
-    if (document.startViewTransition && !reducedMotion() && this.screen && name !== 'boot' && transition !== 'boot') {
+    if (document.startViewTransition && !reducedMotion() && this.screen && !['setup', 'users'].includes(name) && !['setup', 'users'].includes(this.screen.name)) {
       document.startViewTransition(swap);
     } else swap();
   },
@@ -102,14 +104,14 @@ const App = {
   },
 
   toggleMainMenu() {
-    if (this.screen?.name === 'boot' || this.busy) return;
+    if (this.locked() || this.busy) return;
     const top = Overlays.top();
     Overlays.closeAll();
     if (!top?.isMainMenu) openMainMenu(App).isMainMenu = true;
   },
 
   toggleQuickAccess() {
-    if (this.screen?.name === 'boot' || this.busy) return;
+    if (this.locked() || this.busy) return;
     const top = Overlays.top();
     Overlays.closeAll();
     if (!top?.isQuickAccess) openQuickAccess(App);
@@ -123,11 +125,11 @@ const App = {
   launch(g) {
     if (this.busy) return;
     if (!g.installed) {
-      VToast.show(`${g.title} was added to your downloads`, { icon: 'download' });
+      VToast.show(t('addedToDownloads', { game: g.title }), { icon: 'download' });
       return;
     }
     if (this.running && this.running !== g) {
-      VToast.show(`Exit ${this.running.title} before starting another game`, { icon: 'info', tone: 'bad' });
+      VToast.show(t('exitFirst', { game: this.running.title }), { icon: 'info', tone: 'bad' });
       return;
     }
     Overlays.closeAll();
@@ -165,12 +167,12 @@ const App = {
 
   async exitGame() {
     const g = this.running;
-    const ok = await VDialog.confirm({ title: `Exit ${g.title}?`, body: 'Unsaved progress will be lost.', confirmLabel: 'Exit game', danger: true });
+    const ok = await VDialog.confirm({ title: t('exitQ', { game: g.title }), body: t('exitBody'), confirmLabel: t('exitGame'), cancelLabel: t('cancel'), danger: true });
     if (!ok) return;
     this.running = null;
     if (this.inGame) this.leaveGameView();
     else this.refresh();
-    VToast.show(`${g.title} closed`, { icon: 'exit', sound: 'back' });
+    VToast.show(t('closed', { game: g.title }), { icon: 'exit', sound: 'back' });
   },
 
   sleep() {
@@ -189,12 +191,43 @@ const App = {
     };
   },
 
+  // Setup and "Who's playing?" own the whole screen: no menus there.
+  locked() {
+    return ['setup', 'users'].includes(this.screen?.name);
+  },
+
+  switchUser() {
+    if (this.running) {
+      VToast.show(t('exitFirst', { game: this.running.title }), { icon: 'info', tone: 'bad' });
+      return;
+    }
+    this.go('users', {}, { replace: true });
+  },
+
+  // Restart and shut down: a moment of black, then "Who's playing?".
   restart() {
     this.running = null;
     this.gameEl?.remove();
     this.gameEl = null;
     this.inGame = false;
-    this.go('boot', {}, { replace: true });
+    GameMusic.release();
+    const black = h('div', 'sleep');
+    layer.append(black);
+    Motion.play(black, [{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'both' });
+    setTimeout(() => {
+      this.go('users', {}, { replace: true });
+      Motion.play(black, [{ opacity: 1 }, { opacity: 0 }], { duration: 700, fill: 'both' });
+      setTimeout(() => black.remove(), 720);
+    }, 1400);
+  },
+
+  // Rebuild the current screen in the new language, keeping your place in Settings.
+  relocalize() {
+    if (!this.screen || this.screen.name === 'setup') return;
+    const top = this.stack[this.stack.length - 1];
+    if (this.screen.name === 'settings') top.params = { section: 'language' };
+    this.screen.key = null;
+    this.go(top.name, top.params, { fromBack: true });
   },
 };
 
@@ -207,6 +240,10 @@ const EFFECTS = {
   sfxVolume: (v) => Sound.setUiVolume(v / 100),
   haptics: (v) => (Haptics.level = v),
   menuHaptics: (v) => (Haptics.menus = v),
+  language: (code) => {
+    i18n.set(code);
+    App.relocalize();
+  },
   gameMusic: (on) => GameMusic.setEnabled(on),
   musicVolume: (v) => GameMusic.setVolume(v / 100),
   trailerVideo: (on) => GameMusic.setShowVideo(on),
@@ -224,11 +261,11 @@ Input.init((action, meta) => {
   }
   if (App.screen?.onAnyInput?.(action)) return;
   if (action === 'padConnected') {
-    VToast.show(`Controller connected: ${meta.pad.id.replace(/\(.*?\)/g, '').trim() || 'gamepad'}`, { icon: 'gamepad' });
+    VToast.show(t('controllerConnected', { name: meta.pad.id.replace(/\(.*?\)/g, '').trim() || 'Gamepad' }), { icon: 'gamepad' });
     return;
   }
   if (action === 'padDisconnected') {
-    VToast.show('Controller disconnected', { icon: 'gamepad', tone: 'bad' });
+    VToast.show(t('controllerDisconnected'), { icon: 'gamepad', tone: 'bad' });
     return;
   }
   if (App.busy || action === 'pointer') return;
@@ -270,16 +307,21 @@ Input.init((action, meta) => {
       break;
     }
     case 'home':
+      if (App.locked()) break;
       if (App.inGame) App.leaveGameView({ refresh: false });
       App.go('home');
       break;
     case 'power':
-      App.openPower();
+      if (!App.locked()) App.openPower();
       break;
   }
 });
 
-// A deep link like #home or #library skips the boot screen.
+// Start-up: no boot animation (it comes later). Wait for fonts, then first-time setup or
+// "Who's playing?". A deep link like #home or #library skips straight there.
 const start = location.hash.slice(1);
-if (SCREENS[start] && start !== 'boot' && start !== 'game') ready.then(() => App.go(start, {}, { replace: true }));
-else App.go('boot', {}, { replace: true });
+ready.then(() => {
+  if (!Settings.get('setupDone') || !Profiles.list.length) App.go('setup', {}, { replace: true });
+  else if (SCREENS[start] && !['game', 'setup', 'users'].includes(start)) App.go(start, {}, { replace: true });
+  else App.go('users', {}, { replace: true });
+});

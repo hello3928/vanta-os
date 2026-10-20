@@ -1,6 +1,7 @@
 // Builders shared by several screens.
 
 import { VTile } from '../components/VTile.js';
+import { t } from '../core/i18n.js';
 import { systemOf } from '../data.js';
 
 // A game's portrait capsule. A opens the game page. Retro games show their box art whole.
@@ -19,14 +20,15 @@ export function gameCapsule(app, g) {
 }
 
 export function badgeFor(app, g) {
-  if (app.running === g) return { text: 'Running', tone: 'accent', icon: 'play' };
+  if (app.running === g) return { text: t('running'), tone: 'accent', icon: 'play' };
   const sys = systemOf(g);
   if (sys) return { text: sys.id.toUpperCase() };
-  if (!g.installed) return { text: 'Not installed', icon: 'download' };
+  if (!g.installed) return { text: t('notInstalled'), icon: 'download' };
   return null;
 }
 
 export function playtime(g) {
-  if (!g.hours) return 'Not played yet';
-  return `${g.hours} hour${g.hours === 1 ? '' : 's'} played`;
+  return g.hours ? t('hoursPlayed', { n: g.hours }) : t('notPlayed');
 }
+
+export const capitalize = (s) => s.charAt(0).toLocaleUpperCase() + s.slice(1);

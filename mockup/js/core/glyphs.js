@@ -65,7 +65,10 @@ function keycap(text) {
   );
 }
 
-const KEYS = { accept: 'Enter', back: 'Esc', options: 'X', qam: 'Q', mainMenu: 'M', prevTab: '[', nextTab: ']', power: 'P' };
+const KEYS = { accept: 'Enter', back: 'Esc', options: 'X', qam: 'Q', mainMenu: 'M', prevTab: '[', nextTab: ']', power: 'P', up: '↑' };
+
+// D-pad with the up arm lit.
+const DPAD_UP = svg(24, `<path d="M9 2.5h6v6.5h6.5v6H15v6.5H9V15H2.5V9H9z" fill="${FACE_BG}" stroke="${RING}"/><path d="M9.8 3.3h4.4V9H9.8z" fill="#ffffff"/>`, 'up');
 
 // Works out the controller family from the Gamepad API id (vendor IDs: 054c Sony, 057e Nintendo, 28de Valve).
 export function familyFromId(id = '') {
@@ -95,6 +98,8 @@ export function glyph(action, device = 'keyboard', family = 'xbox') {
       return shoulder(SHOULDERS[family][1]);
     case 'tabs':
       return shoulder(SHOULDERS[family][0]) + shoulder(SHOULDERS[family][1]);
+    case 'up':
+      return DPAD_UP;
     case 'qam':
     case 'mainMenu':
       return system(SYSTEM_FOR[family][action]);

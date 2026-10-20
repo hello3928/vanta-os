@@ -1,5 +1,6 @@
-// Game page: hero with logo, play bar, per-game performance profile, compatibility and details.
-// The hero and logo morph in from the screen you came from (View Transitions).
+// Game page: hero with logo, play bar, then the per-game performance profile beside plain details.
+// The hero and logo morph in from the screen you came from (View Transitions), and the game's
+// music keeps playing from Home.
 // Real OS: the profile is saved per game and vantad applies it at launch.
 
 import { VTopBar } from '../components/VTopBar.js';
@@ -16,10 +17,11 @@ import { VHintBar } from '../components/VHintBar.js';
 import { FocusManager } from '../core/FocusManager.js';
 import { GameMusic } from '../core/GameMusic.js';
 import { Settings } from '../core/Settings.js';
+import { t, relDays } from '../core/i18n.js';
 import { esc, h } from '../core/util.js';
 import { gameById, systemOf, BIOS_LABEL } from '../data.js';
 import { artImg } from '../art/index.js';
-import { playtime } from './shared.js';
+import { capitalize } from './shared.js';
 
 export class GameScreen {
   constructor(app, { id }) {
@@ -45,53 +47,49 @@ export class GameScreen {
     bar.dataset.scrollTop = '';
     const running = app.running === g;
     this.play = new VButton({
-      label: running ? 'Resume' : g.installed ? 'Play' : 'Install',
+      label: running ? t('resume') : g.installed ? t('play') : t('install'),
       icon: running ? 'resume' : g.installed ? 'play' : 'download',
       variant: 'primary',
       size: 'lg',
       activateSound: null,
     });
     this.play.on('activate', () => (running ? app.resume() : app.launch(g)));
-    const stats = h('div', 'game__stats');
     const stat = (label, value) => `<div class="game__stat"><span>${esc(label)}</span><strong>${value}</strong></div>`;
+    const stats = h('div', 'game__stats');
     stats.innerHTML =
-      stat('Last played', esc(g.last)) +
-      stat('Play time', esc(playtime(g).replace(' played', ''))) +
+      stat(t('lastPlayed'), esc(g.last == null ? t('never') : capitalize(relDays(g.last)))) +
+      stat(t('playTime'), esc(g.hours ? t('hours', { n: g.hours }) : '—')) +
       (g.ach
-        ? stat('Achievements', `${g.ach[0]}/${g.ach[1]} <span class="game__ach"><span style="width:${Math.round((g.ach[0] / g.ach[1]) * 100)}%"></span></span>`)
-        : stat('Emulator', esc(sys.emulator)));
-    const props = new VButton({ icon: 'sliders', ariaLabel: 'Game properties', onActivate: () => this.properties() });
+        ? stat(t('achievements'), `${g.ach[0]}/${g.ach[1]} <span class="game__ach"><span style="width:${Math.round((g.ach[0] / g.ach[1]) * 100)}%"></span></span>`)
+        : stat(t('emulator'), esc(sys.emulator)));
+    const props = new VButton({ icon: 'sliders', ariaLabel: t('properties'), onActivate: () => this.properties() });
     bar.append(this.play.el, stats, props.el);
 
     const body = h('div', 'game__body');
-    const profile = h('section', 'game__card');
+    const profile = h('section', 'game__section');
     profile.dataset.focusGroup = '';
     profile.dataset.highlight = '';
-    profile.append(h('h2', 'game__card-title', 'Performance profile'), h('p', 'game__card-note', 'Applies to this game only. Everything else uses your defaults.'));
+    profile.append(h('h2', 'game__heading', esc(t('perfProfile'))));
     [
-      new VSlider({ label: 'TDP limit', icon: 'bolt', min: 3, max: 30, step: 1, value: Settings.get('tdp'), format: (v) => `${v} W` }),
-      new VChoice({ label: 'Frame limit', icon: 'speed', options: ['Off', '30', '40', '60', '90', '120'], value: Settings.get('fpsLimit') }),
-      new VChoice({ label: 'Upscaling (FSR)', icon: 'sparkle', options: ['Off', 'Quality', 'Balanced', 'Performance'], value: Settings.get('upscaling') }),
+      new VSlider({ label: t('tdpLimit'), min: 3, max: 30, step: 1, value: Settings.get('tdp'), format: (v) => `${v} W` }),
+      new VChoice({ label: t('frameLimit'), options: ['Off', '30', '40', '60', '90', '120'], value: Settings.get('fpsLimit') }),
+      new VChoice({ label: t('upscaling'), options: ['Off', 'Quality', 'Balanced', 'Performance'], value: Settings.get('upscaling') }),
       sys
-        ? new VChoice({ label: 'Internal resolution', icon: 'monitor', options: ['Native', '2×', '3×', '4×'], value: '2×' })
-        : new VChoice({ label: 'Compatibility tool', icon: 'chip', options: ['Proton 10', 'Proton Experimental', 'GE-Proton'] }),
-      new VToggle({ label: 'Performance overlay', detail: 'Frame rate, frame time and power draw', icon: 'speed' }),
+        ? new VChoice({ label: t('internalRes'), options: ['Native', '2×', '3×', '4×'], value: '2×' })
+        : new VChoice({ label: t('compatTool'), options: ['Proton 10', 'Proton Experimental', 'GE-Proton'] }),
+      new VToggle({ label: t('perfOverlay') }),
     ].forEach((c) => profile.append(c.el));
 
     const side = h('aside', 'game__side');
-    const compat = h('section', 'game__card');
-    compat.append(h('h2', 'game__card-title', 'Compatibility'));
-    if (sys) {
-      compat.append(new VBadge({ ...BIOS_LABEL[sys.bios], icon: 'chip' }).el, h('p', 'game__card-note', `Runs in ${esc(sys.emulator)}. Controls, save states and display are set up.`));
-    } else {
-      compat.append(new VBadge({ text: 'Verified', tone: 'good', icon: 'check' }).el, h('p', 'game__card-note', 'Controls, text size and default performance are all good on this device.'));
-    }
-    const details = h('section', 'game__card');
-    details.innerHTML = `<h2 class="game__card-title">Details</h2>
+    const badge = sys ? new VBadge({ text: t(BIOS_LABEL[sys.bios].key), tone: BIOS_LABEL[sys.bios].tone }) : new VBadge({ text: t('verified'), tone: 'good', icon: 'check' });
+    const compat = h('section', 'game__section');
+    compat.append(h('h2', 'game__heading', esc(t('compatibility'))), badge.el, h('p', 'game__note', esc(sys ? t('emuNote', { emu: sys.emulator }) : t('verifiedNote'))));
+    const details = h('section', 'game__section');
+    details.innerHTML = `<h2 class="game__heading">${esc(t('details'))}</h2>
       <dl class="game__dl">
-        <dt>Genre</dt><dd>${esc(g.genre)}</dd>
-        <dt>Source</dt><dd>${esc(sys ? sys.name : 'Steam')}</dd>
-        <dt>${sys ? 'File' : 'Size'}</dt><dd>${esc(g.size || 'ROM')}</dd>
+        <dt>${esc(t('genre'))}</dt><dd>${esc(g.genre)}</dd>
+        <dt>${esc(t('source'))}</dt><dd>${esc(sys ? sys.name : 'Steam')}</dd>
+        ${g.size ? `<dt>${esc(t('size'))}</dt><dd>${esc(g.size)}</dd>` : ''}
       </dl>`;
     side.append(compat, details);
     body.append(profile, side);
@@ -101,9 +99,9 @@ export class GameScreen {
       scroll,
       new VHintBar({
         hints: [
-          ['accept', 'Select'],
-          ['options', 'Properties'],
-          ['back', 'Back'],
+          ['accept', t('select')],
+          ['options', t('properties')],
+          ['back', t('back')],
         ],
       }).el,
     );
@@ -120,32 +118,27 @@ export class GameScreen {
   properties() {
     const g = this.game;
     const sys = systemOf(g);
-    const panel = new VPanel({ title: 'Properties', subtitle: g.title });
+    const panel = new VPanel({ title: t('properties'), subtitle: g.title });
     const items = [
       sys
-        ? new VChoice({ label: 'Emulator', icon: 'chip', options: [sys.emulator, ...(sys.emulator.startsWith('RetroArch') ? [] : ['RetroArch core'])] })
-        : new VChoice({ label: 'Compatibility tool', icon: 'chip', options: ['Proton 10', 'Proton Experimental', 'GE-Proton'] }),
-      new VToggle({ label: 'Cloud saves', detail: sys ? 'Sync save files and save states' : 'Steam Cloud', icon: 'cloud', value: true }),
-      new VListItem({ label: 'Browse local files', icon: 'folder', chevron: true, onActivate: () => VToast.show('Not available in this preview', { icon: 'info' }) }),
+        ? new VChoice({ label: t('emulator'), icon: 'chip', options: [sys.emulator, ...(sys.emulator.startsWith('RetroArch') ? [] : ['RetroArch'])] })
+        : new VChoice({ label: t('compatTool'), icon: 'chip', options: ['Proton 10', 'Proton Experimental', 'GE-Proton'] }),
+      new VToggle({ label: t('cloudSaves'), icon: 'cloud', value: true }),
+      new VListItem({ label: t('browseFiles'), icon: 'folder', chevron: true, onActivate: () => VToast.show(t('notAvailable'), { icon: 'info' }) }),
     ];
     if (g.installed) {
       items.push(
         new VListItem({
-          label: 'Uninstall',
-          detail: g.size ? `Frees ${g.size}` : 'Keeps save files and save states',
+          label: t('uninstall'),
+          detail: g.size || '',
           icon: 'trash',
           chevron: true,
           onActivate: async () => {
-            const ok = await VDialog.confirm({
-              title: `Uninstall ${g.title}?`,
-              body: g.size ? `This frees ${g.size}. Your saves stay in the cloud and on this device.` : 'Your save files and save states stay on this device.',
-              confirmLabel: 'Uninstall',
-              danger: true,
-            });
+            const ok = await VDialog.confirm({ title: t('uninstallQ', { game: g.title }), body: t('uninstallBody'), confirmLabel: t('uninstall'), cancelLabel: t('cancel'), danger: true });
             if (!ok) return;
             g.installed = false;
             panel.close({ silent: true });
-            VToast.show(`${g.title} was uninstalled`, { icon: 'trash' });
+            VToast.show(t('uninstalled', { game: g.title }), { icon: 'trash' });
             this.app.refresh();
           },
         }),

@@ -77,6 +77,9 @@ export function setArt(img, g, kind) {
     img.src = generated(g, kind === 'box' ? 'capsule' : kind);
   };
   delete img.dataset.generated;
+  // Fade in once loaded instead of popping in.
+  img.classList.add('art-loading');
+  img.onload = () => img.classList.remove('art-loading');
   if (!url || blocked.has(hostOf(url))) return useFallback();
   img.onerror = () => {
     blocked.add(hostOf(url));

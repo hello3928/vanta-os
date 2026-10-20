@@ -5,6 +5,8 @@
 const KEY = 'vanta.mockup.settings.v3';
 
 const DEFAULTS = {
+  setupDone: false,
+  language: 'en',
   accent: 'ion',
   brand: 'extended',
   brightness: 85,

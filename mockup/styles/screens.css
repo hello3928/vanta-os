@@ -44,54 +44,6 @@
   display: none;
 }
 
-/* ---------- Boot ---------- */
-.screen--boot {
-  display: grid;
-  place-items: center;
-  background: #000000;
-}
-.boot__word {
-  position: relative;
-  overflow: hidden;
-  padding: 0.5rem 1rem;
-}
-.boot__word svg {
-  display: block;
-  height: clamp(28px, 5vmin, 44px);
-  width: auto;
-}
-.boot__sweep {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(100deg, transparent 35%, rgb(0 0 0 / 0) 40%, rgb(255 255 255 / 0.55) 50%, transparent 60%);
-  mix-blend-mode: overlay;
-  transform: translateX(-120%);
-  pointer-events: none;
-}
-.boot__prompt {
-  position: absolute;
-  bottom: calc(14% + env(safe-area-inset-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--fg-3);
-  font: 600 var(--t-sm) / 1 var(--font-ui);
-  letter-spacing: 0.02em;
-  padding: var(--s-3) var(--s-4);
-  border-radius: var(--r-sm);
-  cursor: pointer;
-  white-space: nowrap;
-}
-.boot__prompt:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-.boot__prompt:focus-visible {
-  outline: 2px solid var(--fg-2);
-}
-
 /* ---------- Home ---------- */
 .home__hero {
   position: absolute;
@@ -129,10 +81,6 @@
 }
 .is-pixel {
   image-rendering: pixelated;
-}
-.screen--home.is-booting .home__hero {
-  transform: scale(1.08);
-  opacity: 0;
 }
 .home__hero {
   transition:
@@ -264,9 +212,7 @@
 }
 .game__stat span {
   font-size: var(--t-xs);
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-weight: 600;
   color: var(--fg-3);
 }
 .game__stat strong {
@@ -413,9 +359,7 @@ code {
 }
 .settings__label {
   margin: var(--s-5) var(--s-3) var(--s-2);
-  font: 700 var(--t-xs) / 1 var(--font-ui);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font: 600 var(--t-sm) / 1 var(--font-ui);
   color: var(--fg-3);
 }
 .settings__buttons {
@@ -588,10 +532,8 @@ code {
 .menu__now-text span {
   display: block;
   font-size: var(--t-xs);
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--accent-hi);
+  font-weight: 600;
+  color: var(--fg-3);
 }
 .menu__rule {
   height: 1px;
@@ -616,4 +558,264 @@ code {
 ::view-transition-new(hero) {
   height: 100%;
   object-fit: cover;
+}
+
+/* ---------- Game page: sections instead of boxed cards ---------- */
+.game__section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+  min-width: 0;
+}
+.game__section .v-control {
+  align-self: stretch;
+}
+.game__heading {
+  margin: 0 0 var(--s-1);
+  font: 700 var(--t-lg) / 1.2 var(--font-ui);
+}
+.game__note {
+  margin: 0;
+  color: var(--fg-3);
+  font-size: var(--t-sm);
+  max-width: 44ch;
+}
+.game__side {
+  padding-left: var(--s-5);
+  box-shadow: inset 1px 0 0 var(--line);
+}
+
+/* ---------- Home: pulling the hero down ---------- */
+.home__content {
+  position: relative;
+}
+.home__intro,
+.screen--home .v-topbar {
+  touch-action: pan-x pan-down;
+}
+.screen--home.is-releasing .home__hero {
+  transition: height 450ms var(--spring-soft);
+}
+.screen--home.is-releasing .home__content {
+  transition: transform 450ms var(--spring-soft);
+}
+.screen--home.is-pulling-ready .home__logo {
+  transform: scale(1.04);
+  transition: transform 200ms var(--ease-out);
+}
+
+/* ---------- Full-screen trailer ---------- */
+.trailer-full {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  background: #000000;
+}
+.trailer-full__stage,
+.trailer-full__still {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.trailer-full .game-trailer {
+  object-fit: contain;
+  background: #000000;
+}
+.trailer-full__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(0 0 0 / 0.85), transparent 45%);
+  pointer-events: none;
+}
+.trailer-full__info {
+  position: absolute;
+  left: var(--gutter-l);
+  right: var(--gutter-r);
+  bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-4);
+}
+.trailer-full__logo {
+  width: min(22rem, 60%);
+  height: 6rem;
+  object-fit: contain;
+  object-position: left bottom;
+  filter: drop-shadow(0 4px 18px rgb(0 0 0 / 0.6));
+}
+.trailer-full__bar {
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.2);
+  overflow: hidden;
+}
+.trailer-full__bar span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--fg);
+  transition: width 250ms linear;
+}
+.trailer-full .v-hintbar {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* ---------- Who's playing ---------- */
+.screen--users,
+.screen--setup {
+  background: var(--bg);
+}
+.users {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-7);
+  padding: var(--s-6) var(--gutter-r) 5rem var(--gutter-l);
+}
+.users__title {
+  margin: 0;
+  font: 700 var(--t-2xl) / 1.1 var(--font-ui);
+  text-align: center;
+}
+.users__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-6);
+}
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  width: clamp(7rem, 15vw, 11rem);
+  border-radius: var(--r-md);
+}
+.profile .avatar {
+  transition:
+    transform var(--d-spring) var(--spring),
+    box-shadow var(--d-spring) var(--ease-out);
+}
+.profile.is-focused .avatar {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--fg), 0 18px 40px rgb(0 0 0 / 0.5);
+}
+.profile__name {
+  font-weight: 600;
+  font-size: var(--t-lg);
+  color: var(--fg-2);
+  text-align: center;
+}
+.profile.is-focused .profile__name {
+  color: var(--fg);
+}
+
+/* ---------- First-time setup ---------- */
+.setup {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  width: min(40rem, 100%);
+  margin: 0 auto;
+  padding: clamp(2rem, 9vh, 6rem) var(--gutter-r) 6rem var(--gutter-l);
+}
+.setup__progress {
+  display: flex;
+  gap: var(--s-2);
+}
+.setup__progress span {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--surface-3);
+  transition: background var(--d-med);
+}
+.setup__progress span.is-done {
+  background: var(--fg);
+}
+.setup__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.setup__step {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--fg-3);
+}
+.setup__title {
+  margin: 0;
+  font: 700 var(--t-2xl) / 1.1 var(--font-ui);
+  text-wrap: balance;
+}
+.setup__sub {
+  margin: 0;
+  color: var(--fg-2);
+  max-width: 52ch;
+}
+.setup__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.setup__actions {
+  display: flex;
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+}
+.setup__label {
+  margin: var(--s-4) var(--s-3) var(--s-1);
+  font-weight: 600;
+  font-size: var(--t-sm);
+  color: var(--fg-3);
+}
+.setup__pad {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding: var(--s-5);
+  margin-bottom: var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--bg-2);
+}
+.setup__pad-name {
+  font-weight: 700;
+  font-size: var(--t-lg);
+}
+.setup__pad-glyphs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+.setup__pad-glyphs .v-glyph {
+  height: 2rem;
+}
+.setup__done {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  padding: var(--s-4) 0;
+}
+.setup__done .profile__name {
+  font-size: var(--t-xl);
+  color: var(--fg);
+}
+
+@media (max-width: 760px) {
+  .game__side {
+    padding-left: 0;
+    box-shadow: none;
+  }
 }

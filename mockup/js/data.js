@@ -20,11 +20,12 @@ export const SYSTEMS = [
   { id: 'wiiu', name: 'Wii U', emulator: 'Cemu', bios: 'missing', thumbs: 'Nintendo_-_Wii_U' },
 ];
 
+// BIOS status → i18n key and badge tone.
 export const BIOS_LABEL = {
-  none: { text: 'No BIOS needed', tone: 'muted' },
-  optional: { text: 'BIOS optional', tone: 'muted' },
-  found: { text: 'BIOS found', tone: 'good' },
-  missing: { text: 'BIOS needed', tone: 'warn' },
+  none: { key: 'biosNone', tone: 'muted' },
+  optional: { key: 'biosOptional', tone: 'muted' },
+  found: { key: 'biosFound', tone: 'good' },
+  missing: { key: 'biosMissing', tone: 'warn' },
 };
 
 // Looks for the generated fallback art (see js/art/paint.js).
@@ -50,44 +51,40 @@ const steam = (o) => ({ source: 'steam', installed: true, recent: 0, logo: FALLB
 const retro = (o) => ({ source: 'emu', installed: true, recent: 0, logo: FALLBACK_LOGO, ...o, art: { ...LOOK[o.look], pixel: o.pixel ?? 3 } });
 
 export const GAMES = [
-  steam({ id: 'elden-ring', appid: 1245620, trailer: 'https://video.akamai.steamstatic.com/store_trailers/1245620/442824/a3bab1a4bce2217b8a62606d4d7398cf739a5dab/1750650436/hls_264_master.m3u8?t=1645743462', title: 'Elden Ring', genre: 'Action RPG', hours: 142, last: 'Today', ach: [38, 42], size: '49.0 GB', recent: 1, look: 'gold', added: 'Feb 2022' }),
-  steam({ id: 'bg3', appid: 1086940, trailer: 'https://video.akamai.steamstatic.com/store_trailers/1086940/593544/008e33be9c000c5fdb38e630f13b1d5917d4561d/1750615002/hls_264_master.m3u8?t=1695393579', title: "Baldur's Gate 3", genre: 'RPG', hours: 96, last: 'Yesterday', ach: [31, 54], size: '122 GB', recent: 2, look: 'ember', added: 'Aug 2023' }),
-  steam({ id: 'hades-2', appid: 1145350, trailer: 'https://video.akamai.steamstatic.com/store_trailers/1145350/1067641820/dfba9c6a8b09f5bd9b323d6e699ac685065b93d3/1758924611/hls_264_master.m3u8?t=1758942439', title: 'Hades II', genre: 'Roguelike', hours: 37, last: '2 days ago', ach: [21, 49], size: '10.4 GB', recent: 3, look: 'ember', added: 'May 2024' }),
-  steam({ id: 'cyberpunk', appid: 1091500, trailer: 'https://video.akamai.steamstatic.com/store_trailers/1091500/332451/a97aa3b993ea2c37aa8ef31e961c3f2f6cf36920/1750616278/hls_264_master.m3u8?t=1611326855', title: 'Cyberpunk 2077', genre: 'Action RPG', hours: 88, last: '3 days ago', ach: [29, 57], size: '70.2 GB', recent: 4, look: 'neon', added: 'Dec 2020' }),
-  retro({ id: 'super-metroid', system: 'snes', rom: 'Super Metroid (Japan, USA) (En,Ja)', title: 'Super Metroid', genre: 'Action adventure', hours: 9, last: 'Last week', recent: 5, look: 'cave', pixel: 5 }),
-  steam({ id: 'hollow-knight', appid: 367520, trailer: 'https://video.akamai.steamstatic.com/store_trailers/367520/89922/b71b6a50e9aa2334fddca8fa2197cb26a3640832/1750517691/hls_264_master.m3u8?t=1497589417', title: 'Hollow Knight', genre: 'Metroidvania', hours: 54, last: 'Last week', ach: [40, 63], size: '9.1 GB', recent: 6, look: 'cave' }),
-  steam({ id: 'balatro', appid: 2379780, trailer: 'https://video.akamai.steamstatic.com/store_trailers/2379780/581550014/e9a47276c1efe4165c2e25e35a06d417d78e1724/1758033766/hls_264_master.m3u8?t=1759138871', title: 'Balatro', genre: 'Deckbuilder', hours: 61, last: 'Last week', ach: [24, 30], size: '0.2 GB', recent: 7, look: 'synth' }),
-  steam({ id: 'helldivers-2', appid: 553850, trailer: 'https://video.akamai.steamstatic.com/store_trailers/553850/650713/095c6d5ae33c146b807f4394fa3010847aec1c1e/1750550195/hls_264_master.m3u8?t=1756923474', title: 'Helldivers 2', genre: 'Co-op shooter', hours: 73, last: '2 weeks ago', ach: [19, 38], size: '86.0 GB', look: 'space', added: 'Feb 2024' }),
-  steam({ id: 'rdr2', appid: 1174180, trailer: 'https://video.akamai.steamstatic.com/store_trailers/1174180/254763/b5d4c79496d88d3e08c5968d7bd18b20db5efaa1/1750634245/hls_264_master.m3u8?t=1574881363', title: 'Red Dead Redemption 2', genre: 'Open world', hours: 110, last: '3 weeks ago', ach: [33, 51], size: '119 GB', look: 'gold' }),
-  steam({ id: 'witcher-3', appid: 292030, trailer: 'https://video.akamai.steamstatic.com/store_trailers/292030/1988458772/52ba39deb8812eeb3df2e9416e7b7a43817ee68a/1790683068/hls_264_master.m3u8?t=1790693332', title: 'The Witcher 3: Wild Hunt', genre: 'RPG', hours: 165, last: 'A month ago', ach: [48, 78], size: '58.1 GB', look: 'storm' }),
-  steam({ id: 'stardew', appid: 413150, trailer: 'https://video.akamai.steamstatic.com/store_trailers/413150/336433/0058de516bf7c46986ba1e81172ffd3c2ca6cad7/1750527541/hls_264_master.m3u8?t=1754692862', title: 'Stardew Valley', genre: 'Farming sim', hours: 204, last: 'A month ago', ach: [36, 49], size: '0.6 GB', look: 'pastel' }),
-  steam({ id: 'forza-5', appid: 1551360, trailer: 'https://video.akamai.steamstatic.com/store_trailers/1551360/415818/c7f56150fb05a56618bd5675f8d2770a2c9b1a20/1750700743/hls_264_master.m3u8?t=1636489104', title: 'Forza Horizon 5', genre: 'Racing', hours: 41, last: '2 months ago', ach: [77, 136], size: '133 GB', look: 'neon' }),
-  steam({ id: 'celeste', appid: 504230, trailer: 'https://video.akamai.steamstatic.com/store_trailers/504230/143846/608cb7d60c10278f3107baf57a528e483a7cbc7b/1750539057/hls_264_master.m3u8?t=1516898311', title: 'Celeste', genre: 'Platformer', hours: 23, last: '2 months ago', ach: [24, 32], size: '1.2 GB', look: 'night' }),
-  steam({ id: 'sekiro', appid: 814380, trailer: 'https://video.akamai.steamstatic.com/store_trailers/814380/212986/8ba6fe8bdcdc79872f903015b5d52e1121c1fdee/1750586380/hls_264_master.m3u8?t=1553549470', title: 'Sekiro: Shadows Die Twice', genre: 'Action', hours: 0, last: 'Never', ach: [0, 34], size: '25.0 GB', installed: false, look: 'lantern', added: '3 days ago' }),
-  steam({ id: 'wukong', appid: 2358720, trailer: 'https://video.akamai.steamstatic.com/store_trailers/2358720/743632/6acf4311bb6a59d300b902ab6a3f445215089d9c/1750812851/hls_264_master.m3u8?t=1729236218', title: 'Black Myth: Wukong', genre: 'Action RPG', hours: 0, last: 'Never', ach: [0, 81], size: '130 GB', installed: false, look: 'forest', added: '1 week ago' }),
-  steam({ id: 'disco', appid: 632470, trailer: 'https://video.akamai.steamstatic.com/store_trailers/632470/357391/40d4d0a212158209daf4efe0c8d98f90c1322e1b/1750564395/hls_264_master.m3u8?t=1617123094', title: 'Disco Elysium', genre: 'RPG', hours: 31, last: '3 months ago', ach: [22, 45], size: '20.4 GB', look: 'storm', added: '2 weeks ago' }),
-  steam({ id: 'portal-2', appid: 620, trailer: 'https://video.akamai.steamstatic.com/store_trailers/620/5015/c3d24a03d62be83014d25e01999174f2d010e430/1750108756/hls_264_master.m3u8?t=1682715776', title: 'Portal 2', genre: 'Puzzle', hours: 18, last: '4 months ago', ach: [33, 51], size: '12.8 GB', look: 'pastel' }),
-  retro({ id: 'link-to-the-past', system: 'snes', rom: 'Legend of Zelda, The - A Link to the Past (USA)', title: 'The Legend of Zelda: A Link to the Past', genre: 'Adventure', hours: 14, last: '2 weeks ago', look: 'day', pixel: 6 }),
-  retro({ id: 'chrono-trigger', system: 'snes', rom: 'Chrono Trigger (USA)', title: 'Chrono Trigger', genre: 'RPG', hours: 31, last: 'A month ago', look: 'gold', pixel: 6 }),
-  retro({ id: 'smb3', system: 'nes', rom: 'Super Mario Bros. 3 (USA)', title: 'Super Mario Bros. 3', genre: 'Platformer', hours: 6, last: 'A month ago', look: 'day', pixel: 9 }),
-  retro({ id: 'sm64', system: 'n64', rom: 'Super Mario 64 (USA)', title: 'Super Mario 64', genre: 'Platformer', hours: 12, last: '3 weeks ago', look: 'day' }),
-  retro({ id: 'ocarina', system: 'n64', rom: 'Legend of Zelda, The - Ocarina of Time (USA)', title: 'The Legend of Zelda: Ocarina of Time', genre: 'Adventure', hours: 22, last: 'A month ago', look: 'night' }),
-  retro({ id: 'mk64', system: 'n64', rom: 'Mario Kart 64 (USA)', title: 'Mario Kart 64', genre: 'Racing', hours: 8, last: '2 months ago', look: 'neon' }),
-  retro({ id: 'metroid-fusion', system: 'gba', rom: 'Metroid Fusion (USA)', title: 'Metroid Fusion', genre: 'Action adventure', hours: 7, last: '2 months ago', look: 'cave', pixel: 5 }),
-  retro({ id: 'pokemon-emerald', system: 'gba', rom: 'Pokemon - Emerald Version (USA, Europe)', title: 'Pokémon Emerald', genre: 'RPG', hours: 48, last: '3 months ago', look: 'sea', pixel: 5 }),
-  retro({ id: 'crash', system: 'ps1', rom: 'Crash Bandicoot (USA)', title: 'Crash Bandicoot', genre: 'Platformer', hours: 5, last: '2 weeks ago', look: 'forest', pixel: 2 }),
-  retro({ id: 'spyro', system: 'ps1', rom: 'Spyro the Dragon (USA)', title: 'Spyro the Dragon', genre: 'Platformer', hours: 9, last: 'A month ago', look: 'pastel', pixel: 2 }),
-  retro({ id: 'sotc', system: 'ps2', rom: 'Shadow of the Colossus (USA)', title: 'Shadow of the Colossus', genre: 'Action adventure', hours: 11, last: '2 months ago', look: 'storm', pixel: 2 }),
-  retro({ id: 'wind-waker', system: 'gc', rom: 'Legend of Zelda, The - The Wind Waker (USA)', title: 'The Legend of Zelda: The Wind Waker', genre: 'Adventure', hours: 19, last: '3 months ago', look: 'sea', pixel: 2 }),
-  retro({ id: 'gow-chains', system: 'psp', rom: 'God of War - Chains of Olympus (USA)', title: 'God of War: Chains of Olympus', genre: 'Action', hours: 6, last: '4 months ago', look: 'ember', pixel: 2 }),
-  retro({ id: 'nsmb', system: 'nds', rom: 'New Super Mario Bros. (USA)', title: 'New Super Mario Bros.', genre: 'Platformer', hours: 4, last: '4 months ago', look: 'day', pixel: 3 }),
+  steam({ id: 'elden-ring', appid: 1245620, trailer: 'https://video.akamai.steamstatic.com/store_trailers/1245620/442824/a3bab1a4bce2217b8a62606d4d7398cf739a5dab/1750650436/hls_264_master.m3u8?t=1645743462', title: 'Elden Ring', genre: 'Action RPG', hours: 142, last: 0, ach: [38, 42], size: '49.0 GB', recent: 1, look: 'gold' }),
+  steam({ id: 'bg3', appid: 1086940, trailer: 'https://video.akamai.steamstatic.com/store_trailers/1086940/593544/008e33be9c000c5fdb38e630f13b1d5917d4561d/1750615002/hls_264_master.m3u8?t=1695393579', title: "Baldur's Gate 3", genre: 'RPG', hours: 96, last: 1, ach: [31, 54], size: '122 GB', recent: 2, look: 'ember' }),
+  steam({ id: 'hades-2', appid: 1145350, trailer: 'https://video.akamai.steamstatic.com/store_trailers/1145350/1067641820/dfba9c6a8b09f5bd9b323d6e699ac685065b93d3/1758924611/hls_264_master.m3u8?t=1758942439', title: 'Hades II', genre: 'Roguelike', hours: 37, last: 2, ach: [21, 49], size: '10.4 GB', recent: 3, look: 'ember' }),
+  steam({ id: 'cyberpunk', appid: 1091500, trailer: 'https://video.akamai.steamstatic.com/store_trailers/1091500/332451/a97aa3b993ea2c37aa8ef31e961c3f2f6cf36920/1750616278/hls_264_master.m3u8?t=1611326855', title: 'Cyberpunk 2077', genre: 'Action RPG', hours: 88, last: 3, ach: [29, 57], size: '70.2 GB', recent: 4, look: 'neon' }),
+  retro({ id: 'super-metroid', system: 'snes', rom: 'Super Metroid (Japan, USA) (En,Ja)', title: 'Super Metroid', genre: 'Action adventure', hours: 9, last: 7, recent: 5, look: 'cave', pixel: 5 }),
+  steam({ id: 'hollow-knight', appid: 367520, trailer: 'https://video.akamai.steamstatic.com/store_trailers/367520/89922/b71b6a50e9aa2334fddca8fa2197cb26a3640832/1750517691/hls_264_master.m3u8?t=1497589417', title: 'Hollow Knight', genre: 'Metroidvania', hours: 54, last: 7, ach: [40, 63], size: '9.1 GB', recent: 6, look: 'cave' }),
+  steam({ id: 'balatro', appid: 2379780, trailer: 'https://video.akamai.steamstatic.com/store_trailers/2379780/581550014/e9a47276c1efe4165c2e25e35a06d417d78e1724/1758033766/hls_264_master.m3u8?t=1759138871', title: 'Balatro', genre: 'Deckbuilder', hours: 61, last: 7, ach: [24, 30], size: '0.2 GB', recent: 7, look: 'synth' }),
+  steam({ id: 'helldivers-2', appid: 553850, trailer: 'https://video.akamai.steamstatic.com/store_trailers/553850/650713/095c6d5ae33c146b807f4394fa3010847aec1c1e/1750550195/hls_264_master.m3u8?t=1756923474', title: 'Helldivers 2', genre: 'Co-op shooter', hours: 73, last: 14, ach: [19, 38], size: '86.0 GB', look: 'space' }),
+  steam({ id: 'rdr2', appid: 1174180, trailer: 'https://video.akamai.steamstatic.com/store_trailers/1174180/254763/b5d4c79496d88d3e08c5968d7bd18b20db5efaa1/1750634245/hls_264_master.m3u8?t=1574881363', title: 'Red Dead Redemption 2', genre: 'Open world', hours: 110, last: 21, ach: [33, 51], size: '119 GB', look: 'gold' }),
+  steam({ id: 'witcher-3', appid: 292030, trailer: 'https://video.akamai.steamstatic.com/store_trailers/292030/1988458772/52ba39deb8812eeb3df2e9416e7b7a43817ee68a/1790683068/hls_264_master.m3u8?t=1790693332', title: 'The Witcher 3: Wild Hunt', genre: 'RPG', hours: 165, last: 30, ach: [48, 78], size: '58.1 GB', look: 'storm' }),
+  steam({ id: 'stardew', appid: 413150, trailer: 'https://video.akamai.steamstatic.com/store_trailers/413150/336433/0058de516bf7c46986ba1e81172ffd3c2ca6cad7/1750527541/hls_264_master.m3u8?t=1754692862', title: 'Stardew Valley', genre: 'Farming sim', hours: 204, last: 30, ach: [36, 49], size: '0.6 GB', look: 'pastel' }),
+  steam({ id: 'forza-5', appid: 1551360, trailer: 'https://video.akamai.steamstatic.com/store_trailers/1551360/415818/c7f56150fb05a56618bd5675f8d2770a2c9b1a20/1750700743/hls_264_master.m3u8?t=1636489104', title: 'Forza Horizon 5', genre: 'Racing', hours: 41, last: 60, ach: [77, 136], size: '133 GB', look: 'neon' }),
+  steam({ id: 'celeste', appid: 504230, trailer: 'https://video.akamai.steamstatic.com/store_trailers/504230/143846/608cb7d60c10278f3107baf57a528e483a7cbc7b/1750539057/hls_264_master.m3u8?t=1516898311', title: 'Celeste', genre: 'Platformer', hours: 23, last: 60, ach: [24, 32], size: '1.2 GB', look: 'night' }),
+  steam({ id: 'sekiro', appid: 814380, trailer: 'https://video.akamai.steamstatic.com/store_trailers/814380/212986/8ba6fe8bdcdc79872f903015b5d52e1121c1fdee/1750586380/hls_264_master.m3u8?t=1553549470', title: 'Sekiro: Shadows Die Twice', genre: 'Action', hours: 0, last: null, ach: [0, 34], size: '25.0 GB', installed: false, look: 'lantern', added: 3 }),
+  steam({ id: 'wukong', appid: 2358720, trailer: 'https://video.akamai.steamstatic.com/store_trailers/2358720/743632/6acf4311bb6a59d300b902ab6a3f445215089d9c/1750812851/hls_264_master.m3u8?t=1729236218', title: 'Black Myth: Wukong', genre: 'Action RPG', hours: 0, last: null, ach: [0, 81], size: '130 GB', installed: false, look: 'forest', added: 7 }),
+  steam({ id: 'disco', appid: 632470, trailer: 'https://video.akamai.steamstatic.com/store_trailers/632470/357391/40d4d0a212158209daf4efe0c8d98f90c1322e1b/1750564395/hls_264_master.m3u8?t=1617123094', title: 'Disco Elysium', genre: 'RPG', hours: 31, last: 90, ach: [22, 45], size: '20.4 GB', look: 'storm', added: 14 }),
+  steam({ id: 'portal-2', appid: 620, trailer: 'https://video.akamai.steamstatic.com/store_trailers/620/5015/c3d24a03d62be83014d25e01999174f2d010e430/1750108756/hls_264_master.m3u8?t=1682715776', title: 'Portal 2', genre: 'Puzzle', hours: 18, last: 120, ach: [33, 51], size: '12.8 GB', look: 'pastel' }),
+  retro({ id: 'link-to-the-past', system: 'snes', rom: 'Legend of Zelda, The - A Link to the Past (USA)', title: 'The Legend of Zelda: A Link to the Past', genre: 'Adventure', hours: 14, last: 14, look: 'day', pixel: 6 }),
+  retro({ id: 'chrono-trigger', system: 'snes', rom: 'Chrono Trigger (USA)', title: 'Chrono Trigger', genre: 'RPG', hours: 31, last: 30, look: 'gold', pixel: 6 }),
+  retro({ id: 'smb3', system: 'nes', rom: 'Super Mario Bros. 3 (USA)', title: 'Super Mario Bros. 3', genre: 'Platformer', hours: 6, last: 30, look: 'day', pixel: 9 }),
+  retro({ id: 'sm64', system: 'n64', rom: 'Super Mario 64 (USA)', title: 'Super Mario 64', genre: 'Platformer', hours: 12, last: 21, look: 'day' }),
+  retro({ id: 'ocarina', system: 'n64', rom: 'Legend of Zelda, The - Ocarina of Time (USA)', title: 'The Legend of Zelda: Ocarina of Time', genre: 'Adventure', hours: 22, last: 30, look: 'night' }),
+  retro({ id: 'mk64', system: 'n64', rom: 'Mario Kart 64 (USA)', title: 'Mario Kart 64', genre: 'Racing', hours: 8, last: 60, look: 'neon' }),
+  retro({ id: 'metroid-fusion', system: 'gba', rom: 'Metroid Fusion (USA)', title: 'Metroid Fusion', genre: 'Action adventure', hours: 7, last: 60, look: 'cave', pixel: 5 }),
+  retro({ id: 'pokemon-emerald', system: 'gba', rom: 'Pokemon - Emerald Version (USA, Europe)', title: 'Pokémon Emerald', genre: 'RPG', hours: 48, last: 90, look: 'sea', pixel: 5 }),
+  retro({ id: 'crash', system: 'ps1', rom: 'Crash Bandicoot (USA)', title: 'Crash Bandicoot', genre: 'Platformer', hours: 5, last: 14, look: 'forest', pixel: 2 }),
+  retro({ id: 'spyro', system: 'ps1', rom: 'Spyro the Dragon (USA)', title: 'Spyro the Dragon', genre: 'Platformer', hours: 9, last: 30, look: 'pastel', pixel: 2 }),
+  retro({ id: 'sotc', system: 'ps2', rom: 'Shadow of the Colossus (USA)', title: 'Shadow of the Colossus', genre: 'Action adventure', hours: 11, last: 60, look: 'storm', pixel: 2 }),
+  retro({ id: 'wind-waker', system: 'gc', rom: 'Legend of Zelda, The - The Wind Waker (USA)', title: 'The Legend of Zelda: The Wind Waker', genre: 'Adventure', hours: 19, last: 90, look: 'sea', pixel: 2 }),
+  retro({ id: 'gow-chains', system: 'psp', rom: 'God of War - Chains of Olympus (USA)', title: 'God of War: Chains of Olympus', genre: 'Action', hours: 6, last: 120, look: 'ember', pixel: 2 }),
+  retro({ id: 'nsmb', system: 'nds', rom: 'New Super Mario Bros. (USA)', title: 'New Super Mario Bros.', genre: 'Platformer', hours: 4, last: 120, look: 'day', pixel: 3 }),
 ];
 
 export const systemOf = (g) => SYSTEMS.find((s) => s.id === g.system);
 export const gameById = (id) => GAMES.find((g) => g.id === id);
 
-export function sourceLine(g) {
-  if (g.source === 'steam') return g.installed ? 'Steam · Proton 10' : 'Steam · Not installed';
-  const s = systemOf(g);
-  return `${s.name} · ${s.emulator}`;
-}
+// `last` and `added` are days ago (null = never), formatted per language by i18n.relDays.

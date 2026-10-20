@@ -8,6 +8,7 @@ import { Haptics } from '../core/Haptics.js';
 import { icon } from '../core/icons.js';
 import { esc } from '../core/util.js';
 import { Motion } from '../core/motion.js';
+import { opt } from '../core/i18n.js';
 
 export class VChoice extends VComponent {
   constructor({ label, detail = '', icon: iconName, options = [], value, bind, onChange } = {}) {
@@ -37,7 +38,7 @@ export class VChoice extends VComponent {
 
   render(v) {
     this.value = v;
-    this.valueEl.textContent = v;
+    this.valueEl.textContent = opt(v);
   }
 
   cycle(delta) {

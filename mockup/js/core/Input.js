@@ -41,6 +41,16 @@ export const Input = {
     this.handler = handler;
     window.addEventListener('keydown', (e) => {
       if (e.altKey || e.ctrlKey || e.metaKey) return;
+      // While typing in a text field, keys type. Enter or Esc finishes, up/down leave the field.
+      if (e.target.matches?.('input, textarea')) {
+        if (e.key === 'Enter' || e.key === 'Escape') {
+          e.preventDefault();
+          e.target.blur();
+          return;
+        }
+        if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+        e.target.blur();
+      }
       const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
       const action = KEYS[key] ?? KEYS[e.key];
       if (!action) return;

@@ -22,7 +22,7 @@ The mockup uses ES modules, so serve it over HTTP rather than opening the file d
 npx http-server@14.1.1 mockup -p 4173 -c-1
 ```
 
-Then open http://localhost:4173. Use a controller, the keyboard (arrows, Enter, Esc, Q, M, [ ]), a mouse or touch. `logos.html` compares the three logo directions.
+Then open http://localhost:4173. The first start runs first-time setup (language, Wi-Fi, controller, profile); after that you land on "Who's playing?". Use a controller, the keyboard (arrows, Enter, Esc, Q, M, [ ]), a mouse or touch. `logos.html` compares the three logo directions.
 
 ## Regenerate the logo files
 

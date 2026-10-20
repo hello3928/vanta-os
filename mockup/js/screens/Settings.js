@@ -1,5 +1,6 @@
-// Settings: category list on the left, the focused category's controls on the right.
-// B inside the controls returns to the list; B on the list leaves Settings.
+// Settings: category list on the left, the focused category's rows on the right.
+// Rows are label + value, with a second line only where it tells you something you need.
+// B inside the rows returns to the list; B on the list leaves Settings.
 
 import { VTopBar } from '../components/VTopBar.js';
 import { VListItem } from '../components/VListItem.js';
@@ -15,6 +16,7 @@ import { Motion } from '../core/motion.js';
 import { Settings } from '../core/Settings.js';
 import { Sound } from '../core/Sound.js';
 import { Haptics } from '../core/Haptics.js';
+import { t, i18n, LANGUAGES } from '../core/i18n.js';
 import { esc, h } from '../core/util.js';
 import { GAMES, SYSTEMS, BIOS_LABEL } from '../data.js';
 import { DIRECTIONS } from '../brand.js';
@@ -23,152 +25,159 @@ const EMU_COUNT = GAMES.filter((g) => g.source === 'emu').length;
 const ACCENTS = { Ion: 'ion', Ember: 'ember', Mint: 'mint' };
 const BRANDS = Object.fromEntries(Object.entries(DIRECTIONS).map(([id, d]) => [d.name, id]));
 const nameOf = (map, id) => Object.keys(map).find((k) => map[k] === id);
-
-const note = (text) => h('p', 'settings__note', esc(text));
 const label = (text) => h('div', 'settings__label', esc(text));
+const note = (text) => h('p', 'settings__note', esc(text));
 
 const SECTIONS = [
   {
     id: 'display',
-    label: 'Display',
+    label: () => t('display'),
     icon: 'desktop',
     build: () => [
-      new VSlider({ label: 'Brightness', icon: 'sun', min: 10, max: 100, step: 5, bind: 'brightness' }),
-      new VToggle({ label: 'Variable refresh rate', detail: 'Smoother frame pacing on displays that support it', icon: 'gauge', bind: 'vrr' }),
-      new VToggle({ label: 'HDR', detail: 'Uses gamescope HDR when the display supports it', icon: 'sun', bind: 'hdr' }),
-      new VChoice({ label: 'Upscaling (FSR)', detail: 'Default for games without their own profile', icon: 'sparkle', options: ['Off', 'Quality', 'Balanced', 'Performance'], bind: 'upscaling' }),
-      new VChoice({ label: 'Frame limit', icon: 'gauge', options: ['Off', '30', '40', '60', '90', '120'], bind: 'fpsLimit' }),
+      new VSlider({ label: t('brightness'), min: 10, max: 100, step: 5, bind: 'brightness' }),
+      new VToggle({ label: t('vrr'), bind: 'vrr' }),
+      new VToggle({ label: t('hdr'), bind: 'hdr' }),
+      new VChoice({ label: t('upscaling'), options: ['Off', 'Quality', 'Balanced', 'Performance'], bind: 'upscaling' }),
+      new VChoice({ label: t('frameLimit'), options: ['Off', '30', '40', '60', '90', '120'], bind: 'fpsLimit' }),
     ],
   },
   {
     id: 'sound',
-    label: 'Sound',
+    label: () => t('sound'),
     icon: 'volume',
     build: () => {
       const row = h('div', 'settings__buttons');
       row.dataset.focusGroup = '';
       [
-        ['select', 'Select'],
-        ['back', 'Back'],
-        ['toggleOn', 'Toggle'],
-        ['notify', 'Notification'],
-        ['error', 'Error'],
-        ['boot', 'Start-up'],
+        ['select', t('previewSelect')],
+        ['toggleOn', t('previewToggle')],
+        ['notify', t('previewNotify')],
+        ['error', t('previewError')],
       ].forEach(([name, text]) => row.append(new VButton({ label: text, size: 'sm', activateSound: null, onActivate: () => Sound.play(name) }).el));
       return [
-        new VSlider({ label: 'Volume', icon: 'volume', min: 0, max: 100, step: 5, bind: 'volume' }),
-        new VToggle({ label: 'Game music', detail: "Play the selected game's trailer music on Home and game pages", icon: 'music_note', bind: 'gameMusic' }),
-        new VSlider({ label: 'Music volume', icon: 'music_note', min: 0, max: 100, step: 5, bind: 'musicVolume' }),
-        new VToggle({ label: 'Trailer backgrounds', detail: 'Show the trailer behind the game art while its music plays', icon: 'movie', bind: 'trailerVideo' }),
-        new VToggle({ label: 'Interface sounds', detail: 'Quiet clicks when you move and select', icon: 'volume', bind: 'sfx' }),
-        new VSlider({ label: 'Interface sound volume', icon: 'volume', min: 0, max: 100, step: 5, bind: 'sfxVolume' }),
-        label('Preview'),
+        new VSlider({ label: t('volume'), min: 0, max: 100, step: 5, bind: 'volume' }),
+        new VToggle({ label: t('gameMusic'), bind: 'gameMusic' }),
+        new VSlider({ label: t('musicVolume'), min: 0, max: 100, step: 5, bind: 'musicVolume' }),
+        new VToggle({ label: t('trailerBg'), bind: 'trailerVideo' }),
+        new VToggle({ label: t('interfaceSounds'), bind: 'sfx' }),
+        new VSlider({ label: t('uiVolume'), min: 0, max: 100, step: 5, bind: 'sfxVolume' }),
+        label(t('preview')),
         row,
       ];
     },
   },
   {
     id: 'controllers',
-    label: 'Controllers',
+    label: () => t('controllers'),
     icon: 'gamepad',
     build: () => {
-      const status = new VListItem({ label: 'Connected controllers', detail: Haptics.describe(), icon: 'gamepad' });
-      window.addEventListener('gamepadconnected', () => status.setDetail(Haptics.describe()));
+      const status = new VListItem({ label: t('connectedControllers'), detail: describePads() });
+      window.addEventListener('gamepadconnected', () => status.setDetail(describePads()));
       return [
         status,
-        new VChoice({ label: 'Button prompts', detail: 'Which button icons to show. Automatic matches the controller you use.', icon: 'gamepad', options: ['Automatic', 'Xbox', 'PlayStation', 'Nintendo', 'Steam Deck'], bind: 'glyphs' }),
-        new VChoice({ label: 'Haptics strength', detail: 'Rumble in games and in menus', icon: 'vibrate', options: ['Off', 'Low', 'High'], bind: 'haptics' }),
-        new VToggle({ label: 'Haptics in menus', detail: 'A light tick each time the selection moves', icon: 'vibrate', bind: 'menuHaptics' }),
-        new VListItem({ label: 'Test haptics', detail: 'Left motor, right motor, then both', icon: 'vibrate', chevron: true, onActivate: () => Haptics.play('test', { force: true }) }),
-        new VListItem({ label: 'Button layout', detail: 'Remap buttons and back paddles', icon: 'gamepad', chevron: true, onActivate: () => VToast.show('Not available in this preview', { icon: 'info' }) }),
+        new VChoice({ label: t('buttonPrompts'), detail: t('buttonPromptsDetail'), options: ['Automatic', 'Xbox', 'PlayStation', 'Nintendo', 'Steam Deck'], bind: 'glyphs' }),
+        new VChoice({ label: t('hapticsStrength'), options: ['Off', 'Low', 'High'], bind: 'haptics' }),
+        new VToggle({ label: t('menuHaptics'), bind: 'menuHaptics' }),
+        new VListItem({ label: t('testHaptics'), chevron: true, onActivate: () => Haptics.play('test', { force: true }) }),
+        new VListItem({ label: t('buttonLayout'), chevron: true, onActivate: () => VToast.show(t('notAvailable'), { icon: 'info' }) }),
       ];
     },
   },
   {
     id: 'performance',
-    label: 'Performance',
+    label: () => t('performance'),
     icon: 'bolt',
     build: () => [
-      new VSlider({ label: 'Default TDP limit', icon: 'bolt', min: 3, max: 30, step: 1, bind: 'tdp', format: (v) => `${v} W` }),
-      new VChoice({ label: 'CPU energy preference', detail: 'amd-pstate EPP', icon: 'chip', options: ['Power saver', 'Balanced', 'Performance'], bind: 'epp' }),
-      new VChoice({ label: 'CPU scheduler', detail: 'scx_lavd keeps games responsive under load', icon: 'chip', options: ['scx_lavd', 'Kernel default'], bind: 'scheduler' }),
-      new VToggle({ label: 'GameMode', detail: 'Raises game priority while playing', icon: 'gauge', bind: 'gamemode' }),
+      new VSlider({ label: t('defaultTdp'), min: 3, max: 30, step: 1, bind: 'tdp', format: (v) => `${v} W` }),
+      new VChoice({ label: t('epp'), options: ['Power saver', 'Balanced', 'Performance'], bind: 'epp' }),
+      new VChoice({ label: t('scheduler'), options: ['scx_lavd', 'Kernel default'], bind: 'scheduler' }),
+      new VToggle({ label: 'GameMode', bind: 'gamemode' }),
     ],
   },
   {
     id: 'emulation',
-    label: 'Emulation',
+    label: () => t('emulation'),
     icon: 'disc',
     build: () => [
-      new VListItem({ label: 'ROM folder', detail: '~/Games/roms/<system>', icon: 'folder', trail: `${EMU_COUNT} games` }),
-      new VListItem({
-        label: 'Rescan library',
-        detail: 'Look for new games and BIOS files',
-        icon: 'restart',
-        chevron: true,
-        onActivate: () => setTimeout(() => VToast.show(`Library is up to date: ${EMU_COUNT} games across ${SYSTEMS.length} systems`, { icon: 'check' }), 400),
-      }),
-      label('Systems'),
-      ...SYSTEMS.map((s) => new VListItem({ label: s.name, detail: s.emulator, badge: BIOS_LABEL[s.bios] })),
-      note('Vanta OS never includes BIOS files or games. Copy files you own into the folders above.'),
+      new VListItem({ label: t('romFolder'), detail: '~/Games/roms', trail: t('gamesCount', { n: EMU_COUNT }) }),
+      new VListItem({ label: t('rescan'), chevron: true, onActivate: () => setTimeout(() => VToast.show(t('libraryUpToDate'), { icon: 'check' }), 400) }),
+      label(t('systems')),
+      ...SYSTEMS.map((s) => new VListItem({ label: s.name, detail: s.emulator, badge: { text: t(BIOS_LABEL[s.bios].key), tone: BIOS_LABEL[s.bios].tone } })),
+      note(t('biosNote')),
     ],
   },
   {
     id: 'appearance',
-    label: 'Appearance',
+    label: () => t('appearance'),
     icon: 'palette',
     build: () => {
-      const accent = new VChoice({ label: 'Accent color', icon: 'palette', options: Object.keys(ACCENTS), value: nameOf(ACCENTS, Settings.get('accent')) });
+      const accent = new VChoice({ label: t('accent'), options: Object.keys(ACCENTS), value: nameOf(ACCENTS, Settings.get('accent')) });
       accent.on('change', (n) => Settings.set('accent', ACCENTS[n]));
-      const brand = new VChoice({ label: 'Logo', detail: DIRECTIONS[Settings.get('brand')].summary, icon: 'sparkle', options: Object.keys(BRANDS), value: nameOf(BRANDS, Settings.get('brand')) });
-      brand.on('change', (n) => {
-        Settings.set('brand', BRANDS[n]);
-        brand.el.querySelector('.v-control__detail').textContent = DIRECTIONS[BRANDS[n]].summary;
-      });
-      const link = h('a', 'settings__link', 'Compare the three logo directions');
+      const brand = new VChoice({ label: t('logo'), options: Object.keys(BRANDS), value: nameOf(BRANDS, Settings.get('brand')) });
+      brand.on('change', (n) => Settings.set('brand', BRANDS[n]));
+      const link = h('a', 'settings__link', esc(t('compareLogos')));
       link.href = 'logos.html';
       return [accent, brand, link];
     },
   },
   {
-    id: 'updates',
-    label: 'System updates',
+    id: 'language',
+    label: () => t('language'),
+    icon: 'language',
+    build: () => {
+      const names = LANGUAGES.map((l) => l.name);
+      const choice = new VChoice({ label: t('language'), options: names, value: LANGUAGES.find((l) => l.code === i18n.lang).name });
+      // Applied when you leave the row, so cycling through languages doesn't rebuild the screen under you.
+      choice.on('blur', () => {
+        const code = LANGUAGES.find((l) => l.name === choice.value).code;
+        if (code !== i18n.lang) Settings.set('language', code);
+      });
+      return [choice];
+    },
+  },
+  {
+    id: 'system',
+    label: () => t('system'),
     icon: 'update',
-    build: () => [
-      new VListItem({ label: 'Vanta OS 0.1.0', detail: 'ghcr.io/hello3928/vanta-os:stable', icon: 'info', badge: { text: 'Up to date', tone: 'good' } }),
-      new VChoice({ label: 'Update channel', icon: 'update', options: ['Stable', 'Beta'], bind: 'channel' }),
-      new VListItem({ label: 'Check for updates', icon: 'update', chevron: true, onActivate: () => setTimeout(() => VToast.show('You have the latest version', { icon: 'check' }), 500) }),
+    build: (app) => [
+      new VListItem({ label: 'Vanta OS 0.1.0', detail: 'ghcr.io/hello3928/vanta-os:stable', badge: { text: t('upToDate'), tone: 'good' } }),
+      new VChoice({ label: t('updateChannel'), options: ['Stable', 'Beta'], bind: 'channel' }),
+      new VListItem({ label: t('checkUpdates'), chevron: true, onActivate: () => setTimeout(() => VToast.show(t('latest'), { icon: 'check' }), 500) }),
       new VListItem({
-        label: 'Roll back to previous version',
-        detail: 'Restart into 0.0.9. Games, saves and settings are kept.',
-        icon: 'restart',
+        label: t('rollback'),
         chevron: true,
         onActivate: async () => {
-          const ok = await VDialog.confirm({
-            title: 'Roll back to 0.0.9?',
-            body: 'The device restarts into the previous system image. Your games, saves and settings are kept.',
-            confirmLabel: 'Roll back and restart',
-            danger: true,
-          });
-          if (ok) VToast.show('Rollback scheduled. Restart to finish.', { icon: 'restart' });
+          const ok = await VDialog.confirm({ title: t('rollbackQ'), body: t('rollbackBody'), confirmLabel: t('rollbackConfirm'), cancelLabel: t('cancel'), danger: true });
+          if (ok) VToast.show(t('rollbackScheduled'), { icon: 'restart' });
         },
       }),
+      new VListItem({ label: t('runSetup'), chevron: true, onActivate: () => app.go('setup', {}, { replace: true }) }),
     ],
   },
   {
     id: 'about',
-    label: 'About',
+    label: () => t('about'),
     icon: 'info',
     build: () => [
-      new VListItem({ label: 'Device', detail: 'ROG Ally X · AMD Ryzen Z1 Extreme · 24 GB', icon: 'chip' }),
-      new VListItem({ label: 'Storage', detail: '412 GB free of 1 TB', icon: 'storage' }),
-      new VListItem({ label: 'Software', detail: 'Fedora Atomic (bootc) · Mesa RADV · gamescope · Proton', icon: 'info' }),
+      new VListItem({ label: t('device'), detail: 'ROG Ally X · AMD Ryzen Z1 Extreme · 24 GB' }),
+      new VListItem({ label: t('storage'), detail: t('storageVal', { free: '412 GB', total: '1 TB' }) }),
+      new VListItem({ label: t('software'), detail: 'Fedora Atomic (bootc) · Mesa RADV · gamescope · Proton' }),
     ],
   },
 ];
 
+function describePads() {
+  let pads = [];
+  try {
+    pads = [...(navigator.getGamepads?.() || [])].filter(Boolean);
+  } catch {
+    /* blocked */
+  }
+  return pads.length ? pads.map((p) => p.id.replace(/\(.*?\)/g, '').trim()).join(', ') : t('noController');
+}
+
 export class SettingsScreen {
-  constructor(app) {
+  constructor(app, { section } = {}) {
     this.app = app;
     this.el = h('div', 'screen screen--settings');
     const scroll = h('div', 'screen__scroll');
@@ -180,7 +189,7 @@ export class SettingsScreen {
     this.pane.dataset.focusGroup = '';
     this.pane.dataset.highlight = '';
     this.items = SECTIONS.map((s) => {
-      const item = new VListItem({ label: s.label, icon: s.icon });
+      const item = new VListItem({ label: s.label(), icon: s.icon });
       item.on('focus', () => this.show(s));
       item.on('activate', () => {
         const first = this.pane.querySelector('.v-focusable')?.__v;
@@ -190,28 +199,29 @@ export class SettingsScreen {
       return item;
     });
     layout.append(nav, this.pane);
-    scroll.append(new VTopBar({ app, title: 'Settings' }).el, layout);
+    scroll.append(new VTopBar({ app, title: t('settings') }).el, layout);
     this.el.append(
       scroll,
       new VHintBar({
         hints: [
-          ['accept', 'Select'],
-          ['back', 'Back'],
+          ['accept', t('select')],
+          ['back', t('back')],
         ],
       }).el,
     );
-    this.show(SECTIONS[0]);
+    this.start = SECTIONS.find((s) => s.id === section) || SECTIONS[0];
+    this.show(this.start);
   }
 
   enter() {
-    FocusManager.focus(this.items[0], { silent: true });
+    FocusManager.focus(this.items[SECTIONS.indexOf(this.start)], { silent: true });
   }
 
   show(section) {
     if (this.section === section) return;
     this.section = section;
     this.items.forEach((it, i) => it.setSelected(SECTIONS[i] === section));
-    this.pane.replaceChildren(h('h2', 'settings__pane-title', esc(section.label)), ...section.build().map((c) => c.el || c));
+    this.pane.replaceChildren(h('h2', 'settings__pane-title', esc(section.label())), ...section.build(this.app).map((c) => c.el || c));
     if (this.built) Motion.stagger(this.pane.children, { from: 'translateY(6px)', step: 14, duration: 260 });
     this.built = true;
   }

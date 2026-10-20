@@ -27,6 +27,8 @@ Every screen in the mockup is built from these components. Each one lives in `mo
 | `VDialog` | Modal with actions | `title`, `body`, `actions`, `stack`; `VDialog.confirm()` | For "are you sure?" steps. |
 | `VToast` | Notification, bottom right | `VToast.show(text, { icon, tone })` | Plays the notify sound and rumble. |
 | `VTopBar` | Vanta button and page title, status, quick access button | `title` | Pointer-only. Controllers use the Guide/View and Start buttons. |
+| `VTextField` | Text input reachable by controller | `label`, `value`, `placeholder` | A starts typing (on-screen keyboard in the real OS); Enter or Esc finishes. |
+| `avatarEl()` | Round profile picture cropped from game art | `profile`, size class | Used in the top bar, menu, setup and "Who's playing?". |
 | `VHintBar` | Button prompts in the footer | `hints` | Glyphs match the controller in use (Xbox, PlayStation, Nintendo, Deck) or show keycaps on keyboard. `promptGlyph(action)` draws one anywhere. |
 
 ## Core modules
@@ -40,6 +42,8 @@ Every screen in the mockup is built from these components. Each one lives in `mo
 | `Settings` | Small reactive store. Every control and live effect reads from it |
 | `GameMusic` | PS5-style game music: the selected game's official trailer fades in as music and a moving hero background, and follows you onto the game page |
 | `glyphs` | Button prompt art for Xbox, PlayStation, Nintendo and Steam Deck controllers, plus keyboard keycaps. Detected from the controller, or forced in Settings |
+| `i18n` | Interface language: `t(key)` lookups with English fallback, translated setting values, and Intl-based relative dates. English, Spanish, French, German, Portuguese (Brazil) and Japanese |
+| `Profiles` | Profiles for "Who's playing?" (name and picture) |
 | `motion` | One spring curve for all motion, eased scrolling, staggered entrances, and the sliding list highlight |
 | `art/` | Loads real game art (Steam, libretro-thumbnails) with generated stand-ins as the fallback |
 
