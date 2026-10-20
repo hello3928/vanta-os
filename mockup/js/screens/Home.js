@@ -8,6 +8,7 @@ import { VTile } from '../components/VTile.js';
 import { VHintBar } from '../components/VHintBar.js';
 import { FocusManager } from '../core/FocusManager.js';
 import { Motion } from '../core/motion.js';
+import { GameMusic } from '../core/GameMusic.js';
 import { esc, h } from '../core/util.js';
 import { GAMES } from '../data.js';
 import { setArt } from '../art/index.js';
@@ -22,7 +23,8 @@ export class HomeScreen {
     this.heroEl = h('div', 'home__hero');
     this.layers = [h('img', 'home__bg'), h('img', 'home__bg')];
     this.layers.forEach((img) => (img.alt = ''));
-    this.heroEl.append(...this.layers, h('div', 'home__shade'));
+    this.shade = h('div', 'home__shade');
+    this.heroEl.append(...this.layers, this.shade);
 
     this.intro = h('div', 'home__intro');
     this.logoEl = h('img', 'home__logo');
@@ -67,12 +69,15 @@ export class HomeScreen {
       }).el,
     );
     this.render(recent[0], { instant: true });
+    GameMusic.attach(this.heroEl, this.game, this.shade);
   }
 
   enter() {
     const g = this.app.lastGame;
     const tile = this.tiles.find((t) => t.game === g) || this.tiles[0];
     FocusManager.focus(tile, { silent: true });
+    this.render(tile.game, { instant: true });
+    GameMusic.select(this.game);
   }
 
   // Wait for the selection to settle before swapping the hero, so fast scrolling stays calm.
@@ -84,6 +89,7 @@ export class HomeScreen {
   render(g, { instant = false } = {}) {
     if (g === this.game) return;
     this.game = g;
+    if (!instant) GameMusic.select(g);
     const front = this.layers.find((l) => l.classList.contains('is-on'));
     const next = this.layers.find((l) => l !== front);
     setArt(next, g, 'hero');

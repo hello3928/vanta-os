@@ -14,6 +14,7 @@ import { VDialog } from '../components/VDialog.js';
 import { VToast } from '../components/VToast.js';
 import { VHintBar } from '../components/VHintBar.js';
 import { FocusManager } from '../core/FocusManager.js';
+import { GameMusic } from '../core/GameMusic.js';
 import { Settings } from '../core/Settings.js';
 import { esc, h } from '../core/util.js';
 import { gameById, systemOf, BIOS_LABEL } from '../data.js';
@@ -35,7 +36,9 @@ export class GameScreen {
     const lg = artImg(g, 'logo', 'game__logo');
     lg.alt = g.title;
     lg.style.viewTransitionName = 'game-logo';
-    heroEl.append(bg, h('div', 'game__shade'), lg);
+    const shade = h('div', 'game__shade');
+    heroEl.append(bg, shade, lg);
+    if (app.running !== g) GameMusic.attach(heroEl, g, shade);
 
     const bar = h('div', 'game__bar');
     bar.dataset.focusGroup = '';

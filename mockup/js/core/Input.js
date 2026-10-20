@@ -3,6 +3,8 @@
 // mainMenu (Guide or View = the Vanta button), prevTab/nextTab (LB/RB), home, power.
 // Real OS: SDL3 gamepad events in the Qt app, with InputPlumber mapping handheld buttons.
 
+import { familyFromId } from './glyphs.js';
+
 const KEYS = {
   ArrowUp: 'up',
   ArrowDown: 'down',
@@ -31,6 +33,7 @@ const REPEAT_RATE = 105;
 
 export const Input = {
   device: 'keyboard',
+  family: 'xbox',
   handler: null,
   deviceListeners: [],
 
@@ -72,9 +75,10 @@ export const Input = {
     this.handler?.(action, meta);
   },
 
-  setDevice(d) {
-    if (this.device === d) return;
+  setDevice(d, family = this.family) {
+    if (this.device === d && this.family === family) return;
     this.device = d;
+    this.family = family;
     this.deviceListeners.forEach((fn) => fn(d));
   },
 
@@ -118,7 +122,7 @@ export const Input = {
       const pressed = pad.buttons.map((b) => b.pressed || b.value > 0.5);
       pressed.forEach((down, i) => {
         if (down && !prev[i]) {
-          this.setDevice('gamepad');
+          this.setDevice('gamepad', familyFromId(pad.id));
           if (BUTTONS[i]) this.fire(BUTTONS[i]);
         }
       });
@@ -133,7 +137,7 @@ export const Input = {
     if (dir !== this.held) {
       this.held = dir;
       if (dir) {
-        this.setDevice('gamepad');
+        this.setDevice('gamepad', familyFromId(pads[0]?.id));
         this.fire(dir);
         this.nextRepeat = now + REPEAT_DELAY;
       }

@@ -32,4 +32,4 @@ node tools/export-logos.mjs
 
 ## Game art
 
-The mockup uses real games so the screens look like they will on a device. Their art loads live from Steam's CDN, and retro box art from [libretro-thumbnails](https://github.com/libretro-thumbnails) (what RetroArch uses). No images are stored in this repo. Without network access, or in the published preview (which blocks outside images), each game falls back to generated stand-in art. Play times and achievements are sample values.
+The mockup uses real games so the screens look like they will on a device. Their art loads live from Steam's CDN, and retro box art from [libretro-thumbnails](https://github.com/libretro-thumbnails) (what RetroArch uses). Selecting a game plays its official Steam trailer as menu music and a moving background, like the PS5 home screen (streamed with hls.js). No images or video are stored in this repo. Without network access, or in the published preview (which blocks outside images), each game falls back to generated stand-in art. Play times and achievements are sample values.

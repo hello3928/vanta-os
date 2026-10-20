@@ -57,6 +57,9 @@ const SECTIONS = [
       ].forEach(([name, text]) => row.append(new VButton({ label: text, size: 'sm', activateSound: null, onActivate: () => Sound.play(name) }).el));
       return [
         new VSlider({ label: 'Volume', icon: 'volume', min: 0, max: 100, step: 5, bind: 'volume' }),
+        new VToggle({ label: 'Game music', detail: "Play the selected game's trailer music on Home and game pages", icon: 'music_note', bind: 'gameMusic' }),
+        new VSlider({ label: 'Music volume', icon: 'music_note', min: 0, max: 100, step: 5, bind: 'musicVolume' }),
+        new VToggle({ label: 'Trailer backgrounds', detail: 'Show the trailer behind the game art while its music plays', icon: 'movie', bind: 'trailerVideo' }),
         new VToggle({ label: 'Interface sounds', detail: 'Quiet clicks when you move and select', icon: 'volume', bind: 'sfx' }),
         new VSlider({ label: 'Interface sound volume', icon: 'volume', min: 0, max: 100, step: 5, bind: 'sfxVolume' }),
         label('Preview'),
@@ -73,6 +76,7 @@ const SECTIONS = [
       window.addEventListener('gamepadconnected', () => status.setDetail(Haptics.describe()));
       return [
         status,
+        new VChoice({ label: 'Button prompts', detail: 'Which button icons to show. Automatic matches the controller you use.', icon: 'gamepad', options: ['Automatic', 'Xbox', 'PlayStation', 'Nintendo', 'Steam Deck'], bind: 'glyphs' }),
         new VChoice({ label: 'Haptics strength', detail: 'Rumble in games and in menus', icon: 'vibrate', options: ['Off', 'Low', 'High'], bind: 'haptics' }),
         new VToggle({ label: 'Haptics in menus', detail: 'A light tick each time the selection moves', icon: 'vibrate', bind: 'menuHaptics' }),
         new VListItem({ label: 'Test haptics', detail: 'Left motor, right motor, then both', icon: 'vibrate', chevron: true, onActivate: () => Haptics.play('test', { force: true }) }),

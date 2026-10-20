@@ -7,6 +7,7 @@ import { Haptics } from './core/Haptics.js';
 import { Settings } from './core/Settings.js';
 import { Overlays } from './core/Overlays.js';
 import { Motion } from './core/motion.js';
+import { GameMusic } from './core/GameMusic.js';
 import { afterLayout, h, reducedMotion } from './core/util.js';
 import { VToast } from './components/VToast.js';
 import { VDialog } from './components/VDialog.js';
@@ -54,12 +55,14 @@ const App = {
       this.stack.push({ key, name, params });
     }
     const swap = () => {
+      GameMusic.claimed = false;
       const screen = new SCREENS[name](App, name === 'boot' ? { ready } : params);
       screen.name = name;
       screen.key = key;
       screen.el.classList.add('is-entering');
       if (transition === 'boot') screen.el.classList.add('is-booting');
       stage.replaceChildren(screen.el);
+      if (!GameMusic.claimed) GameMusic.release();
       afterLayout(screen.el, () => screen.el.classList.remove('is-entering', 'is-booting'));
       this.screen = screen;
       FocusManager.setRoot(screen.el, {
@@ -130,6 +133,7 @@ const App = {
     Overlays.closeAll();
     this.busy = true;
     this.lastGame = g;
+    GameMusic.release();
     launchGame(layer, g, () => {
       this.busy = false;
       this.running = g;
@@ -171,6 +175,7 @@ const App = {
 
   sleep() {
     Overlays.closeAll();
+    GameMusic.release();
     const el = h('div', 'sleep');
     layer.append(el);
     Motion.play(el, [{ opacity: 0 }, { opacity: 1 }], { duration: 600, easing: Motion.out, fill: 'both' });
@@ -180,6 +185,7 @@ const App = {
       Haptics.play('notify');
       Motion.play(el, [{ opacity: 1 }, { opacity: 0 }], { duration: 700, easing: Motion.out, fill: 'both' });
       setTimeout(() => el.remove(), 720);
+      if (!this.inGame && this.screen?.game) GameMusic.select(this.screen.game);
     };
   },
 
@@ -201,6 +207,9 @@ const EFFECTS = {
   sfxVolume: (v) => Sound.setUiVolume(v / 100),
   haptics: (v) => (Haptics.level = v),
   menuHaptics: (v) => (Haptics.menus = v),
+  gameMusic: (on) => GameMusic.setEnabled(on),
+  musicVolume: (v) => GameMusic.setVolume(v / 100),
+  trailerVideo: (on) => GameMusic.setShowVideo(on),
 };
 for (const [key, apply] of Object.entries(EFFECTS)) {
   apply(Settings.get(key));

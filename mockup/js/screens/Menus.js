@@ -79,6 +79,7 @@ function quickSettings() {
     new VToggle({ label: 'Wi-Fi', detail: 'Home-5G', icon: 'wifi', bind: 'wifi' }),
     new VToggle({ label: 'Bluetooth', detail: '1 controller connected', icon: 'bluetooth', bind: 'bluetooth' }),
     new VToggle({ label: 'Airplane mode', icon: 'moon', bind: 'airplane' }),
+    new VToggle({ label: 'Game music', icon: 'music_note', bind: 'gameMusic' }),
     new VToggle({ label: 'Interface sounds', icon: 'volume', bind: 'sfx' }),
     new VChoice({ label: 'Haptics', icon: 'vibrate', options: ['Off', 'Low', 'High'], bind: 'haptics' }),
   ];

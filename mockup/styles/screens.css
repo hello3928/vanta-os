@@ -541,6 +541,9 @@ code {
 .ingame {
   z-index: 15;
 }
+.ingame__hint .v-glyph {
+  height: 1.5em;
+}
 .ingame__hint {
   position: absolute;
   left: var(--gutter-l);

@@ -6,6 +6,7 @@ import { Sound } from '../core/Sound.js';
 import { Haptics } from '../core/Haptics.js';
 import { icon } from '../core/icons.js';
 import { esc, h } from '../core/util.js';
+import { promptGlyph, onPromptChange } from './VHintBar.js';
 
 class VTab extends VComponent {
   constructor({ id, label, icon: iconName }, iconOnly = false) {
@@ -29,9 +30,19 @@ export class VTabs extends VComponent {
       tab.on('activate', () => this.select(t.id));
       return tab;
     });
-    if (bumpers) this.el.append(h('span', 'v-tabs__bumper', 'LB'));
+    const lb = bumpers && h('span', 'v-tabs__bumper');
+    const rb = bumpers && h('span', 'v-tabs__bumper');
+    if (lb) this.el.append(lb);
     this.tabs.forEach((t) => this.el.append(t.el));
-    if (bumpers) this.el.append(h('span', 'v-tabs__bumper', 'RB'));
+    if (rb) {
+      this.el.append(rb);
+      const draw = () => {
+        lb.innerHTML = promptGlyph('prevTab');
+        rb.innerHTML = promptGlyph('nextTab');
+      };
+      draw();
+      onPromptChange(() => this.el.isConnected && draw());
+    }
     if (onChange) this.on('change', onChange);
     this.sync();
   }

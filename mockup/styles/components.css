@@ -390,14 +390,8 @@
   background: var(--on-light);
 }
 .v-tabs__bumper {
-  display: inline-grid;
-  place-items: center;
-  height: 1.6rem;
-  padding: 0 0.45em;
-  border-radius: var(--r-xs);
-  background: var(--surface-2);
-  color: var(--fg-2);
-  font: 700 var(--t-xs) / 1 var(--font-ui);
+  display: inline-flex;
+  align-items: center;
 }
 
 /* Chips: small secondary filters */
@@ -891,16 +885,15 @@
   align-items: center;
   gap: 0.5em;
 }
-.v-hint__btn {
-  display: inline-grid;
-  place-items: center;
-  min-width: 1.55em;
+.v-hint__glyphs {
+  display: inline-flex;
+  gap: 0.2rem;
+}
+.v-glyph {
+  display: block;
   height: 1.55em;
-  padding: 0 0.4em;
-  border-radius: 999px;
-  background: var(--fg-2);
-  color: var(--on-light);
-  font: 800 var(--t-xs) / 1 var(--font-ui);
+  width: auto;
+  flex: none;
 }
 
 @media (max-width: 640px) {
@@ -940,4 +933,19 @@
 [data-highlight] > .v-control.is-focused,
 [data-highlight] .v-control.is-focused {
   background: transparent;
+}
+
+/* ---------- Game music trailer (sits under the hero shade) ---------- */
+.game-trailer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1400ms var(--ease-out);
+}
+.game-trailer.is-playing.is-visible {
+  opacity: 1;
 }

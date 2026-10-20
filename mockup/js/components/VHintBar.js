@@ -1,27 +1,35 @@
-// VHintBar: button prompts along the bottom. Glyphs switch between controller and keyboard
-// depending on what was used last.
+// VHintBar: button prompts along the bottom. Glyphs follow the input in use: Xbox, PlayStation,
+// Nintendo or Steam Deck buttons for a controller, keycaps for the keyboard. Settings → Controllers
+// can force one style. promptGlyph() is shared by anything else that shows a button.
 
 import { VComponent } from '../core/VComponent.js';
 import { Input } from '../core/Input.js';
+import { Settings } from '../core/Settings.js';
+import { glyph } from '../core/glyphs.js';
 import { esc, h } from '../core/util.js';
 
-const GLYPHS = {
-  gamepad: { accept: 'A', back: 'B', options: 'X', qam: '☰', mainMenu: '⧉', tabs: 'LB RB' },
-  keyboard: { accept: 'Enter', back: 'Esc', options: 'X', qam: 'Q', mainMenu: 'M', tabs: '[ ]' },
-};
+const FORCED = { Xbox: 'xbox', PlayStation: 'ps', Nintendo: 'nintendo', 'Steam Deck': 'deck' };
+
+export function promptGlyph(action) {
+  const forced = FORCED[Settings.get('glyphs')];
+  return forced ? glyph(action, 'gamepad', forced) : glyph(action, Input.device, Input.family);
+}
+
+// Re-render callbacks whenever the controller or the prompt setting changes.
+export function onPromptChange(fn) {
+  Input.onDevice(fn);
+  Settings.on('glyphs', fn);
+}
 
 export class VHintBar extends VComponent {
   constructor({ hints = [] } = {}) {
     super({ tag: 'footer', className: 'v-hintbar' });
     this.hints = hints;
     this.render();
-    Input.onDevice(() => this.el.isConnected && this.render());
+    onPromptChange(() => this.el.isConnected && this.render());
   }
 
   render() {
-    const g = GLYPHS[Input.device === 'gamepad' ? 'gamepad' : 'keyboard'];
-    this.el.replaceChildren(
-      ...this.hints.map(([action, label]) => h('span', 'v-hint', `<span class="v-hint__btn">${esc(g[action] || action)}</span>${esc(label)}`)),
-    );
+    this.el.replaceChildren(...this.hints.map(([action, label]) => h('span', 'v-hint', `<span class="v-hint__glyphs">${promptGlyph(action)}</span>${esc(label)}`)));
   }
 }

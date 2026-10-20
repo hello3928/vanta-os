@@ -8,7 +8,7 @@ import { Sound } from '../core/Sound.js';
 import { Haptics } from '../core/Haptics.js';
 import { Settings } from '../core/Settings.js';
 import { Motion } from '../core/motion.js';
-import { Input } from '../core/Input.js';
+import { promptGlyph } from '../components/VHintBar.js';
 import { h } from '../core/util.js';
 import { systemOf } from '../data.js';
 import { artImg } from '../art/index.js';
@@ -48,8 +48,7 @@ export function gameView(layer, g) {
   const sys = systemOf(g);
   const el = h('div', 'ingame');
   el.append(artImg(g, 'hero', `ingame__art${sys ? ' is-pixel' : ''}`));
-  const glyph = Input.device === 'gamepad' ? '⧉' : 'M';
-  const hint = h('div', 'ingame__hint', `<span class="v-hint__btn">${glyph}</span><span>Vanta menu</span>`);
+  const hint = h('div', 'ingame__hint', `${promptGlyph('mainMenu')}<span>Vanta menu</span>`);
   el.append(hint);
   layer.append(el);
   Motion.play(el, [{ opacity: 0 }, { opacity: 1 }], { duration: 600, easing: Motion.out, fill: 'both' });
