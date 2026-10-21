@@ -20,7 +20,10 @@ import { Settings } from '../core/Settings.js';
 import { t, relDays } from '../core/i18n.js';
 import { esc, h } from '../core/util.js';
 import { gameById, systemOf, BIOS_LABEL } from '../data.js';
-import { artImg } from '../art/index.js';
+import { artImg, screenshots } from '../art/index.js';
+import { VRow } from '../components/VRow.js';
+import { VTile } from '../components/VTile.js';
+import { openLightbox } from './Lightbox.js';
 import { capitalize } from './shared.js';
 
 export class GameScreen {
@@ -94,7 +97,16 @@ export class GameScreen {
     side.append(compat, details);
     body.append(profile, side);
 
-    scroll.append(heroEl, new VTopBar({ app, title: g.title }).el, bar, body);
+    const parts = [heroEl, new VTopBar({ app, title: g.title }).el, bar];
+    const thumbs = screenshots(g, 'thumb');
+    if (thumbs.length) {
+      const full = screenshots(g, 'full');
+      const shelf = new VRow({ title: t('screenshots') });
+      shelf.el.classList.add('game__shots');
+      thumbs.forEach((src, i) => shelf.addItem(new VTile({ shape: 'landscape', src, title: `${g.title} ${i + 1}`, onActivate: () => openLightbox(full, i, g.title) })));
+      parts.push(shelf.el);
+    }
+    scroll.append(...parts, body);
     this.el.append(
       scroll,
       new VHintBar({

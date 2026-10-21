@@ -24,6 +24,12 @@ export function realUrl(g, kind) {
   return null;
 }
 
+// Official Steam screenshots: full size for the viewer, 600×338 for shelves.
+export function screenshots(g, size = 'full') {
+  if (!g.appid || !g.shots) return [];
+  return g.shots.map((f) => `${STEAM}/${g.appid}/${size === 'full' ? f : f.replace('.1920x1080.', '.600x338.')}`);
+}
+
 const cache = new Map();
 const memo = (key, make) => {
   if (!cache.has(key)) cache.set(key, make());

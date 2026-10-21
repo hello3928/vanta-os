@@ -17,6 +17,7 @@ import { esc, h } from '../core/util.js';
 import { wordmark } from '../brand.js';
 import { artImg } from '../art/index.js';
 import { avatarEl } from '../components/avatar.js';
+import { openProfileEditor } from './ProfileEditor.js';
 
 export function openMainMenu(app) {
   const header = h('div', 'menu__header');
@@ -54,6 +55,7 @@ export function openMainMenu(app) {
     ['emu', t('emulation'), 'disc', () => app.go('library', { filter: 'emu' })],
     ['downloads', t('downloads'), 'download', () => VToast.show(t('noDownloads'), { icon: 'download' })],
     ['settings', t('settings'), 'sliders', () => app.go('settings')],
+    ...(me ? [['edit', t('editProfile'), 'person_edit', () => openProfileEditor(app, me)]] : []),
     ['user', t('switchUser'), 'user', () => app.switchUser()],
     ['power', t('power'), 'power', () => app.openPower()],
   ].forEach(([id, label, ic, go]) => {
@@ -62,7 +64,7 @@ export function openMainMenu(app) {
     if (id === current && !app.inGame) item.setSelected(true);
     item.on('activate', () => {
       panel.close({ silent: true });
-      if (app.inGame && !['power', 'downloads'].includes(id)) app.leaveGameView({ refresh: false });
+      if (app.inGame && !['power', 'downloads', 'edit'].includes(id)) app.leaveGameView({ refresh: false });
       go();
     });
     items.push(item);

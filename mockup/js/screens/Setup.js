@@ -3,17 +3,15 @@
 
 import { VListItem } from '../components/VListItem.js';
 import { VButton } from '../components/VButton.js';
-import { VTextField } from '../components/VTextField.js';
-import { VComponent } from '../core/VComponent.js';
 import { VHintBar, promptGlyph, onPromptChange } from '../components/VHintBar.js';
+import { nameField, pictureChooser } from './ProfileEditor.js';
 import { FocusManager } from '../core/FocusManager.js';
 import { Settings } from '../core/Settings.js';
 import { Haptics } from '../core/Haptics.js';
-import { Profiles, AVATARS } from '../core/Profiles.js';
+import { Profiles } from '../core/Profiles.js';
 import { Motion } from '../core/motion.js';
 import { t, i18n, LANGUAGES } from '../core/i18n.js';
 import { esc, h } from '../core/util.js';
-import { gameById } from '../data.js';
 import { avatarEl } from '../components/avatar.js';
 
 const STEPS = ['language', 'wifi', 'controller', 'profile', 'done'];
@@ -169,34 +167,27 @@ export class SetupScreen {
   profile() {
     this.unhook?.();
     this.title('setupProfile', 'setupProfileSub');
-    const name = new VTextField({ label: t('name'), value: this.name || '', placeholder: t('defaultName') });
-    name.el.querySelector('.v-control__detail').innerHTML = esc(t('typeName', { glyph: '§' })).replace('§', promptGlyph('accept'));
-    name.on('change', (v) => (this.name = v));
-    this.avatar = this.avatar || AVATARS[0];
-    const pics = h('div', 'avatar-picker');
-    pics.dataset.focusGroup = '';
-    AVATARS.forEach((id) => {
-      const c = new VComponent({ className: 'avatar-pick', focusable: true, label: gameById(id).title });
-      c.el.append(avatarEl({ avatar: id }, 'avatar avatar--md'));
-      if (id === this.avatar) c.el.classList.add('is-chosen');
-      c.on('activate', () => {
-        this.avatar = id;
-        pics.querySelectorAll('.is-chosen').forEach((n) => n.classList.remove('is-chosen'));
-        c.el.classList.add('is-chosen');
-      });
-      pics.append(c.el);
+    this.draft = this.draft || { name: '', color: Profiles.nextColor(), photo: null };
+    const preview = h('div', 'setup__done');
+    const paint = () => preview.replaceChildren(avatarEl({ ...this.draft, name: this.draft.name || t('defaultName') }, 'avatar avatar--lg'));
+    paint();
+    const name = nameField(this.draft.name);
+    name.on('change', (v) => {
+      this.draft.name = v;
+      paint();
     });
+    const chooser = pictureChooser(this.draft, paint);
     const next = new VButton({ label: t('continue'), variant: 'primary' });
     next.on('activate', () => this.go(4));
     const actions = h('div', 'setup__actions');
     actions.append(next.el);
-    this.body.append(name.el, h('div', 'setup__label', esc(t('picture'))), pics, actions);
+    this.body.append(preview, name.el, h('div', 'setup__label', esc(t('picture'))), chooser, actions);
   }
 
   done() {
     this.title('setupDone', 'setupDoneSub');
     const preview = h('div', 'setup__done');
-    const profile = { name: this.name || t('defaultName'), avatar: this.avatar || AVATARS[0] };
+    const profile = { ...(this.draft || { color: Profiles.nextColor(), photo: null }), name: this.draft?.name || t('defaultName') };
     preview.append(avatarEl(profile, 'avatar avatar--xl'), h('div', 'profile__name', esc(profile.name)));
     const start = new VButton({ label: t('getStarted'), variant: 'primary', size: 'lg' });
     start.on('activate', () => {

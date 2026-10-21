@@ -12,9 +12,9 @@ import { esc, h } from '../core/util.js';
 import { artImg } from '../art/index.js';
 
 export class VTile extends VComponent {
-  constructor({ title, game, kind = 'capsule', fit = 'cover', glyph, badge, shape = 'capsule', kicker = '', subtitle = '', iconGame, onActivate } = {}) {
+  constructor({ title, game, kind = 'capsule', fit = 'cover', src, glyph, badge, shape = 'capsule', kicker = '', subtitle = '', iconGame, className = '', onActivate } = {}) {
     super({
-      className: `v-tile${shape !== 'capsule' ? ` v-tile--${shape}` : ''}`,
+      className: `v-tile${shape !== 'capsule' ? ` v-tile--${shape}` : ''}${className ? ` ${className}` : ''}`,
       focusable: true,
       label: title,
       tapToFocusFirst: true,
@@ -25,6 +25,13 @@ export class VTile extends VComponent {
       if (fit === 'box') this.artEl.append(artImg(game, kind, 'v-tile__blur'));
       this.img = this.artEl.appendChild(artImg(game, kind, 'v-tile__img'));
       this.img.alt = title;
+    }
+    if (src) {
+      this.img = this.artEl.appendChild(h('img', 'v-tile__img art-loading'));
+      this.img.alt = title;
+      this.img.decoding = 'async';
+      this.img.onload = () => this.img.classList.remove('art-loading');
+      this.img.src = src;
     }
     if (glyph) this.artEl.append(h('span', 'v-tile__glyph', `${icon(glyph)}<span>${esc(title)}</span>`));
     if (badge) this.badgeHost = this.artEl.appendChild(h('span', 'v-tile__badge', new VBadge(badge).el.outerHTML));

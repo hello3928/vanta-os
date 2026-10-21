@@ -20,6 +20,8 @@ import { t, i18n, LANGUAGES } from '../core/i18n.js';
 import { esc, h } from '../core/util.js';
 import { GAMES, SYSTEMS, BIOS_LABEL } from '../data.js';
 import { DIRECTIONS } from '../brand.js';
+import { Profiles } from '../core/Profiles.js';
+import { openProfileEditor } from './ProfileEditor.js';
 
 const EMU_COUNT = GAMES.filter((g) => g.source === 'emu').length;
 const ACCENTS = { Ion: 'ion', Ember: 'ember', Mint: 'mint' };
@@ -29,6 +31,22 @@ const label = (text) => h('div', 'settings__label', esc(text));
 const note = (text) => h('p', 'settings__note', esc(text));
 
 const SECTIONS = [
+  {
+    id: 'profile',
+    label: () => t('profile'),
+    icon: 'person',
+    build: (app) => {
+      const me = Profiles.current;
+      const rows = [];
+      if (me) {
+        const edit = new VListItem({ label: me.name, detail: t('editProfile'), chevron: true });
+        edit.on('activate', () => openProfileEditor(app, me));
+        rows.push(edit);
+      }
+      rows.push(new VListItem({ label: t('switchUser'), chevron: true, onActivate: () => app.switchUser() }));
+      return rows;
+    },
+  },
   {
     id: 'display',
     label: () => t('display'),

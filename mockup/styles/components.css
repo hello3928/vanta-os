@@ -955,10 +955,11 @@
   object-fit: cover;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 1400ms var(--ease-out);
+  transition: opacity 400ms ease-out;
 }
 .game-trailer.is-playing.is-visible {
   opacity: 1;
+  transition-duration: 1200ms;
 }
 
 /* ---------- Images fade in when they arrive ---------- */
@@ -987,15 +988,6 @@
   overflow: hidden;
   background: var(--surface-3);
   color: var(--fg-2);
-}
-.avatar__img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 22%;
-  transform: scale(1.35);
 }
 .avatar--xs {
   width: 1.7rem;
@@ -1060,4 +1052,199 @@
 }
 .avatar-pick.is-chosen .avatar {
   box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+}
+
+/* ---------- Profile pictures: photo or initial on color ---------- */
+.avatar__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.avatar__letter {
+  font-weight: 700;
+  font-size: 0.46em;
+  line-height: 1;
+  color: #ffffff;
+  user-select: none;
+}
+.avatar--xs {
+  font-size: 1.7rem;
+}
+.avatar--sm {
+  font-size: 2.6rem;
+}
+.avatar--md {
+  font-size: 4rem;
+}
+.avatar--lg {
+  width: 5.5rem;
+  height: 5.5rem;
+  font-size: 5.5rem;
+}
+.avatar--xl {
+  font-size: clamp(6rem, 13vw, 9.5rem);
+}
+.avatar--guest {
+  background: var(--surface-3);
+}
+
+/* ---------- Profile editor ---------- */
+.editor__preview {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  padding-bottom: var(--s-2);
+}
+.editor__name {
+  font-weight: 700;
+  font-size: var(--t-lg);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.picture-chooser {
+  display: flex;
+  flex-direction: column;
+}
+.picture-chooser__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.v-list-item.is-danger .v-control__label,
+.v-list-item.is-danger .v-control__icon {
+  color: var(--bad);
+}
+
+/* ---------- Photo crop ---------- */
+.crop {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  display: grid;
+  place-items: center;
+  background: rgb(10 13 18 / 0.97);
+}
+.crop__box {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--s-4);
+  width: min(30rem, calc(100% - 32px));
+}
+.crop__title {
+  margin: 0;
+  font: 700 var(--t-xl) / 1.2 var(--font-ui);
+}
+.crop__hint {
+  margin: var(--s-1) 0 0;
+  color: var(--fg-3);
+  font-size: var(--t-sm);
+}
+.crop__stage {
+  align-self: center;
+  border-radius: var(--r-md);
+  line-height: 0;
+  transition: box-shadow var(--d-med);
+}
+.crop__stage.is-focused {
+  box-shadow: 0 0 0 2px var(--fg);
+}
+.crop__canvas {
+  display: block;
+  max-width: 100%;
+  border-radius: var(--r-md);
+  cursor: grab;
+  touch-action: none;
+}
+.crop__canvas:active {
+  cursor: grabbing;
+}
+.crop__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-2);
+}
+
+/* ---------- "See all" tile at the end of a shelf ---------- */
+.v-tile--more {
+  width: calc(var(--capsule) * 0.66);
+}
+.v-tile--more .v-tile__art {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.v-tile--more .v-tile__glyph {
+  font-size: var(--t-xs);
+  color: var(--fg-3);
+}
+.v-tile--more .v-tile__glyph .ms {
+  font-size: 1.6rem;
+}
+.v-tile--more.is-focused .v-tile__art {
+  background: var(--surface);
+}
+.v-tile--more.is-focused .v-tile__glyph {
+  color: var(--fg);
+}
+
+/* ---------- Screenshot viewer ---------- */
+.lightbox {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  background: #000000;
+}
+.lightbox__stage {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 3rem var(--gutter-r) 5rem var(--gutter-l);
+  touch-action: pan-y;
+}
+.lightbox__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: var(--r-sm);
+  user-select: none;
+}
+.lightbox__count {
+  position: absolute;
+  top: calc(var(--s-4) + env(safe-area-inset-top, 0px));
+  left: var(--gutter-l);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--fg-2);
+}
+.lightbox .v-hintbar {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Text field rows: label on top, input full width underneath */
+.v-field {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "label"
+    "trail";
+  row-gap: var(--s-2);
+}
+.v-field .v-control__detail {
+  display: none;
+}
+.v-field .v-control__trail {
+  display: block;
+}
+.v-field__input {
+  width: 100%;
+}
+.v-panel__head .editor__preview {
+  padding-top: var(--s-3);
 }

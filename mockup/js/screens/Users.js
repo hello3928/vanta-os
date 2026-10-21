@@ -1,19 +1,19 @@
 // "Who's playing?": the first screen after start-up. Pick a profile, play as a guest, or add one.
-// Choosing is also the first button press, which browsers need before they allow sound.
+// X on a profile edits it. Choosing is also the first button press, which browsers need before
+// they allow sound.
 
 import { VComponent } from '../core/VComponent.js';
 import { VPanel } from '../components/VPanel.js';
-import { VTextField } from '../components/VTextField.js';
 import { VButton } from '../components/VButton.js';
-import { VHintBar, promptGlyph } from '../components/VHintBar.js';
+import { VHintBar } from '../components/VHintBar.js';
+import { avatarEl } from '../components/avatar.js';
 import { FocusManager } from '../core/FocusManager.js';
-import { Profiles, AVATARS } from '../core/Profiles.js';
+import { Profiles } from '../core/Profiles.js';
 import { Motion } from '../core/motion.js';
 import { icon } from '../core/icons.js';
 import { t } from '../core/i18n.js';
 import { esc, h } from '../core/util.js';
-import { gameById } from '../data.js';
-import { avatarEl } from '../components/avatar.js';
+import { nameField, pictureChooser, openProfileEditor } from './ProfileEditor.js';
 
 export { avatarEl };
 
@@ -21,6 +21,7 @@ class ProfileCard extends VComponent {
   constructor({ name, profile, glyph }) {
     super({ className: 'profile', focusable: true, label: name });
     this.el.setAttribute('role', 'button');
+    this.profile = profile;
     const pic = profile ? avatarEl(profile, 'avatar avatar--xl') : h('span', 'avatar avatar--xl avatar--empty', icon(glyph, 'avatar__icon'));
     this.el.append(pic, h('span', 'profile__name', esc(name)));
   }
@@ -37,6 +38,7 @@ export class UsersScreen {
     this.cards = Profiles.list.map((p) => {
       const c = new ProfileCard({ name: p.name, profile: p });
       c.on('activate', () => this.choose(c, () => Profiles.use(p.id)));
+      c.on('options', () => openProfileEditor(app, p));
       return c;
     });
     const guest = new ProfileCard({ name: t('guest'), glyph: 'user' });
@@ -48,13 +50,16 @@ export class UsersScreen {
     this.el.append(
       wrap,
       new VHintBar({
-        hints: [['accept', t('select')]],
+        hints: [
+          ['accept', t('select')],
+          ['options', t('editProfile')],
+        ],
       }).el,
     );
   }
 
   enter() {
-    const current = this.cards.find((c) => c.el.getAttribute('aria-label') === Profiles.current?.name);
+    const current = this.cards.find((c) => c.profile.id === Profiles.current?.id);
     FocusManager.focus(current || this.cards[0] || this.row.firstChild.__v, { silent: true });
     Motion.stagger(this.row.children, { from: 'translateY(16px)', step: 50, delay: 120 });
   }
@@ -70,33 +75,25 @@ export class UsersScreen {
   }
 
   addUser() {
-    const panel = new VPanel({ title: t('newUser') });
-    const name = new VTextField({ label: t('name'), value: '', placeholder: t('defaultName'), hint: t('typeName', { glyph: '' }).replace('  ', ' ') });
-    name.el.querySelector('.v-control__detail').innerHTML = esc(t('typeName', { glyph: '§' })).replace('§', promptGlyph('accept'));
-    let avatar = AVATARS[0];
-    const pics = h('div', 'avatar-picker');
-    pics.dataset.focusGroup = '';
-    AVATARS.forEach((id) => {
-      const c = new VComponent({ className: 'avatar-pick', focusable: true, label: gameById(id).title });
-      c.el.append(avatarEl({ avatar: id }, 'avatar avatar--md'));
-      c.on('activate', () => {
-        avatar = id;
-        pics.querySelectorAll('.is-chosen').forEach((n) => n.classList.remove('is-chosen'));
-        c.el.classList.add('is-chosen');
-      });
-      if (id === avatar) c.el.classList.add('is-chosen');
-      pics.append(c.el);
+    const draft = { name: '', color: Profiles.nextColor(), photo: null };
+    const preview = h('div', 'editor__preview');
+    const paint = () => preview.replaceChildren(avatarEl({ ...draft, name: draft.name || t('defaultName') }, 'avatar avatar--lg'), h('div', 'editor__name', esc(draft.name || t('defaultName'))));
+    paint();
+    const panel = new VPanel({ title: t('newUser'), header: preview });
+    const name = nameField('');
+    name.on('change', (v) => {
+      draft.name = v;
+      paint();
     });
+    const chooser = pictureChooser(draft, paint);
     const create = new VButton({ label: t('create'), variant: 'primary', block: true });
     create.on('activate', () => {
-      const p = Profiles.add({ name: name.value || t('defaultName'), avatar });
+      const p = Profiles.add({ ...draft, name: draft.name || t('defaultName') });
       panel.close({ silent: true });
       this.app.refresh();
-      setTimeout(() => {
-        const card = this.app.screen.cards?.find((c) => c.el.getAttribute('aria-label') === p.name);
-        if (card) FocusManager.focus(card);
-      }, 50);
+      const card = this.app.screen.cards?.find((c) => c.profile.id === p.id);
+      if (card) FocusManager.focus(card);
     });
-    panel.addItems(name, h('div', 'v-panel__section', esc(t('picture'))), pics, create).open({ initial: name });
+    panel.addItems(name, h('div', 'v-panel__section', esc(t('picture'))), chooser, create).open({ initial: name });
   }
 }

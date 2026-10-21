@@ -50,8 +50,26 @@
   top: 0;
   left: 0;
   right: 0;
-  height: min(70vh, 40rem);
+  height: min(68vh, 40rem);
   overflow: hidden;
+  transition: height 560ms var(--ease-out);
+}
+.screen--home.is-pulling .home__hero {
+  transition: none;
+}
+/* The slow drift lives on this wrapper, so swapping the art never interrupts it. */
+.home__drift {
+  position: absolute;
+  inset: -3%;
+  animation: home-drift 32s ease-in-out infinite alternate;
+}
+@keyframes home-drift {
+  from {
+    transform: scale(1) translate(0, 0);
+  }
+  to {
+    transform: scale(1.05) translate(-1.2%, -0.8%);
+  }
 }
 .home__bg {
   position: absolute;
@@ -61,31 +79,13 @@
   object-fit: cover;
   object-position: center 30%;
   opacity: 0;
-  transform: scale(1.06);
-  transition:
-    opacity 650ms var(--ease-out),
-    transform 1600ms var(--ease-out);
+  transition: opacity 600ms var(--ease-out);
 }
 .home__bg.is-on {
   opacity: 1;
-  transform: scale(1);
-  animation: home-drift 26s 1.6s ease-in-out infinite alternate;
-}
-@keyframes home-drift {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.06) translate(-1.2%, -0.8%);
-  }
 }
 .is-pixel {
   image-rendering: pixelated;
-}
-.home__hero {
-  transition:
-    transform 1400ms var(--ease-out),
-    opacity 900ms var(--ease-out);
 }
 .home__live {
   color: var(--accent-hi);
@@ -597,73 +597,77 @@ code {
 .screen--home.is-releasing .home__hero {
   transition: height 450ms var(--spring-soft);
 }
-.screen--home.is-releasing .home__content {
-  transition: transform 450ms var(--spring-soft);
+.home__content {
+  transition:
+    transform 450ms var(--spring-soft),
+    opacity 300ms var(--ease-out);
 }
-.screen--home.is-pulling-ready .home__logo {
-  transform: scale(1.04);
-  transition: transform 200ms var(--ease-out);
+.screen--home.is-pulling .home__content {
+  transition: none;
+}
+.home__shade,
+.screen--home .v-topbar,
+.screen--home > .v-hintbar {
+  transition: opacity 300ms var(--ease-out);
 }
 
-/* ---------- Full-screen trailer ---------- */
-.trailer-full {
-  position: absolute;
-  inset: 0;
-  z-index: 25;
-  background: #000000;
+/* Full-screen trailer: the hero itself grows; everything else steps back */
+.screen--home.is-expanded .home__hero {
+  z-index: 8;
 }
-.trailer-full__stage,
-.trailer-full__still {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.trailer-full .game-trailer {
-  object-fit: contain;
-  background: #000000;
-}
-.trailer-full__shade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgb(0 0 0 / 0.85), transparent 45%);
+.screen--home.is-expanded .home__content {
+  opacity: 0;
+  transform: translateY(48px);
   pointer-events: none;
 }
-.trailer-full__info {
+.screen--home.is-expanded .v-topbar,
+.screen--home.is-expanded > .v-hintbar {
+  opacity: 0;
+  pointer-events: none;
+}
+.screen--home.is-expanded .home__shade {
+  opacity: 0;
+}
+.home__player {
   position: absolute;
-  left: var(--gutter-l);
-  right: var(--gutter-r);
-  bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+  inset: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   align-items: flex-start;
   gap: var(--s-4);
+  padding: 0 var(--gutter-r) calc(4.4rem + env(safe-area-inset-bottom, 0px)) var(--gutter-l);
+  background: linear-gradient(to top, rgb(0 0 0 / 0.78), transparent 42%);
 }
-.trailer-full__logo {
+.home__player-logo {
   width: min(22rem, 60%);
   height: 6rem;
   object-fit: contain;
   object-position: left bottom;
   filter: drop-shadow(0 4px 18px rgb(0 0 0 / 0.6));
 }
-.trailer-full__bar {
-  width: 100%;
+.home__player-bar {
+  align-self: stretch;
   height: 3px;
   border-radius: 2px;
   background: rgb(255 255 255 / 0.2);
   overflow: hidden;
 }
-.trailer-full__bar span {
+.home__player-bar span {
   display: block;
   width: 0;
   height: 100%;
   background: var(--fg);
   transition: width 250ms linear;
 }
-.trailer-full .v-hintbar {
+.home__player .v-hintbar {
   background: transparent;
   box-shadow: none;
+}
+.screen--home.is-pulling-ready .home__logo {
+  transform: scale(1.04);
+  transition: transform 200ms var(--ease-out);
 }
 
 /* ---------- Who's playing ---------- */
@@ -818,4 +822,8 @@ code {
     padding-left: 0;
     box-shadow: none;
   }
+}
+
+.game__shots {
+  margin-top: var(--s-4);
 }

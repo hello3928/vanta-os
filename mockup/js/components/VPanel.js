@@ -20,10 +20,11 @@ export class VPanel extends VComponent {
     this.panel.setAttribute('aria-label', title || 'Menu');
     const main = h('div', 'v-panel__main');
     this.head = h('header', 'v-panel__head');
-    if (header) this.head.append(header);
+    this.header = header;
     this.titleEl = h('h2', 'v-panel__title', esc(title));
     this.subEl = h('div', 'v-panel__sub', esc(subtitle));
     this.head.append(this.titleEl, this.subEl);
+    if (header) this.head.append(header);
     this.side = side;
     this.body = h('div', 'v-panel__body');
     this.body.dataset.highlight = '';

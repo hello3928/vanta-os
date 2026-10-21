@@ -28,7 +28,7 @@ Every screen in the mockup is built from these components. Each one lives in `mo
 | `VToast` | Notification, bottom right | `VToast.show(text, { icon, tone })` | Plays the notify sound and rumble. |
 | `VTopBar` | Vanta button and page title, status, quick access button | `title` | Pointer-only. Controllers use the Guide/View and Start buttons. |
 | `VTextField` | Text input reachable by controller | `label`, `value`, `placeholder` | A starts typing (on-screen keyboard in the real OS); Enter or Esc finishes. |
-| `avatarEl()` | Round profile picture cropped from game art | `profile`, size class | Used in the top bar, menu, setup and "Who's playing?". |
+| `avatarEl()` | Round profile picture: the cropped photo, or the name's initial on the profile color | `profile`, size class | Used in the top bar, menu, setup and "Who's playing?". |
 | `VHintBar` | Button prompts in the footer | `hints` | Glyphs match the controller in use (Xbox, PlayStation, Nintendo, Deck) or show keycaps on keyboard. `promptGlyph(action)` draws one anywhere. |
 
 ## Core modules
@@ -43,9 +43,17 @@ Every screen in the mockup is built from these components. Each one lives in `mo
 | `GameMusic` | PS5-style game music: the selected game's official trailer fades in as music and a moving hero background, and follows you onto the game page |
 | `glyphs` | Button prompt art for Xbox, PlayStation, Nintendo and Steam Deck controllers, plus keyboard keycaps. Detected from the controller, or forced in Settings |
 | `i18n` | Interface language: `t(key)` lookups with English fallback, translated setting values, and Intl-based relative dates. English, Spanish, French, German, Portuguese (Brazil) and Japanese |
-| `Profiles` | Profiles for "Who's playing?" (name and picture) |
+| `Profiles` | Profiles for "Who's playing?": name, color, optional photo. Add, edit, delete |
 | `motion` | One spring curve for all motion, eased scrolling, staggered entrances, and the sliding list highlight |
 | `art/` | Loads real game art (Steam, libretro-thumbnails) with generated stand-ins as the fallback |
+
+## Screens worth knowing
+
+| Screen | Job |
+|---|---|
+| `ProfileEditor` | Picture chooser (colors, upload, remove) and the Edit profile panel, shared by setup, "Who's playing?", Settings and the menu |
+| `PhotoCrop` | Positions an uploaded photo in a round mask (drag, wheel, pinch, D-pad, zoom slider) and saves a 320×320 JPEG |
+| `Lightbox` | Full-screen screenshot viewer for the game page |
 
 ## Controls in the mockup
 
