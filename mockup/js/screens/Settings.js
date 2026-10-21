@@ -9,7 +9,7 @@ import { VDropdown } from '../components/VDropdown.js';
 import { frameLimit, tdpSlider, upscaling, vrrToggle, hdrToggle } from './perf.js';
 import { Device, DEVICES } from '../core/Device.js';
 import { SonyHaptics } from '../core/SonyHaptics.js';
-import { Region, timeZones, regions, DETECTED_REGION } from '../core/Region.js';
+import { Region, timeZones, regions, zoneLabel, DETECTED_REGION, DETECTED_ZONE } from '../core/Region.js';
 import { VButton } from '../components/VButton.js';
 import { VDialog } from '../components/VDialog.js';
 import { VToast } from '../components/VToast.js';
@@ -72,7 +72,9 @@ const SECTIONS = [
           new VListItem({
             label: t('signOut'),
             chevron: true,
-            onActivate: () => {
+            onActivate: async () => {
+              const ok = await VDialog.confirm({ title: t('signOutVantaQ'), body: '', confirmLabel: t('signOut'), cancelLabel: t('cancel'), danger: true });
+              if (!ok) return;
               Profiles.update(me.id, { vanta: null });
               reopen(app);
             },
@@ -96,7 +98,7 @@ const SECTIONS = [
         edit.on('activate', () => openProfileEditor(app, me));
         rows.push(edit);
       }
-      rows.push(new VListItem({ label: t('switchUser'), chevron: true, onActivate: () => app.switchUser() }));
+      rows.push(new VListItem({ label: t('switchUser'), chevron: true, onActivate: () => app.request('switchUser') }));
       return rows;
     },
   },
@@ -207,13 +209,15 @@ const SECTIONS = [
     label: () => t('dateTime'),
     icon: 'clock',
     build: () => {
+      // Automatic: the zone is a plain value. Manual: a dropdown to pick it.
       const zone = new VDropdown({ label: t('timeZone'), options: timeZones(), value: Region.zone });
-      const syncZone = () => {
-        zone.render(Region.zone);
-        zone.setDisabled(Settings.get('tzAuto'));
-        zone.el.querySelector('.v-control__detail').textContent = Settings.get('tzAuto') ? t('setAutomatically') : '';
-      };
       zone.on('change', (z) => Settings.set('timeZone', z));
+      const zoneAuto = new VListItem({ label: t('timeZone'), trail: zoneLabel(DETECTED_ZONE) });
+      const syncZone = (auto) => {
+        zone.el.hidden = auto;
+        zoneAuto.el.hidden = !auto;
+        if (!auto) zone.render(Settings.get('timeZone') || DETECTED_ZONE);
+      };
       zone.bind('tzAuto', syncZone);
       const example = new VListItem({ label: t('formatExample') });
       const paint = () => example.setDetail(`${Region.date()} · ${Region.time()}`);
@@ -221,6 +225,7 @@ const SECTIONS = [
       return [
         new VToggle({ label: t('setTimeAuto'), bind: 'timeAuto' }),
         new VToggle({ label: t('setZoneAuto'), bind: 'tzAuto' }),
+        zoneAuto,
         zone,
         new VToggle({ label: t('clock24'), bind: 'clock24' }),
         new VDropdown({ label: t('region'), options: regions(), value: Settings.get('region') || DETECTED_REGION, onChange: (r) => Settings.set('region', r) }),

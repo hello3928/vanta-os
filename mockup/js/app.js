@@ -21,6 +21,7 @@ import { LibraryScreen } from './screens/Library.js';
 import { GameScreen } from './screens/Game.js';
 import { SettingsScreen } from './screens/Settings.js';
 import { KitScreen } from './screens/Kit.js';
+import { HubScreen } from './screens/Hub.js';
 import { openMainMenu, openQuickAccess } from './screens/Menus.js';
 import { openPowerMenu } from './screens/PowerMenu.js';
 import { launchGame, gameView } from './screens/Launch.js';
@@ -33,7 +34,7 @@ import { SonyHaptics } from './core/SonyHaptics.js';
 SonyHaptics.restore();
 import { loadFonts, preload } from './art/index.js';
 
-const SCREENS = { setup: SetupScreen, users: UsersScreen, home: HomeScreen, library: LibraryScreen, game: GameScreen, settings: SettingsScreen, kit: KitScreen };
+const SCREENS = { setup: SetupScreen, users: UsersScreen, home: HomeScreen, library: LibraryScreen, game: GameScreen, settings: SettingsScreen, kit: KitScreen, hub: HubScreen };
 
 Motion.init();
 const appEl = document.getElementById('app');
@@ -276,8 +277,28 @@ const App = {
     this.go('users', {}, { replace: true });
   },
 
+  // Power actions and switching user ask first. With a game running, the message says what
+  // happens to it.
+  async request(kind) {
+    if (kind === 'switchUser' && this.running) return this.switchUser();
+    const g = this.running;
+    const copy = {
+      sleep: ['sleepQ', g ? t('sleepBodyGame', { game: g.title }) : '', 'sleep', false],
+      restart: ['restartQ', g ? t('powerBodyGame', { game: g.title }) : '', 'restart', true],
+      shutDown: ['shutDownQ', g ? t('powerBodyGame', { game: g.title }) : '', 'shutDown', true],
+      switchUser: ['switchUserQ', '', 'switchUser', false],
+    }[kind];
+    const ok = await VDialog.confirm({ title: t(copy[0]), body: copy[1], confirmLabel: t(copy[2]), cancelLabel: t('cancel'), danger: copy[3] });
+    if (ok) this[kind]();
+  },
+
+  // Shut down: the screen goes dark; any button turns the device back on.
+  shutDown() {
+    this.restart({ wait: true });
+  },
+
   // Restart and shut down: a moment of black, then "Who's playing?".
-  restart() {
+  restart({ wait = false } = {}) {
     this.running = null;
     this.gameEl?.remove();
     this.gameEl = null;
@@ -287,11 +308,20 @@ const App = {
     const black = h('div', 'sleep');
     layer.append(black);
     Motion.play(black, [{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'both' });
-    setTimeout(() => {
+    const wake = () => {
       this.go('users', {}, { replace: true });
       Motion.play(black, [{ opacity: 1 }, { opacity: 0 }], { duration: 700, fill: 'both' });
       setTimeout(() => black.remove(), 720);
-    }, 1400);
+    };
+    setTimeout(() => {
+      if (!wait) return wake();
+      this.sleeping = () => {
+        this.sleeping = null;
+        Sound.play('boot');
+        Haptics.play('boot');
+        wake();
+      };
+    }, 900);
   },
 
   setHints(hints) {

@@ -39,17 +39,18 @@ function shoulder(text) {
   return svg(w, `<rect x="1" y="3.5" width="${w - 2}" height="17" rx="7" fill="${FACE_BG}" stroke="${RING}"/><text x="${w / 2}" y="16" text-anchor="middle" font-size="10.5" fill="#ffffff" ${FONT}>${text}</text>`, text);
 }
 
-// Menu (≡), View (⧉), plus and minus: small round system buttons.
+// Menu (≡), View (⧉), Create (PlayStation's three rays), plus and minus: small round system buttons.
 const SYSTEM = {
   menu: `<path d="M7.5 9h9M7.5 12h9M7.5 15h9" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>`,
   view: `<rect x="6.8" y="7.6" width="6.6" height="6.6" rx="1.2" fill="none" stroke="#fff" stroke-width="1.5"/><rect x="10.6" y="10" width="6.6" height="6.6" rx="1.2" fill="${FACE_BG}" stroke="#fff" stroke-width="1.5"/>`,
+  create: `<path d="M12 14.6V8.2M9.3 15.2 6.9 10M14.7 15.2l2.4-5.2" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>`,
   plus: `<path d="M12 7.5v9M7.5 12h9" stroke="#fff" stroke-width="2" stroke-linecap="round"/>`,
   minus: `<path d="M7.5 12h9" stroke="#fff" stroke-width="2" stroke-linecap="round"/>`,
   dots: `<circle cx="8" cy="12" r="1.4" fill="#fff"/><circle cx="12" cy="12" r="1.4" fill="#fff"/><circle cx="16" cy="12" r="1.4" fill="#fff"/>`,
 };
 const SYSTEM_FOR = {
   xbox: { qam: 'menu', mainMenu: 'view' },
-  ps: { qam: 'menu', mainMenu: 'view' },
+  ps: { qam: 'menu', mainMenu: 'create' },
   nintendo: { qam: 'plus', mainMenu: 'minus' },
   deck: { qam: 'dots', mainMenu: 'view' },
 };

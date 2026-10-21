@@ -9,11 +9,11 @@ export function openPowerMenu(app) {
     title: t('power'),
     stack: true,
     actions: [
-      { label: t('sleep'), icon: 'moon', onActivate: () => app.sleep() },
-      { label: t('switchUser'), icon: 'user', onActivate: () => app.switchUser() },
-      { label: t('restart'), icon: 'restart', onActivate: () => app.restart() },
+      { label: t('sleep'), icon: 'moon', onActivate: () => app.request('sleep') },
+      { label: t('switchUser'), icon: 'user', onActivate: () => app.request('switchUser') },
+      { label: t('restart'), icon: 'restart', onActivate: () => app.request('restart') },
       { label: t('switchDesktop'), icon: 'desktop', onActivate: () => VToast.show(t('notAvailable'), { icon: 'desktop' }) },
-      { label: t('shutDown'), icon: 'power', onActivate: () => app.restart() },
+      { label: t('shutDown'), icon: 'power', onActivate: () => app.request('shutDown') },
       { label: t('cancel'), variant: 'ghost' },
     ],
   }).open();

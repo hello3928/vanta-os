@@ -58,7 +58,7 @@ export function openMainMenu(app) {
     ['downloads', t('downloads'), 'download', () => VToast.show(t('noDownloads'), { icon: 'download' })],
     ['settings', t('settings'), 'sliders', () => app.go('settings')],
     ...(me ? [['edit', t('editProfile'), 'person_edit', () => openProfileEditor(app, me)]] : []),
-    ['user', t('switchUser'), 'user', () => app.switchUser()],
+    ['user', t('switchUser'), 'user', () => app.request('switchUser')],
     ['power', t('power'), 'power', () => app.openPower()],
   ].forEach(([id, label, , go]) => {
     const item = new VListItem({ label });

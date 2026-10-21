@@ -114,7 +114,7 @@ export const FocusManager = {
       else if (start < track.scrollLeft) Motion.scrollTo(track, { left: Math.max(0, start) });
       else if (end > track.scrollLeft) Motion.scrollTo(track, { left: end });
     }
-    const sc = el.closest('.screen__scroll, .v-panel__body, .setup__panel');
+    const sc = el.closest('.screen__scroll, .v-panel__body, .setup__panel, .v-menu');
     if (!sc) return;
     if (el.closest('[data-scroll-top]')) {
       Motion.scrollTo(sc, { top: 0 });

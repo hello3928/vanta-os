@@ -72,6 +72,7 @@ All animation classes use transform and opacity only, never overshoot, and respe
 | `ProfileEditor` | Picture chooser (colors, upload, remove) and the Edit profile panel, shared by setup, "Who's playing?", Settings and the menu |
 | `PhotoCrop` | Positions an uploaded photo in a round mask (drag, wheel, pinch, D-pad, zoom slider) and saves a 320×320 JPEG |
 | `Lightbox` | Full-screen screenshot viewer for the game page |
+| `Hub` | First tile on Home, like the PS5's Welcome hub: this week's play time (chart), games played, achievements, library, most played, closest to 100%, storage |
 | `Kit` | Settings → System → Interface components. Every component, style class and popup on one page, for review and testing |
 
 ## Controls in the mockup

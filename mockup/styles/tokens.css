@@ -33,6 +33,7 @@
   --accent-hi: #4db5ff;
   --accent-fg: #ffffff;
   --accent-soft: rgb(26 159 255 / 0.16);
+  --chart-1: #168fe8; /* single-series charts: Steam blue, one step deeper (passes the dark-surface checks) */
 
   /* Play is always green, as on Steam */
   --play: #4fb93a;
