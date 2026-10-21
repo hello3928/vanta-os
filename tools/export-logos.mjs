@@ -5,18 +5,17 @@
 import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { DIRECTIONS, mark, wordmark } from '../mockup/js/brand.js';
+import { DIRECTIONS, mark } from '../mockup/js/brand.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'brand');
 mkdirSync(root, { recursive: true });
 for (const f of readdirSync(root)) if (f.endsWith('.svg')) rmSync(join(root, f));
 
-Object.keys(DIRECTIONS).forEach((id, i) => {
-  const prefix = `${'abc'[i]}-${id}`;
+Object.keys(DIRECTIONS).forEach((id) => {
   const files = {
-    [`${prefix}-wordmark-white.svg`]: wordmark(id, { height: 120, color: '#ffffff', standalone: true }),
-    [`${prefix}-wordmark-black.svg`]: wordmark(id, { height: 120, color: '#0d1117', standalone: true }),
-    [`${prefix}-app-icon.svg`]: mark(id, { size: 512, color: '#ffffff', tile: '#0d1117', standalone: true }),
+    [`vanta-${id}-white.svg`]: mark(id, { size: 512, color: '#ffffff' }),
+    [`vanta-${id}-black.svg`]: mark(id, { size: 512, color: '#1a1d23' }),
+    [`vanta-${id}-app-icon.svg`]: mark(id, { size: 512, color: '#ffffff', tile: '#1a1d23' }),
   };
   for (const [name, svg] of Object.entries(files)) {
     writeFileSync(join(root, name), svg.trim() + '\n');
