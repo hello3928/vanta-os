@@ -31,7 +31,7 @@ Every screen in the mockup is built from these components. Each one lives in `mo
 | `VDialog` | Modal with actions | `title`, `body`, `actions`, `stack`, `icon`, `tone`, `code`; `VDialog.confirm()` | For "are you sure?" steps. Error dialogs shake once and play the error sound. |
 | `VAlert` | Error and status popups | `VAlert.error / warning / info / success({ title, message, code, actions })` | Resolves with the chosen action id, or `null` when closed with B. |
 | `VToast` | Notification, bottom right | `VToast.show(text, { icon, tone })` | Plays the notify sound and rumble. |
-| `VTopBar` | Vanta button and page title, status, quick access button | `title` | Pointer-only. Controllers use the Guide/View and Start buttons. |
+| `VTopBar` | Page title and status buttons: notifications, Wi-Fi, battery, clock, profile, quick access | `title` | One bar for the whole app (the shell). Each button opens its panel. Controller: Up from the top of a page enters the bar, Down or B returns. |
 | `VTextField` | Text row | `label`, `value`, `placeholder`, `password`, `maxLength` | A opens the on-screen keyboard. The row updates as you type. |
 | `Keyboard` (`VKeyboard.js`) | On-screen keyboard | `Keyboard.open({ label, value, password, maxLength, onInput, onDone })` | Letters and symbols layouts, shift and caps lock. Controller: A types, B deletes, X adds a space, LB/RB move the cursor, Start finishes. A physical keyboard types directly while it is open. |
 | `avatarEl()` | Round profile picture: the cropped photo, or the name's initial on the profile color | `profile`, size class | Used in the top bar, menu, setup and "Who's playing?". |

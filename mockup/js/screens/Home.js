@@ -77,7 +77,7 @@ export class HomeScreen {
     // A strip of page colour over the hero's clip edge (see .home__seam in screens.css).
     scroll.append(this.heroEl, h('div', 'home__seam'), h('div', 'shell-gap'), this.content);
     this.el.append(scroll);
-    this.shell = { title: '', hints: [
+    this.shell = { title: '', topbarNav: false, hints: [
           ['accept', t('open')],
           ['up', t('trailer')],
           ['qam', t('quickAccess')],

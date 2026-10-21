@@ -66,6 +66,9 @@ const Shell = {
   apply(screen) {
     const s = screen.shell || {};
     if (!App.inGame) this.hide(false);
+    // Up from the top of the page reaches the bar, except where Up already means something (Home).
+    FocusManager.chrome = s.topbar === false ? null : this.top.el;
+    FocusManager.chromeNav = s.topbarNav !== false;
     this.top.setTitle(s.title || '');
     this.top.el.classList.toggle('is-hidden', s.topbar === false);
     this.setHints(s.hints || [], s.hintbar === false);
@@ -161,6 +164,15 @@ const App = {
     const top = Overlays.top();
     Overlays.closeAll();
     if (!top?.isMainMenu) openMainMenu(App).isMainMenu = true;
+  },
+
+  // From the top bar: open Quick access on a given page; the same button again closes it.
+  openQuickAccess(tab) {
+    if (this.locked() || this.busy) return;
+    const top = Overlays.top();
+    Overlays.closeAll();
+    if (top?.isQuickAccess && top.tab === tab) return;
+    openQuickAccess(App, tab);
   },
 
   toggleQuickAccess() {

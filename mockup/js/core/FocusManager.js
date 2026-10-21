@@ -15,6 +15,28 @@ function gap(a1, a2, b1, b2) {
 export const FocusManager = {
   current: null,
   scopes: [],
+  // The top bar, set by the shell in app.js. Clickable whenever no panel is open; reachable with
+  // Up from the page when chromeNav is on (Home turns it off: Up opens the trailer there).
+  chrome: null,
+  chromeNav: true,
+  beforeChrome: null,
+
+  inChrome(el) {
+    return !!this.chrome?.contains(el);
+  },
+
+  chromeActive() {
+    return !!this.chrome && this.scopes.length === 1 && this.chrome.isConnected && !this.chrome.closest('.is-hidden');
+  },
+
+  // Back from the top bar to the page item you came from.
+  leaveChrome() {
+    if (!this.inChrome(this.current?.el)) return false;
+    const back = this.beforeChrome;
+    if (back?.el.isConnected && this.scope.el.contains(back.el)) this.focus(back);
+    else this.focusFirst();
+    return true;
+  },
 
   get scope() {
     return this.scopes[this.scopes.length - 1];
@@ -24,6 +46,7 @@ export const FocusManager = {
     this.current?.onBlur();
     this.current = null;
     this.scopes = [{ el, onBack, memory: new WeakMap(), prev: null }];
+    this.beforeChrome = null;
   },
 
   pushScope(el, { onBack, initial } = {}) {
@@ -46,12 +69,14 @@ export const FocusManager = {
   },
 
   inScope(comp) {
-    return !!this.scope?.el.contains(comp.el);
+    return !!this.scope?.el.contains(comp.el) || (this.chromeActive() && this.inChrome(comp.el));
   },
 
   focusables(root = this.scope?.el) {
     if (!root) return [];
-    return [...root.querySelectorAll('.v-focusable')].filter((el) => el.__v && el.getClientRects().length);
+    const els = [...root.querySelectorAll('.v-focusable')];
+    if (root === this.scopes[0]?.el && this.chromeNav && this.chromeActive()) els.push(...this.chrome.querySelectorAll('.v-focusable'));
+    return els.filter((el) => el.__v && el.getClientRects().length);
   },
 
   focusFirst(initial) {
@@ -61,6 +86,7 @@ export const FocusManager = {
 
   focus(comp, { silent = false } = {}) {
     if (!comp || comp === this.current) return;
+    if (this.inChrome(comp.el) && this.current && !this.inChrome(this.current.el)) this.beforeChrome = this.current;
     this.current?.onBlur();
     this.current = comp;
     comp.onFocus({ silent });
@@ -112,6 +138,10 @@ export const FocusManager = {
     const list = this.focusables();
     if (!cur || !list.includes(cur.el)) {
       this.focusFirst();
+      return;
+    }
+    if (dir === 'down' && this.inChrome(cur.el)) {
+      this.leaveChrome();
       return;
     }
     // A container can send a direction to a specific group: data-nav-down=".hero-actions".

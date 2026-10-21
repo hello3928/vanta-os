@@ -121,6 +121,7 @@ export function openQuickAccess(app, tab = 'quick') {
   const rail = new VTabs({ tabs, value: tab, variant: 'rail' });
   const panel = new VPanel({ side: 'right', rail });
   const render = (id) => {
+    panel.tab = id;
     const label = tabs.find((x) => x.id === id).label;
     const time = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
     const sub = id === 'notifications' ? '' : id === 'quick' ? time : Device.current.battery ? t('batteryLeft', { n: 72, time: duration(160) }) : Device.current.name;
