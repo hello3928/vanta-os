@@ -736,8 +736,7 @@
 .v-panel--left {
   right: auto;
   left: 0;
-  width: min(18rem, 100%);
-  background: var(--bg-2);
+  width: min(20rem, 100%);
   box-shadow: 16px 0 40px rgb(0 0 0 / 0.35), inset -1px 0 0 var(--line);
   transform: translateX(-100%);
 }
@@ -1785,23 +1784,6 @@
 }
 
 /* ---------- Side panels: same row language as Settings ---------- */
-/* Main menu (left) uses the Settings category style: dark strip, light inverted focus. */
-.v-panel--left .menu__item {
-  min-height: 2.75rem;
-  padding: 0.5rem 0.85rem;
-}
-.v-panel--left .menu__item.is-selected:not(.is-focused) {
-  background: var(--surface-2);
-}
-.v-panel--left .menu__item.is-selected .v-control__label {
-  color: var(--fg);
-}
-.v-panel--left .menu__item.is-focused {
-  background: var(--light);
-}
-.v-panel--left .menu__item.is-focused .v-control__label {
-  color: var(--on-light);
-}
 /* Quick access tab rail: active tab on a raised grey, focused tab inverted. */
 .v-tabs--rail .v-tab.is-active:not(.is-focused) {
   background: var(--surface-2);

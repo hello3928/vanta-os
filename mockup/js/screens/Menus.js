@@ -16,18 +16,15 @@ import { Settings } from '../core/Settings.js';
 import { Profiles } from '../core/Profiles.js';
 import { t, duration } from '../core/i18n.js';
 import { esc, h } from '../core/util.js';
-import { wordmark } from '../brand.js';
 import { artImg } from '../art/index.js';
 import { avatarEl } from '../components/avatar.js';
 import { openProfileEditor } from './ProfileEditor.js';
 
 export function openMainMenu(app) {
-  const header = h('div', 'menu__header');
-  header.append(h('div', 'menu__brand', wordmark(Settings.get('brand'), { height: 18, color: '#ffffff' })));
+  // Same panel, header, rows and focus as Quick access; the header is your profile.
   const me = Profiles.current;
-  const profile = h('div', 'menu__profile');
-  profile.append(avatarEl(me, 'avatar avatar--sm'), h('span', '', `<strong>${esc(me?.name || t('guest'))}</strong><span>${esc(t('online'))}</span>`));
-  header.append(profile);
+  const header = h('div', 'menu__profile');
+  header.append(avatarEl(me, 'avatar avatar--sm'), h('span', 'menu__who', `<span class="v-panel__title">${esc(me?.name || t('guest'))}</span><span class="v-panel__sub">${esc(t('online'))}</span>`));
   const panel = new VPanel({ side: 'left', header });
   const current = app.screen?.name;
   const items = [];

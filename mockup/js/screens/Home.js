@@ -14,38 +14,15 @@ import { Motion } from '../core/motion.js';
 import { Sound } from '../core/Sound.js';
 import { Haptics } from '../core/Haptics.js';
 import { GameMusic } from '../core/GameMusic.js';
-import { t, relDays, duration } from '../core/i18n.js';
-import { Settings } from '../core/Settings.js';
-import { Profiles } from '../core/Profiles.js';
-import { mark } from '../brand.js';
-import { weekSummary } from './Hub.js';
+import { t, relDays } from '../core/i18n.js';
 import { esc, h } from '../core/util.js';
 import { GAMES } from '../data.js';
 import { setArt, artImg } from '../art/index.js';
 import { gameCapsule, playtime } from './shared.js';
+import { homeWidgets } from './widgets.js';
 
 const PULL_OPEN = 110; // px of pull that opens the full-screen trailer
 const PULL_MAX = 260;
-
-const HUB = { id: 'hub' };
-
-// Deep blue-grey with light from the upper left; drawn once.
-let hubBg = null;
-function hubBackground() {
-  if (hubBg) return hubBg;
-  const c = Object.assign(document.createElement('canvas'), { width: 1600, height: 900 });
-  const x = c.getContext('2d');
-  x.fillStyle = '#1a1d23';
-  x.fillRect(0, 0, 1600, 900);
-  const glow = x.createRadialGradient(380, 120, 40, 380, 120, 1100);
-  glow.addColorStop(0, '#2b4a6b');
-  glow.addColorStop(0.45, '#1f2a38');
-  glow.addColorStop(1, '#1a1d23');
-  x.fillStyle = glow;
-  x.fillRect(0, 0, 1600, 900);
-  hubBg = c.toDataURL('image/jpeg', 0.92);
-  return hubBg;
-}
 
 export class HomeScreen {
   constructor(app) {
@@ -63,21 +40,13 @@ export class HomeScreen {
     this.intro = h('div', 'home__intro');
     this.logoEl = h('img', 'home__logo');
     this.logoEl.alt = '';
-    this.hubTitle = h('h1', 'home__hub-title');
-    this.hubTitle.hidden = true;
     this.metaEl = h('div', 'home__meta');
-    this.intro.append(this.logoEl, this.hubTitle, this.metaEl);
+    this.intro.append(this.logoEl, this.metaEl);
 
     let recent = GAMES.filter((g) => g.recent).sort((a, b) => a.recent - b.recent);
     if (app.running) recent = [app.running, ...recent.filter((g) => g !== app.running)];
     this.recentRow = new VRow({ title: t('recentGames'), align: 'start' });
     this.recentRow.el.dataset.scrollTop = '';
-    // The hub comes first, like the PS5's Welcome hub.
-    const hub = new VTile({ title: t('hub'), className: 'v-tile--hub' });
-    hub.artEl.innerHTML = `<span class="v-tile__hub">${mark(Settings.get('brand'), { size: 44, color: '#ffffff' })}<span>${esc(t('hub'))}</span></span>`;
-    hub.on('focus', () => this.show(HUB));
-    hub.on('activate', () => app.go('hub'));
-    this.recentRow.addItem(hub);
     this.tiles = recent.map((g) => {
       const tile = this.recentRow.addItem(gameCapsule(app, g));
       tile.on('focus', () => this.show(g));
@@ -85,6 +54,11 @@ export class HomeScreen {
     });
     const lib = new VTile({ title: t('library'), glyph: 'library', className: 'v-tile--more', onActivate: () => app.go('library') });
     this.recentRow.addItem(lib);
+
+    // Widgets, like the PS5's: play time, achievements, friends, downloads, storage.
+    const widgets = new VRow({ title: '' });
+    widgets.el.classList.add('home__widgets');
+    homeWidgets(app).forEach((w) => widgets.addItem(w));
 
     const added = new VRow({ title: t('recentlyAdded') });
     GAMES.filter((g) => g.added != null)
@@ -103,7 +77,7 @@ export class HomeScreen {
     });
 
     this.content = h('div', 'home__content');
-    this.content.append(this.intro, this.recentRow.el, added.el, emu.el);
+    this.content.append(this.intro, this.recentRow.el, widgets.el, added.el, emu.el);
     // A strip of page colour over the hero's clip edge (see .home__seam in screens.css).
     scroll.append(this.heroEl, h('div', 'home__seam'), h('div', 'shell-gap'), this.content);
     this.el.append(scroll);
@@ -141,10 +115,7 @@ export class HomeScreen {
 
   render(g, { instant = false } = {}) {
     if (g === this.game) return;
-    if (g === HUB) return this.renderHub();
     this.game = g;
-    this.hubTitle.hidden = true;
-    this.logoEl.hidden = false;
     if (!instant) GameMusic.select(g);
 
     // Hero: load the new art into the hidden layer, then crossfade (opacity only).
@@ -183,25 +154,6 @@ export class HomeScreen {
       };
       this.logoEl.decode().then(reveal, reveal);
     }, 100);
-  }
-
-  // The hub's hero: a quiet branded background, a greeting and this week's numbers.
-  renderHub() {
-    this.game = HUB;
-    GameMusic.select(null);
-    const front = this.layers.find((l) => l.classList.contains('is-on'));
-    const next = this.layers.find((l) => l !== front);
-    next.classList.remove('is-retro');
-    next.src = hubBackground();
-    next.classList.add('is-on');
-    front?.classList.remove('is-on');
-    const { minutes, games } = weekSummary();
-    this.logoEl.hidden = true;
-    this.hubTitle.hidden = false;
-    this.hubTitle.textContent = t('welcomeBack', { name: Profiles.current?.name || t('guest') });
-    this.metaEl.innerHTML = `<span>${esc(t('hubMeta', { time: duration(minutes) }))}</span><span>${esc(t('gamesCount', { n: games }))}</span>`;
-    this.logoEl.classList.remove('is-swapping');
-    this.metaEl.classList.remove('is-swapping');
   }
 
   // ---- full-screen trailer ----

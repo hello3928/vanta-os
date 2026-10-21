@@ -18,7 +18,7 @@ const DEFAULTS = {
   vantaSync: true,
   language: 'en',
   accent: 'ion',
-  brand: 'disc',
+  brand: 'line',
   brightness: 100,
   volume: 70,
   sfx: true,

@@ -1,6 +1,6 @@
 // Writes brand/*.svg from mockup/js/brand.js, the single source of truth for the logos.
 // Run from the repo root: node tools/export-logos.mjs
-// The SVGs use live text that loads its typeface from Google Fonts; outline them once a direction is chosen.
+// The wordmarks are drawn from custom letter geometry, so the SVGs need no fonts.
 
 import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

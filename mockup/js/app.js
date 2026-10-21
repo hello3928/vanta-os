@@ -21,7 +21,6 @@ import { LibraryScreen } from './screens/Library.js';
 import { GameScreen } from './screens/Game.js';
 import { SettingsScreen } from './screens/Settings.js';
 import { KitScreen } from './screens/Kit.js';
-import { HubScreen } from './screens/Hub.js';
 import { openMainMenu, openQuickAccess } from './screens/Menus.js';
 import { openPowerMenu } from './screens/PowerMenu.js';
 import { launchGame, gameView } from './screens/Launch.js';
@@ -34,7 +33,7 @@ import { SonyHaptics } from './core/SonyHaptics.js';
 SonyHaptics.restore();
 import { loadFonts, preload } from './art/index.js';
 
-const SCREENS = { setup: SetupScreen, users: UsersScreen, home: HomeScreen, library: LibraryScreen, game: GameScreen, settings: SettingsScreen, kit: KitScreen, hub: HubScreen };
+const SCREENS = { setup: SetupScreen, users: UsersScreen, home: HomeScreen, library: LibraryScreen, game: GameScreen, settings: SettingsScreen, kit: KitScreen };
 
 Motion.init();
 const appEl = document.getElementById('app');
