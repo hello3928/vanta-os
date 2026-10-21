@@ -422,6 +422,7 @@ export class SetupScreen {
       Profiles.use(p.id);
       Settings.set('setupDone', true);
       this.app.go('home', {}, { replace: true });
+      this.app.welcome();
     });
     this.actions(start);
   }

@@ -1210,3 +1210,147 @@
 .widget__friend-text .is-playing {
   color: #8bc26f;
 }
+
+/* ---------- Welcome (end of setup): the logo draws itself in ---------- */
+.welcome {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  opacity: 0;
+  transition: opacity var(--t-slow) var(--ease-out);
+}
+.welcome.is-in {
+  opacity: 1;
+}
+.welcome.is-out {
+  opacity: 0;
+  transition: opacity 420ms var(--ease-in);
+}
+.logo-draw {
+  transform: rotate(-50deg) scale(0.92);
+  transition: transform 1400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.welcome.is-in .logo-draw {
+  transform: none;
+}
+.logo-draw .logo__arc {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+.welcome.is-in .logo-draw .logo__arc {
+  animation: logo-draw 900ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+.welcome.is-in .logo-draw .logo__arc--2 {
+  animation-delay: 140ms;
+}
+.welcome.is-in .logo-draw .logo__arc--3 {
+  animation-delay: 280ms;
+}
+.logo-draw .logo__core {
+  opacity: 0;
+  transform-origin: 50px 50px;
+  transform: scale(0);
+}
+.welcome.is-in .logo-draw .logo__core {
+  animation: logo-core 500ms 520ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+@keyframes logo-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes logo-core {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-draw,
+  .logo-draw .logo__arc,
+  .logo-draw .logo__core {
+    animation: none !important;
+    transform: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* ---------- Tour: a spotlight on one area of Home, and a card ---------- */
+.tour {
+  z-index: 45;
+}
+.tour__spot {
+  position: fixed;
+  border-radius: var(--r-lg);
+  box-shadow:
+    0 0 0 2px rgb(255 255 255 / 0.9),
+    0 0 0 200vmax rgb(10 12 15 / 0.72);
+  opacity: 0;
+  transition:
+    left var(--t-slow) var(--ease-out),
+    top var(--t-slow) var(--ease-out),
+    width var(--t-slow) var(--ease-out),
+    height var(--t-slow) var(--ease-out),
+    opacity var(--t-base) var(--ease-out);
+  pointer-events: none;
+}
+.tour.is-open .tour__spot {
+  opacity: 1;
+}
+.tour.is-centred .tour__spot {
+  box-shadow: 0 0 0 200vmax rgb(10 12 15 / 0.72);
+}
+.tour__card {
+  position: fixed;
+  width: min(24rem, calc(100% - 32px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-5);
+  border-radius: var(--r-lg);
+  background: var(--panel);
+  box-shadow: var(--shadow-3), inset 0 0 0 1px var(--line);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--t-base) var(--ease-out),
+    transform var(--t-base) var(--ease-out);
+}
+.tour.is-open .tour__card {
+  opacity: 1;
+  transform: none;
+}
+.tour.is-centred .tour__card {
+  left: 50% !important;
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%);
+}
+.tour__step {
+  font-size: var(--t-sm);
+  color: var(--fg-3);
+}
+.tour__title {
+  margin: 0;
+  font: 600 var(--t-lg) / 1.3 var(--font-ui);
+}
+.tour__body {
+  margin: 0;
+  color: var(--fg-2);
+  line-height: 1.6;
+}
+.tour__glyph .v-glyph {
+  display: inline-block;
+  height: 1.5em;
+  vertical-align: -0.4em;
+}
+.tour__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+}

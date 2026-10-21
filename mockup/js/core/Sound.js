@@ -136,6 +136,26 @@ function tone(c, out, { t = 0, f = 880, dur = 0.12, g = 0.03 }) {
   osc.stop(now + dur + 0.02);
 }
 
+// A soft mallet note: sine with a quiet third partial, quick attack, long natural decay.
+function mallet(c, out, { t = 0, f = 587.33, dur = 0.7, g = 0.05 }) {
+  const now = c.currentTime + t;
+  [
+    [f, 1],
+    [f * 3, 0.12],
+  ].forEach(([freq, level]) => {
+    const osc = c.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    const env = c.createGain();
+    env.gain.setValueAtTime(0.0001, now);
+    env.gain.exponentialRampToValueAtTime(g * level, now + 0.006);
+    env.gain.exponentialRampToValueAtTime(0.0001, now + dur * (level < 1 ? 0.4 : 1));
+    osc.connect(env).connect(out);
+    osc.start(now);
+    osc.stop(now + dur + 0.05);
+  });
+}
+
 // Each sound: (c, out, noise, opts). Levels are set so navigation is quietest.
 const SOUNDS = {
   move: (c, o, n) => tick(c, o, n, { pitch: rand(1850, 1950), ring: 0.011, g: 0.35, body: 320, bodyG: 0.02 }),
@@ -182,6 +202,25 @@ const SOUNDS = {
     air(c, o, n, { t: 0.05, dur: 0.45, from: 300, to: 2400, g: 0.03 });
     tick(c, o, n, { t: 0.46, pitch: 300, ring: 0.05, g: 0.5, body: 80, bodyG: 0.12, bright: 0.1 });
   },
+  // End of first-time setup: a click, three soft mallet notes rising through a D major chord
+  // over a low swell. The only melodic sound in the system, played once.
+  welcome: (c, o, n) => {
+    tick(c, o, n, { pitch: 1450, ring: 0.02, g: 0.45, body: 150, bodyG: 0.06 });
+    const now = c.currentTime;
+    const pad = c.createOscillator();
+    pad.type = 'sine';
+    pad.frequency.value = 146.83;
+    const env = c.createGain();
+    env.gain.setValueAtTime(0.0001, now);
+    env.gain.linearRampToValueAtTime(0.028, now + 0.35);
+    env.gain.exponentialRampToValueAtTime(0.0001, now + 1.6);
+    pad.connect(env).connect(o);
+    pad.start(now);
+    pad.stop(now + 1.7);
+    mallet(c, o, { t: 0.08, f: 587.33, dur: 0.8, g: 0.05 });
+    mallet(c, o, { t: 0.24, f: 880, dur: 0.8, g: 0.045 });
+    mallet(c, o, { t: 0.4, f: 1174.66, dur: 1.1, g: 0.042 });
+  },
   boot: (c, o, n) => {
     air(c, o, n, { dur: 1.1, from: 200, to: 1400, g: 0.03 });
     tick(c, o, n, { t: 1.0, pitch: 260, ring: 0.06, g: 0.55, body: 70, bodyG: 0.14, bright: 0.1 });
@@ -192,7 +231,7 @@ const SOUNDS = {
 // confirm, back and error near -10 dBFS, before the volume settings.
 const LEVEL_DB = {
   move: 16, tab: 17, select: 13, back: 14, toggleOn: 16, toggleOff: 15.5, slider: 25, key: 18.5, keyDelete: 18,
-  open: 16, close: 15.5, error: 12.5, notify: 18, launch: 12, boot: 9,
+  open: 16, close: 15.5, error: 12.5, notify: 18, launch: 12, boot: 9, welcome: 12.5,
 };
 function leveled(c, out, name) {
   const g = c.createGain();

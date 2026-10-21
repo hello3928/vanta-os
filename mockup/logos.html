@@ -61,8 +61,8 @@
 <div class="wrap">
   <header>
     <div>
-      <h1>Vanta OS logo directions</h1>
-      <p>Wordmarks drawn from custom letter shapes, not a font. Each is shown large, on light, as an app icon, small, and at menu size. Switch between them under Settings → Appearance → Logo.</p>
+      <h1>Vanta OS logo</h1>
+      <p>Orbit: three arcs of falling radius around a centre point. Symbol only, no wordmark. Shown large, on light, as an app icon, and small.</p>
     </div>
     <a href="index.html">Back to the mockup</a>
   </header>
@@ -76,15 +76,15 @@
     const s = document.createElement('section');
     s.className = 'sheet';
     s.innerHTML = `
-      <div class="stage">${wordmark(id, { height: 64, color: '#ffffff' })}</div>
+      <div class="stage">${mark(id, { size: 168, color: '#ffffff' })}</div>
       <div class="info">
-        <div><span class="label">Direction ${'ABC'[i]}</span><h2>${d.name}</h2></div>
+        <div><h2>${d.name}</h2></div>
         <p class="summary">${d.summary}</p>
         <div class="tests">
-          <div class="test light">${wordmark(id, { height: 28, color: '#0d1117' })}</div>
+          <div class="test light">${mark(id, { size: 44, color: '#0d1117' })}</div>
           <div class="test accent">${mark(id, { size: 56, color: '#ffffff', tile: '#0d1117' })}${mark(id, { size: 40, color: '#ffffff', tile: '#2f80ed' })}</div>
           <div class="test">${mark(id, { size: 32, color: '#fff' })}${mark(id, { size: 20, color: '#fff' })}</div>
-          <div class="test bar">${wordmark(id, { height: 16, color: '#fff' })}</div>
+          <div class="test bar">${mark(id, { size: 16, color: '#fff' })}</div>
         </div>
       </div>`;
     host.append(s);

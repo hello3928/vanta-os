@@ -21,6 +21,7 @@ import { LibraryScreen } from './screens/Library.js';
 import { GameScreen } from './screens/Game.js';
 import { SettingsScreen } from './screens/Settings.js';
 import { KitScreen } from './screens/Kit.js';
+import { playWelcome, startTour } from './screens/Tour.js';
 import { openMainMenu, openQuickAccess } from './screens/Menus.js';
 import { openPowerMenu } from './screens/PowerMenu.js';
 import { launchGame, gameView } from './screens/Launch.js';
@@ -325,6 +326,19 @@ const App = {
 
   setHints(hints) {
     Shell.setHints(hints);
+  },
+
+  // End of first-time setup: the logo and jingle, then the tour of Home.
+  async welcome() {
+    this.busy = true;
+    await playWelcome(layer);
+    this.busy = false;
+    startTour(App);
+  },
+
+  tour() {
+    this.go('home');
+    setTimeout(() => startTour(App), 500);
   },
 
   // Rebuild the current screen in the new language, keeping your place in Settings.

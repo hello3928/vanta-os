@@ -21,7 +21,6 @@ import { Haptics } from '../core/Haptics.js';
 import { t, i18n, LANGUAGES } from '../core/i18n.js';
 import { esc, h } from '../core/util.js';
 import { GAMES, SYSTEMS, BIOS_LABEL } from '../data.js';
-import { DIRECTIONS } from '../brand.js';
 import { Profiles } from '../core/Profiles.js';
 import { openProfileEditor } from './ProfileEditor.js';
 import { steamSignIn, vantaSignIn } from './Accounts.js';
@@ -29,7 +28,6 @@ import { VPanel } from '../components/VPanel.js';
 
 const EMU_COUNT = GAMES.filter((g) => g.source === 'emu').length;
 const ACCENTS = { Ion: 'ion', Ember: 'ember', Mint: 'mint' };
-const BRANDS = Object.fromEntries(Object.entries(DIRECTIONS).map(([id, d]) => [d.name, id]));
 const nameOf = (map, id) => Object.keys(map).find((k) => map[k] === id);
 const label = (text) => h('div', 'settings__label', esc(text));
 const note = (text) => h('p', 'settings__note', esc(text));
@@ -187,11 +185,9 @@ const SECTIONS = [
     build: () => {
       const accent = new VDropdown({ label: t('accent'), options: Object.keys(ACCENTS), value: nameOf(ACCENTS, Settings.get('accent')) });
       accent.on('change', (n) => Settings.set('accent', ACCENTS[n]));
-      const brand = new VDropdown({ label: t('logo'), options: Object.keys(BRANDS), value: nameOf(BRANDS, Settings.get('brand')) });
-      brand.on('change', (n) => Settings.set('brand', BRANDS[n]));
-      const link = h('a', 'settings__link', esc(t('compareLogos')));
+      const link = h('a', 'settings__link', esc(t('logo')));
       link.href = 'logos.html';
-      return [accent, brand, link];
+      return [accent, link];
     },
   },
   {
@@ -250,6 +246,7 @@ const SECTIONS = [
         },
       }),
       new VListItem({ label: t('runSetup'), chevron: true, onActivate: () => app.go('setup', {}, { replace: true }) }),
+      new VListItem({ label: t('showTour'), chevron: true, onActivate: () => app.tour() }),
       new VDropdown({ label: t('previewDevice'), detail: t('previewDeviceDetail'), options: Object.entries(DEVICES).map(([value, d]) => ({ value, label: d.name })), bind: 'device' }),
       new VListItem({ label: t('componentGallery'), chevron: true, onActivate: () => app.go('kit') }),
     ],
