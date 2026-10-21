@@ -6,6 +6,8 @@ import { VListItem } from '../components/VListItem.js';
 import { VToggle } from '../components/VToggle.js';
 import { VSlider } from '../components/VSlider.js';
 import { VDropdown } from '../components/VDropdown.js';
+import { frameLimit, tdpSlider, upscaling, vrrToggle, hdrToggle } from './perf.js';
+import { Device, DEVICES } from '../core/Device.js';
 import { VButton } from '../components/VButton.js';
 import { VDialog } from '../components/VDialog.js';
 import { VToast } from '../components/VToast.js';
@@ -20,6 +22,8 @@ import { GAMES, SYSTEMS, BIOS_LABEL } from '../data.js';
 import { DIRECTIONS } from '../brand.js';
 import { Profiles } from '../core/Profiles.js';
 import { openProfileEditor } from './ProfileEditor.js';
+import { steamSignIn, vantaSignIn } from './Accounts.js';
+import { VPanel } from '../components/VPanel.js';
 
 const EMU_COUNT = GAMES.filter((g) => g.source === 'emu').length;
 const ACCENTS = { Ion: 'ion', Ember: 'ember', Mint: 'mint' };
@@ -29,6 +33,55 @@ const label = (text) => h('div', 'settings__label', esc(text));
 const note = (text) => h('p', 'settings__note', esc(text));
 
 const SECTIONS = [
+  {
+    id: 'accounts',
+    label: () => t('accounts'),
+    icon: 'account_circle',
+    build: (app) => {
+      const me = Profiles.current;
+      if (!me) return [note(t('accountsGuest'))];
+      const rows = [label('Steam')];
+      if (me.steam) {
+        const s = me.steam;
+        rows.push(
+          new VListItem({ label: s.persona, detail: t('steamSummary', { level: s.level, since: s.since }), badge: { text: t('signedIn'), tone: 'good' } }),
+          new VToggle({ label: t('syncAchievements'), bind: 'steamAchievements' }),
+          new VToggle({ label: t('syncScreenshots'), bind: 'steamScreenshots' }),
+          new VToggle({ label: t('showFriends'), bind: 'steamFriends' }),
+          new VListItem({
+            label: t('signOutSteam'),
+            chevron: true,
+            onActivate: async () => {
+              const ok = await VDialog.confirm({ title: t('signOutSteamQ'), body: t('signOutSteamBody'), confirmLabel: t('signOut'), cancelLabel: t('cancel'), danger: true });
+              if (!ok) return;
+              Profiles.update(me.id, { steam: null });
+              reopen(app);
+            },
+          }),
+        );
+      } else {
+        rows.push(new VListItem({ label: t('signInSteam'), icon: 'qr_code_2', detail: t('steamOptionDetail'), chevron: true, onActivate: () => openSignIn(app, 'steam') }));
+      }
+      rows.push(label(t('vantaAccount')));
+      if (me.vanta) {
+        rows.push(
+          new VListItem({ label: me.vanta.email, detail: t('vantaOptionDetail'), badge: { text: t('signedIn'), tone: 'good' } }),
+          new VToggle({ label: t('syncSettings'), bind: 'vantaSync' }),
+          new VListItem({
+            label: t('signOut'),
+            chevron: true,
+            onActivate: () => {
+              Profiles.update(me.id, { vanta: null });
+              reopen(app);
+            },
+          }),
+        );
+      } else {
+        rows.push(new VListItem({ label: t('vantaAccount'), icon: 'person', detail: t('vantaOptionDetail'), chevron: true, onActivate: () => openSignIn(app, 'vanta') }));
+      }
+      return rows;
+    },
+  },
   {
     id: 'profile',
     label: () => t('profile'),
@@ -51,10 +104,10 @@ const SECTIONS = [
     icon: 'desktop',
     build: () => [
       new VSlider({ label: t('brightness'), min: 10, max: 100, step: 5, bind: 'brightness' }),
-      new VToggle({ label: t('vrr'), bind: 'vrr' }),
-      new VToggle({ label: t('hdr'), bind: 'hdr' }),
-      new VDropdown({ label: t('upscaling'), options: ['Off', 'Quality', 'Balanced', 'Performance'], bind: 'upscaling' }),
-      new VDropdown({ label: t('frameLimit'), options: ['Off', '30', '40', '60', '90', '120'], bind: 'fpsLimit' }),
+      vrrToggle(),
+      hdrToggle(),
+      upscaling(),
+      frameLimit(),
     ],
   },
   {
@@ -104,7 +157,7 @@ const SECTIONS = [
     label: () => t('performance'),
     icon: 'bolt',
     build: () => [
-      new VSlider({ label: t('defaultTdp'), min: 3, max: 30, step: 1, bind: 'tdp', format: (v) => `${v} W` }),
+      tdpSlider({ label: t('defaultTdp') }),
       new VDropdown({ label: t('epp'), options: ['Power saver', 'Balanced', 'Performance'], bind: 'epp' }),
       new VDropdown({ label: t('scheduler'), options: ['scx_lavd', 'Kernel default'], bind: 'scheduler' }),
       new VToggle({ label: 'GameMode', bind: 'gamemode' }),
@@ -163,6 +216,7 @@ const SECTIONS = [
         },
       }),
       new VListItem({ label: t('runSetup'), chevron: true, onActivate: () => app.go('setup', {}, { replace: true }) }),
+      new VDropdown({ label: t('previewDevice'), detail: t('previewDeviceDetail'), options: Object.entries(DEVICES).map(([value, d]) => ({ value, label: d.name })), bind: 'device' }),
       new VListItem({ label: t('componentGallery'), chevron: true, onActivate: () => app.go('kit') }),
     ],
   },
@@ -171,12 +225,37 @@ const SECTIONS = [
     label: () => t('about'),
     icon: 'info',
     build: () => [
-      new VListItem({ label: t('device'), detail: 'ROG Ally X · AMD Ryzen Z1 Extreme · 24 GB' }),
+      new VListItem({ label: t('device'), detail: `${Device.current.name} · ${Device.current.chip} · ${Device.current.memory}` }),
+      new VListItem({ label: t('display'), detail: `${Device.current.display.w}×${Device.current.display.h} · ${Device.current.display.hz} Hz${Device.current.display.vrr ? ' · VRR' : ''}${Device.current.display.hdr ? ' · HDR' : ''}` }),
       new VListItem({ label: t('storage'), detail: t('storageVal', { free: '412 GB', total: '1 TB' }) }),
       new VListItem({ label: t('software'), detail: 'Fedora Atomic (bootc) · Mesa RADV · gamescope · Proton' }),
     ],
   },
 ];
+
+// Rebuild Settings on the Accounts page after linking or unlinking.
+function reopen(app) {
+  app.stack[app.stack.length - 1].params = { section: 'accounts' };
+  app.refresh();
+}
+
+// Sign in from Settings: the same flows as setup, in a side panel.
+function openSignIn(app, kind) {
+  const me = Profiles.current;
+  const panel = new VPanel({ title: kind === 'steam' ? t('signInSteam') : t('vantaAccount') });
+  const host = h('div', 'setup__signin');
+  panel.addItems(host);
+  panel.open();
+  const onDone = (account) => {
+    // A Steam picture fills in only where the profile has none of its own.
+    Profiles.update(me.id, { [kind]: account, ...(kind === 'steam' && !me.photo ? { photo: account.avatar } : {}) });
+    panel.close({ silent: true });
+    VToast.show(kind === 'steam' ? t('signedInAs', { name: account.persona }) : t('signedInAs', { name: account.email }), { icon: 'checkCircle' });
+    reopen(app);
+  };
+  const stop = kind === 'steam' ? steamSignIn(host, { onDone }) : vantaSignIn(host, { onDone });
+  panel.on('close', stop);
+}
 
 function describePads() {
   let pads = [];

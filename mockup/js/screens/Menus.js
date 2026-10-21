@@ -8,6 +8,8 @@ import { VListItem } from '../components/VListItem.js';
 import { VSlider } from '../components/VSlider.js';
 import { VToggle } from '../components/VToggle.js';
 import { VDropdown } from '../components/VDropdown.js';
+import { frameLimit, tdpToggle, tdpSlider, upscaling, vrrToggle } from './perf.js';
+import { Device } from '../core/Device.js';
 import { VToast } from '../components/VToast.js';
 import { FocusManager } from '../core/FocusManager.js';
 import { Settings } from '../core/Settings.js';
@@ -93,14 +95,16 @@ function quickSettings() {
   ];
 }
 
-function performance() {
+// Applies to the running game when there is one, so its runtime decides what's available.
+function performance(app) {
+  const game = app.running;
   return [
     new VDropdown({ label: t('perfOverlay'), icon: 'speed', options: ['Off', 'FPS', 'Basic', 'Full'], bind: 'overlay' }),
-    new VDropdown({ label: t('frameLimit'), icon: 'speed', options: ['Off', '30', '40', '60', '90', '120'], bind: 'fpsLimit' }),
-    new VToggle({ label: t('limitTdp'), icon: 'bolt', bind: 'tdpLimit' }),
-    new VSlider({ label: t('tdpLimit'), icon: 'bolt', min: 3, max: 30, step: 1, bind: 'tdp', format: (v) => `${v} W` }),
-    new VDropdown({ label: t('upscaling'), icon: 'sparkle', options: ['Off', 'Quality', 'Balanced', 'Performance'], bind: 'upscaling' }),
-    new VToggle({ label: t('vrr'), icon: 'monitor', bind: 'vrr' }),
+    frameLimit({ icon: 'speed' }),
+    tdpToggle({ icon: 'bolt' }),
+    tdpSlider({ icon: 'bolt' }),
+    upscaling({ icon: 'sparkle', game }),
+    vrrToggle({ icon: 'monitor' }),
   ];
 }
 
@@ -119,9 +123,9 @@ export function openQuickAccess(app, tab = 'quick') {
   const render = (id) => {
     const label = tabs.find((x) => x.id === id).label;
     const time = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    const sub = id === 'notifications' ? '' : id === 'quick' ? time : t('batteryLeft', { n: 72, time: duration(160) });
+    const sub = id === 'notifications' ? '' : id === 'quick' ? time : Device.current.battery ? t('batteryLeft', { n: 72, time: duration(160) }) : Device.current.name;
     panel.setTitle(label, sub);
-    panel.clear().addItems(id === 'quick' ? quickSettings() : id === 'performance' ? performance() : notifications());
+    panel.clear().addItems(id === 'quick' ? quickSettings() : id === 'performance' ? performance(app) : notifications());
   };
   rail.on('change', (id) => render(id));
   // Like a console quick menu, focusing a rail icon switches the page straight away.

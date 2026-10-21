@@ -66,6 +66,7 @@ export class VSlider extends VComponent {
 
   drag(e) {
     e.preventDefault();
+    if (this.disabled) return;
     const move = (ev) => {
       const r = this.track.getBoundingClientRect();
       const t = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width));

@@ -5,6 +5,8 @@
 
 import { VButton } from '../components/VButton.js';
 import { VDropdown } from '../components/VDropdown.js';
+import { frameLimit, tdpSlider, upscaling, runtimeControl } from './perf.js';
+import { Device, runtimeOf, gameUpscalers } from '../core/Device.js';
 import { VSlider } from '../components/VSlider.js';
 import { VToggle } from '../components/VToggle.js';
 import { VBadge } from '../components/VBadge.js';
@@ -69,12 +71,10 @@ export class GameScreen {
     profile.dataset.focusGroup = '';
     profile.append(h('h2', 'game__heading', esc(t('perfProfile'))));
     [
-      new VSlider({ label: t('tdpLimit'), min: 3, max: 30, step: 1, value: Settings.get('tdp'), format: (v) => `${v} W` }),
-      new VDropdown({ label: t('frameLimit'), options: ['Off', '30', '40', '60', '90', '120'], value: Settings.get('fpsLimit') }),
-      new VDropdown({ label: t('upscaling'), options: ['Off', 'Quality', 'Balanced', 'Performance'], value: Settings.get('upscaling') }),
-      sys
-        ? new VDropdown({ label: t('internalRes'), options: ['Native', '2×', '3×', '4×'], value: '2×' })
-        : new VDropdown({ label: t('compatTool'), options: ['Proton 10', 'Proton Experimental', 'GE-Proton'] }),
+      tdpSlider({ value: Settings.get('tdp') }),
+      frameLimit({ value: Device.frameOptions().includes(Settings.get('fpsLimit')) ? Settings.get('fpsLimit') : 'Off' }),
+      sys ? new VDropdown({ label: t('internalRes'), options: ['Native', '2×', '3×', '4×'], value: '2×' }) : upscaling({ game: g, value: Settings.get('upscaling') }),
+      runtimeControl(g),
       new VToggle({ label: t('perfOverlay') }),
     ].forEach((c) => profile.append(c.el));
 
@@ -87,6 +87,8 @@ export class GameScreen {
       <dl class="game__dl">
         <dt>${esc(t('genre'))}</dt><dd>${esc(g.genre)}</dd>
         <dt>${esc(t('source'))}</dt><dd>${esc(sys ? sys.name : 'Steam')}</dd>
+        <dt>${esc(t('runsWith'))}</dt><dd>${esc(runtimeLabel(g))}</dd>
+        ${upscalerList(g)}
         ${g.size ? `<dt>${esc(t('size'))}</dt><dd>${esc(g.size)}</dd>` : ''}
       </dl>`;
     side.append(compat, details);
@@ -123,9 +125,7 @@ export class GameScreen {
     const sys = systemOf(g);
     const panel = new VPanel({ title: t('properties'), subtitle: g.title });
     const items = [
-      sys
-        ? new VDropdown({ label: t('emulator'), icon: 'chip', options: [sys.emulator, ...(sys.emulator.startsWith('RetroArch') ? [] : ['RetroArch'])] })
-        : new VDropdown({ label: t('compatTool'), icon: 'chip', options: ['Proton 10', 'Proton Experimental', 'GE-Proton'] }),
+      runtimeControl(g, { icon: 'chip' }),
       new VToggle({ label: t('cloudSaves'), icon: 'cloud', value: true }),
       new VListItem({ label: t('browseFiles'), icon: 'folder', chevron: true, onActivate: () => VToast.show(t('notAvailable'), { icon: 'info' }) }),
     ];
@@ -149,4 +149,18 @@ export class GameScreen {
     }
     panel.addItems(items).open();
   }
+}
+
+function runtimeLabel(g) {
+  const runtime = runtimeOf(g);
+  if (runtime === 'emulator') return systemOf(g).emulator;
+  return runtime === 'native' ? t('runtimeNative') : 'Proton';
+}
+
+// The game's own upscalers, with the ones this GPU can't run marked.
+function upscalerList(g) {
+  const list = gameUpscalers(g);
+  if (!list.length) return '';
+  const items = list.map((u) => (u.works ? esc(u.name) : `<span class="game__na">${esc(u.name)} (${esc(t('needsNvidia'))})</span>`)).join(', ');
+  return `<dt>${esc(t('gameUpscalers'))}</dt><dd>${items}</dd>`;
 }

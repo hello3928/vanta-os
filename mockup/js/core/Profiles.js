@@ -46,8 +46,8 @@ export const Profiles = {
   nextColor() {
     return COLORS[state.list.length % COLORS.length];
   },
-  add({ name, color, photo = null }) {
-    const p = { id: `p${Date.now().toString(36)}`, name: name.trim() || 'Player', color: color || this.nextColor(), photo };
+  add({ name, color, photo = null, steam = null, vanta = null }) {
+    const p = { id: `p${Date.now().toString(36)}`, name: name.trim() || 'Player', color: color || this.nextColor(), photo, steam, vanta };
     state.list.push(p);
     save();
     return p;

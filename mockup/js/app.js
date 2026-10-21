@@ -27,6 +27,7 @@ import { launchGame, gameView } from './screens/Launch.js';
 import { GAMES } from './data.js';
 import { t, i18n } from './core/i18n.js';
 import { Profiles } from './core/Profiles.js';
+import { normalizeForDevice } from './core/Device.js';
 import { loadFonts, preload } from './art/index.js';
 
 const SCREENS = { setup: SetupScreen, users: UsersScreen, home: HomeScreen, library: LibraryScreen, game: GameScreen, settings: SettingsScreen, kit: KitScreen };
@@ -313,6 +314,14 @@ const EFFECTS = {
   gameMusic: (on) => GameMusic.setEnabled(on),
   musicVolume: (v) => GameMusic.setVolume(v / 100),
   trailerVideo: (on) => GameMusic.setShowVideo(on),
+  // Mockup: previewing another device changes which settings apply.
+  device: () => {
+    normalizeForDevice();
+    if (!App.screen) return;
+    Shell.build();
+    if (App.screen.name === 'settings') App.stack[App.stack.length - 1].params = { section: 'system' };
+    App.refresh();
+  },
 };
 for (const [key, apply] of Object.entries(EFFECTS)) {
   apply(Settings.get(key));

@@ -73,6 +73,21 @@ export class VComponent {
     return this;
   }
 
+  // Shown but not usable on this device or for this game, with the reason on the second line.
+  setUnsupported(reason) {
+    if (!reason) return this;
+    this.setDisabled(true);
+    this.el.classList.add('is-unsupported');
+    let detail = this.el.querySelector('.v-control__detail');
+    if (!detail) {
+      detail = document.createElement('span');
+      detail.className = 'v-control__detail';
+      this.el.append(detail);
+    }
+    detail.textContent = reason;
+    return this;
+  }
+
   // Keeps this component in sync with a setting, wherever else it gets changed.
   bind(key, apply) {
     apply(Settings.get(key));

@@ -108,7 +108,7 @@ export const FocusManager = {
 
   move(dir) {
     const cur = this.current;
-    if (cur && cur.el.isConnected && cur.handleDirection(dir)) return;
+    if (cur && cur.el.isConnected && !cur.disabled && cur.handleDirection(dir)) return;
     const list = this.focusables();
     if (!cur || !list.includes(cur.el)) {
       this.focusFirst();

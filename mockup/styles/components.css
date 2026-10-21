@@ -1739,3 +1739,38 @@
     font-size: var(--t-md);
   }
 }
+
+/* ---------- Unsupported controls (see Device.js) ---------- */
+.v-control.is-unsupported {
+  opacity: 1;
+  cursor: default;
+}
+.v-control.is-unsupported .v-control__label {
+  color: var(--fg-3);
+}
+.v-control.is-unsupported .v-control__detail {
+  color: var(--fg-4);
+}
+.v-control.is-unsupported.is-focused .v-control__label,
+.v-control.is-unsupported.is-focused .v-control__detail {
+  color: var(--fg-3);
+}
+.v-control.is-unsupported .v-control__trail,
+.v-control.is-unsupported .v-control__icon {
+  opacity: 0.4;
+}
+.v-toggle.is-unsupported .v-switch {
+  background: var(--track);
+}
+.v-toggle.is-unsupported .v-switch::after {
+  transform: none;
+}
+.v-slider.is-unsupported {
+  grid-template-areas:
+    "icon label trail"
+    "icon detail trail";
+}
+.v-slider.is-unsupported .v-slider__track,
+.v-slider.is-unsupported .v-control__value {
+  display: none;
+}

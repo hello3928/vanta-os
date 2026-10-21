@@ -952,3 +952,120 @@
   height: 2.9rem;
   font-size: 2.9rem;
 }
+
+.game__na {
+  color: var(--fg-4);
+}
+
+/* ---------- Sign-in (setup and Settings → Accounts) ---------- */
+.setup__signin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+.signin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding: var(--s-5);
+  border-radius: var(--r-lg);
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.signin__code {
+  align-self: flex-start;
+  padding: 0.5rem;
+  border-radius: var(--r-md);
+  background: #ffffff;
+  line-height: 0;
+}
+.signin__qr {
+  width: 9.5rem;
+  height: 9.5rem;
+}
+.signin__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  color: var(--fg-3);
+  font-size: var(--t-sm);
+}
+.signin__text strong {
+  color: var(--fg);
+  font-size: var(--t-md);
+  font-weight: 600;
+}
+.signin__status {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-size: var(--t-sm);
+  color: var(--fg-2);
+}
+.signin__ok {
+  color: var(--good);
+  font-size: 1.25rem;
+}
+.signin__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+.signin__intro {
+  margin: 0;
+  color: var(--fg-3);
+  font-size: var(--t-sm);
+  max-width: 44ch;
+}
+.signin__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.signin__message:empty {
+  display: none;
+}
+.sync {
+  display: flex;
+  flex-direction: column;
+}
+.sync__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: 2.6rem;
+  color: var(--fg-3);
+  font-size: var(--t-sm);
+  transition: color var(--t-base) var(--ease-out);
+}
+.sync__row.is-done {
+  color: var(--fg-2);
+}
+.sync__icon {
+  display: grid;
+}
+.sync__state {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.sync__count {
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+}
+.setup__from,
+.setup__linked {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--t-sm);
+  color: var(--fg-3);
+}
+.setup__from {
+  padding: 0 var(--s-4) var(--s-2);
+}
+.setup__linked .setup__check {
+  opacity: 1;
+  font-size: 1.1rem;
+}

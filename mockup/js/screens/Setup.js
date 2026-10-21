@@ -1,5 +1,7 @@
 // First-time setup. Two columns, as on PS5: the step title on the left, the choices on the right.
-// Steps: language, network (password on the on-screen keyboard), controller, profile, updates, done.
+// Steps: language, network (password on the on-screen keyboard), system and Steam updates, sign-in
+// (Steam and/or a Vanta account), controller, profile, done. Updates come before sign-in because
+// the preinstalled Steam client has to be current before it can sign in.
 // Picking a language switches the whole interface straight away. Runs on first start, or again
 // from Settings → System.
 
@@ -21,8 +23,9 @@ import { icon } from '../core/icons.js';
 import { t, i18n, LANGUAGES } from '../core/i18n.js';
 import { esc, h } from '../core/util.js';
 import { avatarEl } from '../components/avatar.js';
+import { steamSignIn, vantaSignIn } from './Accounts.js';
 
-const STEPS = ['language', 'network', 'controller', 'profile', 'updates', 'done'];
+const STEPS = ['language', 'network', 'updates', 'account', 'controller', 'profile', 'done'];
 const NETWORKS = [
   { ssid: 'Home-5G', bars: 'wifi', secured: true },
   { ssid: 'Home-2.4G', bars: 'network_wifi_3_bar', secured: true },
@@ -45,6 +48,7 @@ export class SetupScreen {
 
   destroy() {
     this.clearTimers();
+    this.stopSignIn?.();
   }
 
   clearTimers() {
@@ -63,6 +67,9 @@ export class SetupScreen {
 
   go(step) {
     this.clearTimers();
+    this.stopSignIn?.();
+    this.stopSignIn = null;
+    this.accountView = 'choose';
     this.unhook?.();
     this.unhook = null;
     const forward = step > this.step;
@@ -73,13 +80,23 @@ export class SetupScreen {
 
   onBack() {
     if (this.busy) return true;
-    if (this.step > 0 && STEPS[this.step] !== 'updates' && STEPS[this.step] !== 'done') this.go(this.step - 1);
+    if (STEPS[this.step] === 'account' && this.accountView !== 'choose') {
+      this.showAccounts();
+      return true;
+    }
+    if (this.canGoBack()) this.go(this.step - 1);
     return true; // there's nothing behind setup
+  }
+
+  // Once updates are installed there's no going back past them.
+  canGoBack() {
+    const id = STEPS[this.step];
+    return this.step > 0 && id !== 'updates' && id !== 'done' && STEPS[this.step - 1] !== 'updates';
   }
 
   hints() {
     const id = STEPS[this.step];
-    const canGoBack = this.step > 0 && id !== 'updates' && id !== 'done';
+    const canGoBack = this.canGoBack() || (id === 'account' && this.accountView !== 'choose');
     return [['accept', t('select')], ...(canGoBack ? [['back', t('back')]] : [])];
   }
 
@@ -214,7 +231,7 @@ export class SetupScreen {
     }, 1400);
   }
 
-  // ---------- 3. Controller ----------
+  // ---------- 5. Controller ----------
   controller() {
     this.title('setupController', 'setupControllerSub');
     const pad = h('div', 'setup__pad');
@@ -242,7 +259,7 @@ export class SetupScreen {
     this.unhook = () => window.removeEventListener('keydown', onKey);
   }
 
-  // ---------- 4. Profile ----------
+  // ---------- 6. Profile ----------
   profile() {
     this.title('setupProfile', 'setupProfileSub');
     this.draft = this.draft || { name: '', color: Profiles.nextColor(), photo: null };
@@ -258,18 +275,20 @@ export class SetupScreen {
       const initial = [...(v || t('defaultName')).trim()][0]?.toLocaleUpperCase() || '?';
       chooser.querySelectorAll('.avatar__letter').forEach((l) => (l.textContent = initial));
     });
-    this.body.append(preview, name.el, h('div', 'setup__label', esc(t('picture'))), chooser);
+    const from = this.draft.fromSteam ? h('div', 'setup__from', `${icon('cloud_download')}<span>${esc(t('importedFromSteam'))}</span>`) : '';
+    this.body.append(preview, ...(from ? [from] : []), name.el, h('div', 'setup__label', esc(t('picture'))), chooser);
     const next = new VButton({ label: t('continue'), variant: 'primary' });
     next.on('activate', () => this.go(this.step + 1));
     this.actions(next);
   }
 
-  // ---------- 5. Updates ----------
+  // ---------- 3. Updates: Vanta OS, then Steam ----------
   updates() {
     this.title('setupUpdates', 'setupUpdatesSub');
     const card = h('div', 'setup__card');
     const bar = new VProgress({ indeterminate: true, label: t('checkingUpdates'), size: 'lg' });
-    card.append(bar.el);
+    const steam = new VProgress({ indeterminate: true, label: t('steamWaitingUpdate'), size: 'lg' });
+    card.append(bar.el, steam.el);
     this.body.append(card);
     const next = new VButton({ label: t('continue'), variant: 'primary' });
     next.setDisabled(true);
@@ -287,25 +306,97 @@ export class SetupScreen {
         if (p < 1) return this.later(tick, 160 + Math.random() * 220);
         bar.setLabel(t('updateInstalled', { version: '0.1.1' }));
         bar.el.classList.add('v-progress--good');
-        this.busy = false;
-        next.setDisabled(false);
-        Sound.play('notify');
-        FocusManager.focus(next, { silent: true });
+        this.updateSteam(steam, next);
       };
       tick();
     }, 1600);
   }
 
-  // ---------- 6. Done ----------
+  // Steam comes preinstalled and updates itself on first start.
+  updateSteam(bar, next) {
+    bar.setIndeterminate(false).set(0).setLabel(t('updatingSteam'));
+    let p = 0;
+    const tick = () => {
+      p = Math.min(1, p + 0.08 + Math.random() * 0.12);
+      bar.set(p);
+      if (p < 1) return this.later(tick, 140 + Math.random() * 180);
+      bar.setLabel(t('steamUpToDate'));
+      bar.el.classList.add('v-progress--good');
+      this.busy = false;
+      next.setDisabled(false);
+      Sound.play('notify');
+      FocusManager.focus(next, { silent: true });
+    };
+    this.later(tick, 400);
+  }
+
+  // ---------- 4. Sign in ----------
+  account() {
+    this.accounts = this.accounts || { steam: null, vanta: null };
+    this.title('setupAccount', 'setupAccountSub');
+    this.showAccounts(true);
+  }
+
+  // The choice: Steam, a Vanta account, or later. Either or both can be linked.
+  showAccounts(first = false) {
+    this.stopSignIn?.();
+    this.stopSignIn = null;
+    this.accountView = 'choose';
+    const { steam, vanta } = this.accounts;
+    const steamRow = new VListItem({ label: t('signInSteam'), icon: 'qr_code_2', detail: steam ? t('signedInAs', { name: steam.persona }) : t('steamOptionDetail'), chevron: !steam });
+    const vantaRow = new VListItem({ label: t('vantaAccount'), icon: 'person', detail: vanta ? vanta.email : t('vantaOptionDetail'), chevron: !vanta });
+    [
+      [steamRow, steam],
+      [vantaRow, vanta],
+    ].forEach(([row, linked]) => {
+      if (linked) {
+        row.el.querySelector('.v-control__trail').innerHTML = icon('check', 'setup__check');
+        row.setSelected(true);
+      }
+    });
+    steamRow.on('activate', () => !steam && this.openSignIn('steam'));
+    vantaRow.on('activate', () => !vanta && this.openSignIn('vanta'));
+    this.body.replaceChildren(steamRow.el, vantaRow.el);
+    const linked = steam || vanta;
+    const next = new VButton({ label: linked ? t('continue') : t('later'), variant: linked ? 'primary' : 'ghost' });
+    next.on('activate', () => this.go(this.step + 1));
+    this.actions(next);
+    if (!first) {
+      animate(this.body, 'slide-right');
+      FocusManager.focus(linked ? next : steamRow, { silent: true });
+      this.app.setHints(this.hints());
+    }
+  }
+
+  openSignIn(kind) {
+    this.accountView = kind;
+    const host = h('div', 'setup__signin');
+    this.body.replaceChildren(host);
+    animate(this.body, 'slide-left');
+    const onDone = (account) => {
+      this.accounts[kind] = account;
+      // Steam's name and picture become the profile defaults; both can still be changed.
+      if (kind === 'steam') {
+        const draft = this.draft || { name: '', color: Profiles.nextColor(), photo: null };
+        this.draft = { ...draft, name: draft.name || account.persona, photo: draft.photo || account.avatar, fromSteam: true };
+      }
+      this.showAccounts();
+    };
+    this.stopSignIn = kind === 'steam' ? steamSignIn(host, { onDone }) : vantaSignIn(host, { onDone });
+    this.app.setHints(this.hints());
+  }
+
+  // ---------- 7. Done ----------
   done() {
     this.title('setupDone', 'setupDoneSub');
     const preview = h('div', 'setup__done');
     const profile = { ...(this.draft || { color: Profiles.nextColor(), photo: null }), name: this.draft?.name || t('defaultName') };
-    preview.append(avatarEl(profile, 'avatar avatar--xl'), h('div', 'setup__name', esc(profile.name)));
+    const linked = [this.accounts?.steam && `Steam · ${this.accounts.steam.persona}`, this.accounts?.vanta && `${t('vantaAccount')} · ${this.accounts.vanta.email}`].filter(Boolean);
+    preview.append(avatarEl(profile, 'avatar avatar--xl'), h('div', 'setup__name', esc(profile.name)), ...linked.map((l) => h('div', 'setup__linked', `${icon('check', 'setup__check')}<span>${esc(l)}</span>`)));
     this.body.append(preview);
     const start = new VButton({ label: t('getStarted'), variant: 'primary', size: 'lg' });
     start.on('activate', () => {
-      const p = Profiles.add(profile);
+      const p = Profiles.add({ ...profile, steam: this.accounts?.steam || null, vanta: this.accounts?.vanta || null });
       Profiles.use(p.id);
       Settings.set('setupDone', true);
       this.app.go('home', {}, { replace: true });

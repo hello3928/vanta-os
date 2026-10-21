@@ -6,6 +6,11 @@ const KEY = 'vanta.mockup.settings.v3';
 
 const DEFAULTS = {
   setupDone: false,
+  device: 'ally-x', // mockup only: which real device to preview
+  steamAchievements: true,
+  steamScreenshots: true,
+  steamFriends: true,
+  vantaSync: true,
   language: 'en',
   accent: 'ion',
   brand: 'extended',

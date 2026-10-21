@@ -9,6 +9,7 @@ import { t } from '../core/i18n.js';
 import { esc, h } from '../core/util.js';
 import { animate } from '../core/motion.js';
 import { avatarEl } from './avatar.js';
+import { Device } from '../core/Device.js';
 
 export class VTopBar extends VComponent {
   constructor({ app, title = '' } = {}) {
@@ -21,6 +22,7 @@ export class VTopBar extends VComponent {
     const wifi = h('span', 'v-topbar__icon v-wifi');
     this.bind('wifi', (on) => (wifi.innerHTML = wifiIcon({ strength: 3, off: !on })));
     this.battery = h('span', 'v-battery');
+    this.battery.hidden = !Device.current.battery; // desktops have no battery to show
     this.clock = h('span', 'v-topbar__clock');
     const me = h('button', 'v-topbar__me');
     me.type = 'button';
