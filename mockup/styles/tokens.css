@@ -1,6 +1,6 @@
 /* Vanta OS design tokens.
    Direction: Valve's structure (Big Picture / Steam Deck) with PS5 polish: dark slate surfaces,
-   generous spacing, pill buttons, rounded panels, white focus rings and a single clean typeface.
+   generous spacing, tight SteamOS-style corners, white focus rings and a single clean typeface.
    One deliberate dark world (a console UI), so there is no light theme.
    QML port: this file becomes the Theme.qml singleton. */
 
@@ -70,12 +70,12 @@
   --gutter-l: max(var(--pad), env(safe-area-inset-left, 0px));
   --gutter-r: max(var(--pad), env(safe-area-inset-right, 0px));
 
-  /* Shape */
-  --r-xs: 4px;
-  --r-sm: 6px; /* capsules, badges */
-  --r-md: 10px; /* rows, inputs */
-  --r-lg: 14px; /* panels, dialogs */
-  --r-pill: 999px; /* buttons, chips */
+  /* Shape: tight corners, as in SteamOS. Only switches and avatars are fully round. */
+  --r-xs: 2px; /* badges, keys' inner parts */
+  --r-sm: 3px; /* buttons, tabs, inputs, keys */
+  --r-md: 4px; /* rows, capsules, menus */
+  --r-lg: 6px; /* panels, dialogs, toasts, keyboard */
+  --r-pill: 999px; /* switches */
 
   /* Elevation */
   --shadow-1: 0 2px 8px rgb(0 0 0 / 0.3);

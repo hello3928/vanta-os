@@ -14,7 +14,7 @@ Every screen in the mockup is built from these components. Each one lives in `mo
 
 | Component | What it is | Key options | Notes |
 |---|---|---|---|
-| `VButton` | Pill button | `label`, `icon`, `variant` (play, primary, secondary, ghost, danger), `size` (sm, md, lg), `block` | Focused buttons invert to near-white; primary and play keep their color and gain a white ring. Icon-only when there is no label. |
+| `VButton` | Button (SteamOS corners) | `label`, `icon`, `variant` (play, primary, secondary, ghost, danger), `size` (sm, md, lg), `block` | Focused buttons invert to near-white; primary and play keep their color and gain a white ring. Icon-only when there is no label. |
 | `VTile` | Art you can focus: game capsule, landscape tile, card | `game` + `kind`, `src`, `fit` (cover, box), `shape` (capsule, landscape, card), `badge`, `glyph` | Lifts slightly with a white ring inside the art. Retro box art sits whole over a blurred copy. |
 | `VRow` | Titled horizontal shelf | `title`, `meta`, `align` (`start` pins focus to the left edge) | A focus group. |
 | `VTabs` | Tabs | `tabs`, `value`, `variant` (line, chips, rail), `bumpers` | LB/RB step through tabs. The rail variant is the quick access menu's icon column. |

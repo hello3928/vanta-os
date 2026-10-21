@@ -61,7 +61,7 @@
   gap: 0.55em;
   min-height: 2.75rem;
   padding: 0 1.4em;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-sm);
   font: 600 var(--t-md) / 1 var(--font-ui);
   letter-spacing: -0.005em;
   color: var(--fg-2);
@@ -151,7 +151,7 @@
   align-items: center;
   gap: 0.35em;
   padding: 0.3em 0.6em;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-xs);
   font: 600 var(--t-xs) / 1 var(--font-ui);
   letter-spacing: 0.01em;
   color: var(--fg);
@@ -387,7 +387,7 @@
   font: 600 var(--t-md) / 1 var(--font-ui);
   min-height: 2.5rem;
   padding: 0 1em;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-sm);
   position: relative;
   white-space: nowrap;
   display: inline-flex;
@@ -653,7 +653,7 @@
   gap: 0.35rem;
   min-width: 9rem;
   padding: 0.35rem 0.4rem;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-sm);
   background: var(--bg-2);
 }
 .v-choice.is-focused .v-choice__box {
