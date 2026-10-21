@@ -1,46 +1,53 @@
 /* Vanta OS design tokens.
-   Layout: Big Picture style. Thin top bar, full-bleed hero for the selected game, shelves of
-   portrait capsules, drawers for the main menu (left) and quick access (right), button prompts in the footer.
-   One deliberate dark world (a console UI), so there is no light theme.
+   Layout: Big Picture / Steam Deck. Thin status bar, full-bleed hero for the selected game,
+   shelves of portrait capsules, drawers for the main menu (left) and quick access (right),
+   button prompts in the footer. One deliberate dark world, so there is no light theme.
    QML port: this file becomes the Theme.qml singleton. */
 
 :root {
   color-scheme: dark;
 
-  /* Neutrals: blue-black, cool greys */
-  --bg: #0d1117;
-  --bg-2: #141a22;
-  --surface: #1b222c;
-  --surface-2: #252d39;
-  --surface-3: #323b49;
-  --track: #48515f;
-  --line: rgb(255 255 255 / 0.08);
-  --scrim: rgb(5 7 10 / 0.6);
+  /* Surfaces, darkest to lightest (Valve's slate blues) */
+  --bg: #0e1217;
+  --bg-2: #161a21;
+  --panel: #1c2028;
+  --surface: #23262e;
+  --surface-2: #2c313a;
+  --focus-row: #3d4450; /* focused row in lists and menus */
+  --track: #4b5260;
+  --line: rgb(255 255 255 / 0.07);
+  --scrim: rgb(6 8 11 / 0.62);
 
+  /* Text */
   --fg: #ffffff;
-  --fg-2: #c2c9d3;
-  --fg-3: #8a93a1;
-  --on-light: #0d1117;
+  --fg-2: #dcdedf;
+  --fg-3: #8b929a;
+  --on-light: #0e1217;
+  --light: #dcdedf; /* focused buttons and tabs invert to this */
 
-  /* Accent (Ion by default; Settings → Appearance switches it) */
-  --accent: #2f80ed;
-  --accent-hi: #5a9cf5;
+  /* Accent: Steam blue by default. Settings → Appearance can switch it. */
+  --accent: #1a9fff;
+  --accent-hi: #4cb4ff;
   --accent-fg: #ffffff;
-  --accent-soft: rgb(47 128 237 / 0.18);
+  --accent-soft: rgb(26 159 255 / 0.16);
+
+  /* Play is always green, as on Steam */
+  --play: #59bf40;
+  --play-hi: #6fd352;
 
   /* Status */
-  --good: #5bd08a;
-  --warn: #f0b23f;
-  --bad: #ff5f5f;
+  --good: #59bf40;
+  --warn: #e8b33f;
+  --bad: #e5484d;
 
   /* Type */
   --font-ui: "Albert Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
   --t-xs: 0.75rem;
   --t-sm: 0.875rem;
   --t-md: 1rem;
-  --t-lg: 1.2rem;
-  --t-xl: 1.6rem;
-  --t-2xl: 2.2rem;
+  --t-lg: 1.15rem;
+  --t-xl: 1.5rem;
+  --t-2xl: 2rem;
 
   /* Space */
   --s-1: 0.25rem;
@@ -51,43 +58,44 @@
   --s-6: 2rem;
   --s-7: 3rem;
 
-  --pad: clamp(16px, 3.2vw, 56px);
+  --pad: clamp(16px, 3vw, 48px);
   --gutter-l: max(var(--pad), env(safe-area-inset-left, 0px));
   --gutter-r: max(var(--pad), env(safe-area-inset-right, 0px));
 
-  /* Shape: small radii, like console UIs */
+  /* Shape */
   --r-xs: 3px;
   --r-sm: 4px;
   --r-md: 6px;
-  --r-lg: 10px;
+  --r-lg: 8px;
 
-  /* Motion. --spring is replaced at startup with a real spring curve (js/core/motion.js);
-     the cubic-bezier here is the fallback for browsers without linear() easing. */
-  --ease: cubic-bezier(0.25, 0.8, 0.25, 1);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --spring: cubic-bezier(0.3, 1.35, 0.5, 1);
-  --spring-soft: cubic-bezier(0.25, 1.1, 0.4, 1);
-  --d-fast: 110ms;
-  --d-med: 220ms;
-  --d-spring: 420ms;
-  --d-slow: 500ms;
+  /* Motion: short, never overshooting. Exits are faster than entrances. */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
+  --t-instant: 90ms;
+  --t-fast: 140ms;
+  --t-base: 200ms;
+  --t-slow: 320ms;
 
-  /* Capsules (portrait game art, 2:3) */
+  /* Sizes */
   --capsule: clamp(6.5rem, 10.5vw, 9.5rem);
+  --hero-h: min(66vh, 38rem);
+  --bar-h: 3.25rem;
+  --hint-h: 3rem;
 }
 
 :root[data-accent="ember"] {
   --accent: #f26b2a;
   --accent-hi: #ff8a50;
   --accent-fg: #ffffff;
-  --accent-soft: rgb(242 107 42 / 0.18);
+  --accent-soft: rgb(242 107 42 / 0.16);
 }
 
 :root[data-accent="mint"] {
-  --accent: #22c38e;
-  --accent-hi: #45dba7;
-  --accent-fg: #05140e;
-  --accent-soft: rgb(34 195 142 / 0.18);
+  --accent: #21b58a;
+  --accent-hi: #3fd0a5;
+  --accent-fg: #ffffff;
+  --accent-soft: rgb(33 181 138 / 0.16);
 }
 
 html {
@@ -100,11 +108,12 @@ body {
   height: 100%;
   margin: 0;
   background: var(--bg);
-  color: var(--fg);
+  color: var(--fg-2);
   font-family: var(--font-ui);
   font-size: var(--t-md);
-  line-height: 1.4;
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   overflow: hidden;
 }
 
@@ -118,11 +127,17 @@ body {
   display: none !important;
 }
 
+h1,
+h2,
+h3 {
+  color: var(--fg);
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --d-fast: 1ms;
-    --d-med: 1ms;
-    --d-spring: 1ms;
-    --d-slow: 1ms;
+    --t-instant: 1ms;
+    --t-fast: 1ms;
+    --t-base: 1ms;
+    --t-slow: 1ms;
   }
 }

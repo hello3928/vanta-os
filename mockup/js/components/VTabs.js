@@ -41,7 +41,7 @@ export class VTabs extends VComponent {
         rb.innerHTML = promptGlyph('nextTab');
       };
       draw();
-      onPromptChange(() => this.el.isConnected && draw());
+      onPromptChange(draw, this.el);
     }
     if (onChange) this.on('change', onChange);
     this.sync();

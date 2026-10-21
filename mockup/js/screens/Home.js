@@ -1,9 +1,9 @@
 // Home: hero art for the selected game, recent games shelf, recently added, emulation.
-// Motion: the hero crossfades when the selection changes and drifts slowly; the logo fades out
-// and back in with the new game. The selected game's trailer becomes the music.
-// Pull the hero down (drag, or Up from the top shelf) and it grows to full screen with the
-// trailer playing; B, Down or pulling up shrinks it back. Nothing is moved between elements,
-// so the trailer never flashes or restarts.
+// The selected game's trailer becomes the music and, after a moment, the moving background.
+//
+// The hero is always full screen height and shown through a clip. Pulling it down (drag, or Up
+// from the top shelf) widens the clip until the trailer fills the screen; B, Down or pulling up
+// narrows it again. Only the clip animates, so the art and video never move, rescale or restart.
 
 import { VTopBar } from '../components/VTopBar.js';
 import { VRow } from '../components/VRow.js';
@@ -22,21 +22,20 @@ import { setArt, artImg } from '../art/index.js';
 import { gameCapsule, playtime } from './shared.js';
 
 const PULL_OPEN = 110; // px of pull that opens the full-screen trailer
-const HERO_H = 'min(68vh, 40rem)';
+const PULL_MAX = 260;
 
 export class HomeScreen {
   constructor(app) {
     this.app = app;
+    this.cleanup = [];
     this.el = h('div', 'screen screen--home');
     const scroll = (this.scroll = h('div', 'screen__scroll'));
 
     this.heroEl = h('div', 'home__hero');
-    this.drift = h('div', 'home__drift');
     this.layers = [h('img', 'home__bg'), h('img', 'home__bg')];
     this.layers.forEach((img) => (img.alt = ''));
-    this.drift.append(...this.layers);
     this.shade = h('div', 'home__shade');
-    this.heroEl.append(this.drift, this.shade);
+    this.heroEl.append(...this.layers, this.shade);
 
     this.intro = h('div', 'home__intro');
     this.logoEl = h('img', 'home__logo');
@@ -76,17 +75,18 @@ export class HomeScreen {
 
     this.content = h('div', 'home__content');
     this.content.append(this.intro, this.recentRow.el, added.el, emu.el);
-    this.topbar = new VTopBar({ app });
-    scroll.append(this.heroEl, this.topbar.el, this.content);
-    this.hints = new VHintBar({
-      hints: [
-        ['accept', t('open')],
-        ['up', t('trailer')],
-        ['qam', t('quickAccess')],
-        ['mainMenu', t('menu')],
-      ],
-    });
-    this.el.append(scroll, this.hints.el);
+    scroll.append(this.heroEl, new VTopBar({ app }).el, this.content);
+    this.el.append(
+      scroll,
+      new VHintBar({
+        hints: [
+          ['accept', t('open')],
+          ['up', t('trailer')],
+          ['qam', t('quickAccess')],
+          ['mainMenu', t('menu')],
+        ],
+      }).el,
+    );
     this.render(recent[0], { instant: true });
     GameMusic.attach(this.heroEl, this.game, this.shade);
     this.pullGesture();
@@ -100,10 +100,17 @@ export class HomeScreen {
     GameMusic.select(this.game);
   }
 
+  destroy() {
+    clearTimeout(this.pending);
+    clearTimeout(this.logoTimer);
+    clearInterval(this.progress);
+    this.cleanup.forEach((fn) => fn());
+  }
+
   // Wait for the selection to settle before swapping the hero, so fast scrolling stays calm.
   show(g) {
     clearTimeout(this.pending);
-    this.pending = setTimeout(() => this.render(g), 110);
+    this.pending = setTimeout(() => this.render(g), 120);
   }
 
   render(g, { instant = false } = {}) {
@@ -111,8 +118,7 @@ export class HomeScreen {
     this.game = g;
     if (!instant) GameMusic.select(g);
 
-    // Hero: load the new art into the hidden layer, then crossfade. Only opacity changes on the
-    // layers; the slow drift lives on their wrapper, so swaps never jump.
+    // Hero: load the new art into the hidden layer, then crossfade (opacity only).
     const front = this.layers.find((l) => l.classList.contains('is-on'));
     const next = this.layers.find((l) => l !== front);
     setArt(next, g, 'hero');
@@ -120,54 +126,51 @@ export class HomeScreen {
     const swap = () => {
       if (this.game !== g) return;
       next.classList.add('is-on');
-      next.style.viewTransitionName = 'hero';
-      if (front) {
-        front.classList.remove('is-on');
-        front.style.viewTransitionName = '';
-      }
+      front?.classList.remove('is-on');
     };
     if (instant) swap();
     else next.decode().then(swap, swap);
 
-    // Logo and details: fade the old ones out, then bring the new ones in.
+    // Logo and details: a quick fade out on a CSS class, swap, fade back in once loaded.
     const running = this.app.running === g;
     const when = g.last == null ? t('notPlayed') : t('lastPlayedWhen', { when: relDays(g.last) });
     const meta = [running ? `<span class="home__live">${esc(t('running'))}</span>` : '', `<span>${esc(when)}</span>`, g.hours ? `<span>${esc(playtime(g))}</span>` : ''].join('');
     const apply = () => {
-      if (this.game !== g) return;
       setArt(this.logoEl, g, 'logo');
       this.logoEl.alt = g.title;
-      this.logoEl.style.viewTransitionName = 'game-logo';
       this.metaEl.innerHTML = meta;
     };
     if (instant) return apply();
-    const out = { duration: 110, easing: 'ease-in', fill: 'forwards' };
-    Motion.play(this.metaEl, [{ opacity: 1 }, { opacity: 0 }], out);
-    Motion.play(this.logoEl, [{ opacity: 1 }, { opacity: 0 }], out)?.finished.then(() => {
+    clearTimeout(this.logoTimer);
+    this.logoEl.classList.add('is-swapping');
+    this.metaEl.classList.add('is-swapping');
+    this.logoTimer = setTimeout(() => {
       if (this.game !== g) return;
       apply();
-      const show = () => {
+      const reveal = () => {
         if (this.game !== g) return;
-        Motion.play(this.logoEl, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 380, easing: Motion.out, fill: 'forwards' });
-        Motion.play(this.metaEl, [{ opacity: 0 }, { opacity: 1 }], { delay: 60, duration: 300, fill: 'forwards' });
+        this.logoEl.classList.remove('is-swapping');
+        this.metaEl.classList.remove('is-swapping');
       };
-      this.logoEl.decode().then(show, show);
-    });
+      this.logoEl.decode().then(reveal, reveal);
+    }, 100);
   }
 
   // ---- full-screen trailer ----
+
+  setPull(px) {
+    this.pull = px;
+    this.el.style.setProperty('--pull', `${px}px`);
+  }
 
   expand() {
     if (this.expanded) return;
     if (!this.game?.trailer) return this.nudge();
     this.expanded = true;
     const g = this.game;
-    this.scroll.scrollTop = 0;
-    const from = this.heroEl.getBoundingClientRect().height;
-    this.heroEl.style.height = `${from}px`;
-    void this.heroEl.offsetHeight;
+    if (this.scroll.scrollTop > 0) this.scroll.scrollTop = 0;
+    this.setPull(0);
     this.el.classList.add('is-expanded');
-    this.heroEl.style.height = '100%';
 
     GameMusic.expanded = true;
     GameMusic.select(g, { now: !GameMusic.playing });
@@ -178,9 +181,15 @@ export class HomeScreen {
     const player = h('div', 'home__player');
     const logo = artImg(g, 'logo', 'home__player-logo');
     logo.alt = g.title;
-    const play = new VButton({ label: g.installed ? t('play') : t('install'), icon: g.installed ? 'play' : 'download', variant: 'primary', size: 'lg', activateSound: null });
+    const play = new VButton({
+      label: g.installed ? t('play') : t('install'),
+      icon: g.installed ? 'play' : 'download',
+      variant: g.installed ? 'play' : 'primary',
+      size: 'lg',
+      activateSound: null,
+    });
     play.on('activate', () => {
-      this.collapse({ silent: true, instant: true });
+      this.collapse({ silent: true });
       this.app.launch(g);
     });
     play.on('edge', (dir) => dir === 'down' && this.collapse());
@@ -189,15 +198,16 @@ export class HomeScreen {
     player.append(logo, play.el, bar, hints.el);
     this.heroEl.append(player);
     this.player = player;
-    Motion.play(player, [{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }], { delay: 260, duration: 480, easing: Motion.out, fill: 'backwards' });
+    void player.offsetWidth;
+    player.classList.add('is-in');
     this.progress = setInterval(() => {
       const v = GameMusic.video;
-      if (v?.duration) bar.firstChild.style.width = `${(v.currentTime / v.duration) * 100}%`;
+      if (v?.duration) bar.style.setProperty('--progress', (v.currentTime / v.duration).toFixed(4));
     }, 250);
     FocusManager.pushScope(player, { onBack: () => this.collapse({ silent: true }), initial: play });
   }
 
-  collapse({ silent = false, instant = false } = {}) {
+  collapse({ silent = false } = {}) {
     if (!this.expanded) return;
     this.expanded = false;
     clearInterval(this.progress);
@@ -208,76 +218,60 @@ export class HomeScreen {
     }
     const player = this.player;
     this.player = null;
-    Motion.play(player, [{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' });
-    setTimeout(() => player.remove(), 170);
-    this.heroEl.style.height = `${this.heroEl.getBoundingClientRect().height}px`;
-    void this.heroEl.offsetHeight;
+    player.classList.remove('is-in');
+    setTimeout(() => player.remove(), 200);
     this.el.classList.remove('is-expanded');
-    this.heroEl.style.height = HERO_H;
     GameMusic.expanded = false;
     GameMusic.video?.classList.toggle('is-visible', GameMusic.showVideo && GameMusic.playing);
-    const clear = () => (this.heroEl.style.height = '');
-    if (instant) clear();
-    else setTimeout(clear, 600);
   }
 
   // A small bounce when there's no trailer to expand (retro games).
   nudge() {
-    Motion.play(this.content, [{ transform: 'none' }, { transform: 'translateY(14px)' }, { transform: 'none' }], { duration: 420 });
+    Motion.play(this.content, [{ transform: 'translateY(0)' }, { transform: 'translateY(12px)' }, { transform: 'translateY(0)' }], { duration: 360 });
   }
 
-  // Drag down anywhere over the hero: the art stretches with you; let go past the line and it
-  // keeps growing to full screen. Drag up on the full-screen trailer to shrink it back.
+  // Drag down over the hero: it stretches with you; let go past the line and it opens fully.
+  // Drag up on the full-screen trailer to close it.
   pullGesture() {
     let start = null;
-    let pull = 0;
-    const set = (px) => {
-      pull = px;
-      this.heroEl.style.height = `calc(${HERO_H} + ${px}px)`;
-      this.content.style.transform = px ? `translateY(${px}px)` : '';
-      this.el.classList.toggle('is-pulling-ready', px > PULL_OPEN);
+    const listen = (target, type, fn, opts) => {
+      target.addEventListener(type, fn, opts);
+      this.cleanup.push(() => target.removeEventListener(type, fn, opts));
     };
-    this.scroll.addEventListener('pointerdown', (e) => {
+    listen(this.scroll, 'pointerdown', (e) => {
       if (e.button) return;
       if (this.expanded) {
         start = { y: e.clientY, expanded: true };
         return;
       }
-      if (this.scroll.scrollTop > 4 || e.clientY > this.heroEl.getBoundingClientRect().bottom) return;
+      if (this.scroll.scrollTop > 4 || e.clientY > this.shade.getBoundingClientRect().bottom) return;
       start = { y: e.clientY };
       this.dragged = false;
-      this.el.classList.add('is-pulling');
     });
-    window.addEventListener('pointermove', (e) => {
-      if (!start || start.expanded || !this.el.isConnected) return;
+    listen(window, 'pointermove', (e) => {
+      if (!start || start.expanded) return;
       const dy = e.clientY - start.y;
-      if (dy > 8) this.dragged = true;
-      if (this.dragged) set(Math.max(0, Math.min(280, dy * 0.6)));
+      if (!this.dragged && dy > 8) {
+        this.dragged = true;
+        this.el.classList.add('is-pulling');
+      }
+      if (this.dragged) this.setPull(Math.max(0, Math.min(PULL_MAX, dy * 0.6)));
     });
-    window.addEventListener('pointerup', (e) => {
+    listen(window, 'pointerup', (e) => {
       if (!start) return;
       const s = start;
       start = null;
-      this.el.classList.remove('is-pulling', 'is-pulling-ready');
       if (s.expanded) {
         if (s.y - e.clientY > 80) this.collapse();
         return;
       }
-      const open = pull > PULL_OPEN;
-      this.content.style.transform = '';
-      pull = 0;
-      if (open) this.expand();
-      else {
-        this.el.classList.add('is-releasing');
-        this.heroEl.style.height = HERO_H;
-        setTimeout(() => {
-          this.el.classList.remove('is-releasing');
-          if (!this.expanded) this.heroEl.style.height = '';
-        }, 460);
-      }
+      this.el.classList.remove('is-pulling');
+      if ((this.pull || 0) > PULL_OPEN) this.expand();
+      else this.setPull(0);
     });
     // A drag shouldn't also count as a click on whatever was under the pointer.
-    this.scroll.addEventListener(
+    listen(
+      this.scroll,
       'click',
       (e) => {
         if (this.dragged) {

@@ -202,10 +202,8 @@ export class SettingsScreen {
     const layout = h('div', 'settings');
     const nav = h('nav', 'settings__nav');
     nav.dataset.focusGroup = '';
-    nav.dataset.highlight = '';
     this.pane = h('div', 'settings__pane');
     this.pane.dataset.focusGroup = '';
-    this.pane.dataset.highlight = '';
     this.items = SECTIONS.map((s) => {
       const item = new VListItem({ label: s.label(), icon: s.icon });
       item.on('focus', () => this.show(s));
@@ -240,7 +238,6 @@ export class SettingsScreen {
     this.section = section;
     this.items.forEach((it, i) => it.setSelected(SECTIONS[i] === section));
     this.pane.replaceChildren(h('h2', 'settings__pane-title', esc(section.label())), ...section.build(this.app).map((c) => c.el || c));
-    if (this.built) Motion.stagger(this.pane.children, { from: 'translateY(6px)', step: 14, duration: 260 });
     this.built = true;
   }
 

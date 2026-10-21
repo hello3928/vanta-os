@@ -61,7 +61,6 @@ export class UsersScreen {
   enter() {
     const current = this.cards.find((c) => c.profile.id === Profiles.current?.id);
     FocusManager.focus(current || this.cards[0] || this.row.firstChild.__v, { silent: true });
-    Motion.stagger(this.row.children, { from: 'translateY(16px)', step: 50, delay: 120 });
   }
 
   // The chosen picture grows a little and the screen fades into Home.

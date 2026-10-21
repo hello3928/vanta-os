@@ -94,6 +94,7 @@ export const Input = {
 
   onDevice(fn) {
     this.deviceListeners.push(fn);
+    return () => (this.deviceListeners = this.deviceListeners.filter((f) => f !== fn));
   },
 
   // Gamepad polling with D-pad / stick auto-repeat.

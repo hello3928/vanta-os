@@ -15,7 +15,7 @@ Every screen in the mockup is built from these components. Each one lives in `mo
 | Component | What it is | Key options | Notes |
 |---|---|---|---|
 | `VButton` | Button | `label`, `icon`, `variant` (primary, secondary, ghost, danger), `size` (sm, md, lg), `block` | Focused buttons invert to white. Icon-only when there is no label. |
-| `VTile` | Art you can focus: game capsule, landscape tile, card | `game` + `kind`, `fit` (cover, box), `shape` (capsule, landscape, card), `badge`, `glyph` | Lifts on a spring with a light sweep across the art. Retro box art sits whole over a blurred copy. |
+| `VTile` | Art you can focus: game capsule, landscape tile, card | `game` + `kind`, `src`, `fit` (cover, box), `shape` (capsule, landscape, card), `badge`, `glyph` | Lifts slightly with a white ring inside the art. Retro box art sits whole over a blurred copy. |
 | `VRow` | Titled horizontal shelf | `title`, `meta`, `align` (`start` pins focus to the left edge) | A focus group. |
 | `VTabs` | Tabs | `tabs`, `value`, `variant` (line, chips, rail), `bumpers` | LB/RB step through tabs. The rail variant is the quick access menu's icon column. |
 | `VToggle` | On/off row | `label`, `detail`, `icon`, `bind` | Separate on/off sounds. |
@@ -44,7 +44,7 @@ Every screen in the mockup is built from these components. Each one lives in `mo
 | `glyphs` | Button prompt art for Xbox, PlayStation, Nintendo and Steam Deck controllers, plus keyboard keycaps. Detected from the controller, or forced in Settings |
 | `i18n` | Interface language: `t(key)` lookups with English fallback, translated setting values, and Intl-based relative dates. English, Spanish, French, German, Portuguese (Brazil) and Japanese |
 | `Profiles` | Profiles for "Who's playing?": name, color, optional photo. Add, edit, delete |
-| `motion` | One spring curve for all motion, eased scrolling, staggered entrances, and the sliding list highlight |
+| `motion` | Motion rules and helpers: one-off animations and eased scrolling. Everything else is CSS transitions on state classes |
 | `art/` | Loads real game art (Steam, libretro-thumbnails) with generated stand-ins as the fallback |
 
 ## Screens worth knowing

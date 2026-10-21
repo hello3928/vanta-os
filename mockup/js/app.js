@@ -31,6 +31,7 @@ Motion.init();
 const appEl = document.getElementById('app');
 const stage = document.getElementById('stage');
 const layer = document.getElementById('overlay');
+const dimEl = document.getElementById('dim');
 Overlays.setRoot(layer);
 VToast.setHost(document.getElementById('toasts'));
 
@@ -47,7 +48,9 @@ const App = {
   inGame: false,
   lastGame: null,
 
-  go(name, params = {}, { replace = false, fromBack = false, transition } = {}) {
+  // Screens crossfade: the new screen fades in over the old one, then the old one is
+  // destroyed (its listeners and timers removed). `instant` skips the fade, for in-place refreshes.
+  go(name, params = {}, { replace = false, fromBack = false, transition, instant = false } = {}) {
     Overlays.closeAll();
     const key = name + JSON.stringify(params);
     if (this.screen?.key === key && !transition) return;
@@ -57,27 +60,31 @@ const App = {
       if (i >= 0) this.stack.length = i;
       this.stack.push({ key, name, params });
     }
-    const swap = () => {
-      GameMusic.claimed = false;
-      const screen = new SCREENS[name](App, params);
-      screen.name = name;
-      screen.key = key;
-      screen.el.classList.add('is-entering');
-      stage.replaceChildren(screen.el);
-      if (!GameMusic.claimed) GameMusic.release();
+    const old = this.screen;
+    GameMusic.claimed = false;
+    const screen = new SCREENS[name](App, params);
+    screen.name = name;
+    screen.key = key;
+    this.screen = screen;
+    if (old) {
+      old.el.classList.add('is-leaving');
+      old.destroy?.();
+    }
+    stage.querySelectorAll('.screen.is-leaving').forEach((el) => el !== old?.el && el.remove());
+    const fade = old && !instant && !reducedMotion();
+    if (fade) screen.el.classList.add('is-entering');
+    stage.append(screen.el);
+    if (!GameMusic.claimed) GameMusic.release();
+    FocusManager.setRoot(screen.el, {
+      onBack: () => {
+        if (!screen.onBack?.()) this.back();
+      },
+    });
+    screen.enter?.();
+    if (fade) {
       afterLayout(screen.el, () => screen.el.classList.remove('is-entering'));
-      this.screen = screen;
-      FocusManager.setRoot(screen.el, {
-        onBack: () => {
-          if (!screen.onBack?.()) this.back();
-        },
-      });
-      screen.enter?.();
-    };
-    // Morph shared elements (hero art, logo) between screens where the browser supports it.
-    if (document.startViewTransition && !reducedMotion() && this.screen && !['setup', 'users'].includes(name) && !['setup', 'users'].includes(this.screen.name)) {
-      document.startViewTransition(swap);
-    } else swap();
+      setTimeout(() => old.el.remove(), 260);
+    } else old?.el.remove();
   },
 
   back() {
@@ -92,14 +99,11 @@ const App = {
     const cur = this.stack[this.stack.length - 1];
     if (!cur) return;
     this.screen.key = null;
-    this.go(cur.name, cur.params, { fromBack: true });
+    this.go(cur.name, cur.params, { fromBack: true, instant: true });
   },
 
   openGame(g, tile) {
     this.lastGame = g;
-    // The tile's art becomes the game page's hero during the transition.
-    const img = tile?.img;
-    if (img && this.screen?.name !== 'home') img.style.viewTransitionName = 'hero';
     this.go('game', { id: g.id });
   },
 
@@ -227,14 +231,18 @@ const App = {
     const top = this.stack[this.stack.length - 1];
     if (this.screen.name === 'settings') top.params = { section: 'language' };
     this.screen.key = null;
-    this.go(top.name, top.params, { fromBack: true });
+    this.go(top.name, top.params, { fromBack: true, instant: true });
   },
 };
+
+// Handy for debugging in the browser console.
+window.__vanta = App;
 
 // Settings → live effects
 const EFFECTS = {
   accent: (a) => (document.documentElement.dataset.accent = a),
-  brightness: (v) => (appEl.style.filter = v >= 100 ? '' : `brightness(${0.3 + (0.7 * v) / 100})`),
+  // A dark layer over everything, not a CSS filter: filters on the whole app make every frame slow.
+  brightness: (v) => dimEl.style.setProperty('--dim', ((100 - v) / 100 * 0.75).toFixed(3)),
   volume: (v) => Sound.setSystemVolume(v / 100),
   sfx: (on) => Sound.setEnabled(on),
   sfxVolume: (v) => Sound.setUiVolume(v / 100),

@@ -90,7 +90,6 @@ export class LibraryScreen {
     const grid = h('div', 'v-grid');
     list.forEach((g) => grid.append(gameCapsule(this.app, g).el));
     this.gridHost.replaceChildren(grid);
-    Motion.stagger(grid.children, { from: 'translateY(14px) scale(0.97)', step: 16, max: 24 });
   }
 
   onTab(d) {

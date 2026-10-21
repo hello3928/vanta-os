@@ -6,7 +6,7 @@ import { VComponent } from '../core/VComponent.js';
 import { Input } from '../core/Input.js';
 import { Settings } from '../core/Settings.js';
 import { glyph } from '../core/glyphs.js';
-import { esc, h } from '../core/util.js';
+import { esc, h, whileConnected } from '../core/util.js';
 
 const FORCED = { Xbox: 'xbox', PlayStation: 'ps', Nintendo: 'nintendo', 'Steam Deck': 'deck' };
 
@@ -15,10 +15,10 @@ export function promptGlyph(action) {
   return forced ? glyph(action, 'gamepad', forced) : glyph(action, Input.device, Input.family);
 }
 
-// Re-render callbacks whenever the controller or the prompt setting changes.
-export function onPromptChange(fn) {
-  Input.onDevice(fn);
-  Settings.on('glyphs', fn);
+// Re-render whenever the controller or the prompt setting changes, for as long as `el` is shown.
+export function onPromptChange(fn, el) {
+  whileConnected(el, (f) => Input.onDevice(f), fn);
+  whileConnected(el, (f) => Settings.on('glyphs', f), fn);
 }
 
 export class VHintBar extends VComponent {
@@ -26,7 +26,7 @@ export class VHintBar extends VComponent {
     super({ tag: 'footer', className: 'v-hintbar' });
     this.hints = hints;
     this.render();
-    onPromptChange(() => this.el.isConnected && this.render());
+    onPromptChange(() => this.render(), this.el);
   }
 
   render() {

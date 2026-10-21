@@ -9,7 +9,7 @@ const DEFAULTS = {
   language: 'en',
   accent: 'ion',
   brand: 'extended',
-  brightness: 85,
+  brightness: 100,
   volume: 70,
   sfx: true,
   sfxVolume: 70,
@@ -41,6 +41,10 @@ try {
 } catch {
   /* storage blocked: defaults are fine */
 }
+
+// Earlier versions defaulted brightness to 85%, which made everything look dim.
+if (data.brightness === 85 && !data.migratedBrightness) data.brightness = 100;
+data.migratedBrightness = true;
 
 const subs = new Map();
 

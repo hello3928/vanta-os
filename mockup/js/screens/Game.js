@@ -37,10 +37,8 @@ export class GameScreen {
 
     const heroEl = h('div', 'game__hero');
     const bg = artImg(g, 'hero', `game__bg${sys ? ' is-pixel' : ''}`);
-    bg.style.viewTransitionName = 'hero';
     const lg = artImg(g, 'logo', 'game__logo');
     lg.alt = g.title;
-    lg.style.viewTransitionName = 'game-logo';
     const shade = h('div', 'game__shade');
     heroEl.append(bg, shade, lg);
     if (app.running !== g) GameMusic.attach(heroEl, g, shade);
@@ -52,7 +50,7 @@ export class GameScreen {
     this.play = new VButton({
       label: running ? t('resume') : g.installed ? t('play') : t('install'),
       icon: running ? 'resume' : g.installed ? 'play' : 'download',
-      variant: 'primary',
+      variant: g.installed || running ? 'play' : 'primary',
       size: 'lg',
       activateSound: null,
     });
@@ -71,7 +69,6 @@ export class GameScreen {
     const body = h('div', 'game__body');
     const profile = h('section', 'game__section');
     profile.dataset.focusGroup = '';
-    profile.dataset.highlight = '';
     profile.append(h('h2', 'game__heading', esc(t('perfProfile'))));
     [
       new VSlider({ label: t('tdpLimit'), min: 3, max: 30, step: 1, value: Settings.get('tdp'), format: (v) => `${v} W` }),

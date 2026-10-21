@@ -21,3 +21,20 @@ export function afterLayout(el, fn) {
   void el.offsetWidth;
   fn();
 }
+
+// Wraps a subscriber so it removes itself once `el` has been on the page and then left it.
+// `subscribe(fn)` must return an unsubscribe function.
+export function whileConnected(el, subscribe, fn) {
+  let seen = false;
+  let off = null;
+  off = subscribe((...args) => {
+    if (!el.isConnected) {
+      if (seen) off?.();
+      return;
+    }
+    seen = true;
+    fn(...args);
+  });
+  setTimeout(() => (seen = seen || el.isConnected), 0);
+  return off;
+}

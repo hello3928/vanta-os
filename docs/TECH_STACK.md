@@ -43,15 +43,13 @@ The interface follows the Steam Big Picture / Steam Deck model:
 
 The look is deliberately plain: neutral blue-black surfaces, one UI typeface (Albert Sans), Material Symbols icons, small corner radii, and a white focus outline. The game art carries the screen. Art comes from Steam's library assets and, for emulated games, SteamGridDB/libretro-thumbnails.
 
-Motion is driven by one spring, so everything moves with the same physical feel:
-- Focused tiles lift with a light sweep across the art.
-- Shelves glide to the selection.
-- A highlight slides between rows in menus.
-- The hero art crossfades, settles and drifts slowly.
-- The hero and logo morph between screens.
-- Launching a game pushes into its art before it takes over the screen.
+Motion follows a few strict rules, so it stays smooth on handheld hardware:
+- Only transform and opacity animate (no width, height or filters on large areas).
+- Nothing overshoots. Entrances use 200–320 ms ease-out; exits are faster (140 ms ease-in).
+- Focus on art lifts slightly with a white ring drawn inside the art; rows turn light slate; buttons invert.
+- Screens crossfade. The Home trailer expands by widening a clip on a full-height hero, so the video never moves or restarts.
 
-In QML these map to `SpringAnimation` and shared-element transitions.
+In QML these map to `NumberAnimation` with `Easing.OutCubic` on transform and opacity.
 
 The mockup in `mockup/` is the reference for the QML build. Its components map 1:1 to QML components (see [COMPONENTS.md](COMPONENTS.md)), and `mockup/styles/tokens.css` becomes the `Theme.qml` singleton.
 

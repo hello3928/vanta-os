@@ -20,7 +20,7 @@ export class VSlider extends VComponent {
       <span class="v-control__icon">${iconName ? icon(iconName) : ''}</span>
       <span class="v-control__label">${esc(label)}</span>
       <span class="v-control__trail"><span class="v-control__value"></span></span>`;
-    this.track = h('div', 'v-slider__track', '<div class="v-slider__fill"></div><div class="v-slider__thumb"></div>');
+    this.track = h('div', 'v-slider__track', '<div class="v-slider__fill"></div><div class="v-slider__knob"><div class="v-slider__thumb"></div></div>');
     this.el.append(this.track);
     this.valueEl = this.el.querySelector('.v-control__value');
     this.track.addEventListener('pointerdown', (e) => this.drag(e));
@@ -32,8 +32,7 @@ export class VSlider extends VComponent {
   render(v) {
     this.value = v;
     const t = (v - this.min) / (this.max - this.min);
-    this.track.firstElementChild.style.width = `${t * 100}%`;
-    this.track.lastElementChild.style.left = `${t * 100}%`;
+    this.track.style.setProperty('--pos', t.toFixed(4));
     this.valueEl.textContent = this.format(v);
     this.el.setAttribute('aria-valuenow', v);
   }

@@ -56,13 +56,14 @@ export class SetupScreen {
   render() {
     const id = STEPS[this.step];
     const frame = h('div', 'setup');
+    const inner = h('div', 'setup__inner');
+    frame.append(inner);
     const progress = h('div', 'setup__progress');
     STEPS.slice(0, -1).forEach((_, i) => progress.append(h('span', i <= this.step ? 'is-done' : '')));
     this.head = h('div', 'setup__head');
     this.body = h('div', 'setup__body');
-    this.body.dataset.highlight = '';
     this.body.dataset.focusGroup = '';
-    frame.append(progress, this.head, this.body);
+    inner.append(progress, this.head, this.body);
     this[id]();
     this.el.replaceChildren(
       frame,
@@ -73,7 +74,8 @@ export class SetupScreen {
         ],
       }).el,
     );
-    Motion.stagger([this.head, ...this.body.children].filter((c) => !c.classList.contains('v-highlight')), { from: 'translateY(12px)', step: 30 });
+    // One calm fade per step; no staggered rows.
+    Motion.play(inner, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 240 });
   }
 
   title(key, subKey) {
@@ -149,7 +151,7 @@ export class SetupScreen {
       pad.innerHTML = `<div class="setup__pad-name">${esc(name)}</div><div class="setup__pad-glyphs">${['accept', 'back', 'options', 'prevTab', 'nextTab', 'qam', 'mainMenu'].map((a) => promptGlyph(a)).join('')}</div>`;
     };
     draw();
-    onPromptChange(() => pad.isConnected && draw());
+    onPromptChange(draw, pad);
     const test = new VListItem({ label: t('testHaptics'), icon: 'vibrate', chevron: true });
     test.on('activate', () => Haptics.play('test', { force: true }));
     const next = new VButton({ label: t('continue'), variant: 'primary' });

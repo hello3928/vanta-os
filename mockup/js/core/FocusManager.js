@@ -4,7 +4,7 @@
 // - Each [data-focus-group] (a row, a list) remembers its last focused item, so going back
 //   into a row returns you to where you were, like on a console.
 
-import { Motion, Highlight } from './motion.js';
+import { Motion } from './motion.js';
 
 function gap(a1, a2, b1, b2) {
   if (b2 < a1) return a1 - b2;
@@ -70,7 +70,6 @@ export const FocusManager = {
       /* ignore */
     }
     this.reveal(comp.el);
-    Highlight.move(comp.el);
     const group = comp.el.closest('[data-focus-group]');
     if (group && this.scope) this.scope.memory.set(group, comp);
   },
@@ -188,5 +187,3 @@ export const FocusManager = {
   },
 };
 
-// Keep the sliding highlight on its row when the window size changes.
-window.addEventListener('resize', () => FocusManager.current && Highlight.move(FocusManager.current.el));

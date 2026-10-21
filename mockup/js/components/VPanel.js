@@ -27,7 +27,6 @@ export class VPanel extends VComponent {
     if (header) this.head.append(header);
     this.side = side;
     this.body = h('div', 'v-panel__body');
-    this.body.dataset.highlight = '';
     main.append(this.head, this.body);
     this.panel.append(main);
     if (rail) {
@@ -45,14 +44,7 @@ export class VPanel extends VComponent {
 
   addItems(...items) {
     items.flat().forEach((c) => this.body.append(c.el || c));
-    if (this.isOpen) this.animateIn(80);
     return this;
-  }
-
-  // Rows slide in one after another from the panel's edge.
-  animateIn(delay = 120) {
-    const dx = this.side === 'left' ? -18 : 18;
-    Motion.stagger([...this.body.children].filter((c) => !c.classList.contains('v-highlight')), { from: `translateX(${dx}px)`, step: 24, delay });
   }
 
   clear() {
@@ -71,7 +63,6 @@ export class VPanel extends VComponent {
     Haptics.play('tick');
     afterLayout(this.el, () => this.el.classList.add('is-open'));
     this.isOpen = true;
-    this.animateIn();
     FocusManager.pushScope(this.panel, { onBack: () => this.close({ silent: true }), initial });
     return this;
   }

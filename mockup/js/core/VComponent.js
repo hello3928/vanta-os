@@ -10,6 +10,7 @@ import { Haptics } from './Haptics.js';
 import { FocusManager } from './FocusManager.js';
 import { Settings } from './Settings.js';
 import { Input } from './Input.js';
+import { whileConnected } from './util.js';
 
 export class VComponent {
   constructor({
@@ -75,9 +76,7 @@ export class VComponent {
   // Keeps this component in sync with a setting, wherever else it gets changed.
   bind(key, apply) {
     apply(Settings.get(key));
-    Settings.on(key, (v) => {
-      if (this.el.isConnected) apply(v);
-    });
+    whileConnected(this.el, (fn) => Settings.on(key, fn), apply);
     return this;
   }
 

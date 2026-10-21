@@ -72,7 +72,6 @@ export async function cropPhoto(file) {
     const use = new VButton({ label: t('usePhoto'), variant: 'primary' });
     actions.append(cancel.el, use.el);
     const controls = h('div', 'crop__controls');
-    controls.dataset.highlight = '';
     controls.append(zoom.el);
     box.append(head, stage.el, controls, actions);
     el.append(box, new VHintBar({ hints: [['accept', t('select')], ['back', t('cancel')]] }).el);

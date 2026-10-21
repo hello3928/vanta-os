@@ -43,7 +43,6 @@ export function pictureChooser(draft, onChange) {
       swatches.append(c.el);
     });
     const list = h('div', 'picture-chooser__actions');
-    list.dataset.highlight = '';
     const upload = new VListItem({ label: t('uploadPhoto'), icon: 'add_photo_alternate', chevron: true });
     upload.on('activate', async () => {
       const file = await pickPhoto();
