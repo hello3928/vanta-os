@@ -1,7 +1,6 @@
 // Interface components: every reusable class on one page, for design review and testing.
 // Opened from Settings → System. Developer page, so the sample text is English only.
 
-import { VTopBar } from '../components/VTopBar.js';
 import { VButton } from '../components/VButton.js';
 import { VToggle } from '../components/VToggle.js';
 import { VSlider } from '../components/VSlider.js';
@@ -16,7 +15,6 @@ import { VBanner } from '../components/VBanner.js';
 import { VAlert } from '../components/VAlert.js';
 import { VDialog } from '../components/VDialog.js';
 import { VToast } from '../components/VToast.js';
-import { VHintBar } from '../components/VHintBar.js';
 import { FocusManager } from '../core/FocusManager.js';
 import { animate } from '../core/motion.js';
 import { t } from '../core/i18n.js';
@@ -169,16 +167,12 @@ export class KitScreen {
       section('Popups', popups),
       section('Animation classes', animWrap),
     );
-    scroll.append(new VTopBar({ app, title: t('componentGallery') }).el, page);
-    this.el.append(
-      scroll,
-      new VHintBar({
-        hints: [
+    scroll.append(h('div', 'shell-gap'), page);
+    this.el.append(scroll);
+    this.shell = { title: t('componentGallery'), hints: [
           ['accept', t('select')],
           ['back', t('back')],
-        ],
-      }).el,
-    );
+        ] };
     this.first = buttons.firstChild.__v;
   }
 

@@ -9,7 +9,7 @@ import { VSpinner } from '../components/VSpinner.js';
 import { VProgress } from '../components/VProgress.js';
 import { VAlert } from '../components/VAlert.js';
 import { Keyboard } from '../components/VKeyboard.js';
-import { VHintBar, promptGlyph, onPromptChange } from '../components/VHintBar.js';
+import { promptGlyph, onPromptChange } from '../components/VHintBar.js';
 import { nameField, pictureChooser } from './ProfileEditor.js';
 import { FocusManager } from '../core/FocusManager.js';
 import { Settings } from '../core/Settings.js';
@@ -96,8 +96,9 @@ export class SetupScreen {
     this.body.dataset.focusGroup = '';
     frame.append(aside, this.body);
     this[id]();
-    this.hintBar = new VHintBar({ hints: this.hints() });
-    this.el.replaceChildren(frame, this.hintBar.el);
+    this.el.replaceChildren(frame);
+    this.shell = { topbar: false, hints: this.hints() };
+    if (this.app.screen === this) this.app.setHints(this.shell.hints);
     if (anim) {
       animate(this.head, 'fade-in');
       animate(this.body, anim);
@@ -141,9 +142,7 @@ export class SetupScreen {
   // Re-translate the heading and hints in place, without rebuilding the list under the cursor.
   refreshText() {
     this.title('setupLanguage', 'setupLanguageSub');
-    const bar = new VHintBar({ hints: this.hints() });
-    this.hintBar.el.replaceWith(bar.el);
-    this.hintBar = bar;
+    this.app.setHints(this.hints());
     this.body.querySelectorAll('.v-list-item').forEach((row) => row.classList.toggle('is-selected', row.dataset.lang === i18n.lang));
   }
 

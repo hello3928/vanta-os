@@ -2,12 +2,19 @@
 // behind the hero art and its audio becomes the menu music. Moving on fades it out.
 //
 // One <video> element follows you between screens (attach() moves it when a screen is built),
-// so opening a game's page keeps the same music playing without a restart. Steam serves trailers as HLS streams, so the
-// mockup plays them with hls.js (or natively in Safari).
+// so opening a game's page keeps the same music playing without a restart.
+//
+// Quality: Steam publishes each trailer twice at the same bitrates, H.264 (HLS) and AV1 (DASH).
+// AV1 is much sharper at 5.8 Mbps, so it's used wherever the browser can decode it (dash.js),
+// always at 1080p. H.264 through hls.js is the fallback.
+// Start point: TrailerScan picks where the gameplay starts for each trailer, and the trailer
+// loops back to that point instead of to the rating cards.
 // Real OS: the same trailers through Qt Multimedia, cached by vantad, with a per-game opt-out.
 
-const START_AT = 12; // never start earlier than this: rating cards and publisher logos come first
-const START_SHARE = 0.22; // otherwise start about a fifth of the way in, where the gameplay is
+import { TrailerScan } from './TrailerScan.js';
+
+const START_AT = 12; // fallback when a trailer can't be scanned: skip the cards at the start
+const START_SHARE = 0.22; // ...and start about a fifth of the way in
 const SETTLE_MS = 1100; // how long a game must stay selected before its music starts
 const FADE_MS = 900; // music fade in
 const OUT_MS = 420; // picture and music fade out; unloading waits for this
@@ -28,7 +35,12 @@ export const GameMusic = {
     v.className = 'game-trailer';
     v.crossOrigin = 'anonymous';
     v.playsInline = true;
-    v.loop = true;
+    v.loop = false; // looping goes back to the chosen start, not to 0:00
+    v.addEventListener('ended', () => {
+      if (!this.playing) return;
+      v.currentTime = this.target || 0;
+      v.play().catch(() => {});
+    });
     v.preload = 'none';
     v.setAttribute('aria-hidden', 'true');
     v.addEventListener('error', () => this.stop({ fade: false }));
@@ -52,6 +64,7 @@ export const GameMusic = {
     if (g !== this.game) this.stop();
     this.game = g;
     if (!g?.trailer || (!this.enabled && !now)) return;
+    TrailerScan.bestStart(g.trailer); // usually done by the time the selection settles
     this.timer = setTimeout(() => this.start(g), now ? 0 : SETTLE_MS);
   },
 
@@ -59,11 +72,16 @@ export const GameMusic = {
     return !!this.video?.classList.contains('is-playing');
   },
 
-  start(g) {
+  async start(g) {
     if (g !== this.game) return;
+    // Wait briefly for the scan; without it, fall back to the fixed rule.
+    const scanned = await Promise.race([TrailerScan.bestStart(g.trailer), new Promise((r) => setTimeout(() => r(null), 1500))]);
+    if (g !== this.game) return;
+    this.scannedStart = scanned?.start ?? null;
     const v = this.ensure();
     const Hls = window.Hls;
     this.teardown();
+    if (this.canPlayAv1()) return this.startDash(g);
     if (Hls?.isSupported()) {
       // Always the best stream Steam offers (1080p), never scaled down to the hero's size.
       const hls = new Hls({ autoStartLoad: false, capLevelToPlayerSize: false, maxBufferLength: 30, abrEwmaDefaultEstimate: 20e6 });
@@ -79,7 +97,7 @@ export const GameMusic = {
         if (placed) return;
         placed = true;
         const total = data.details.totalduration || 0;
-        const at = Math.max(START_AT, Math.min(total * START_SHARE, total - 20));
+        const at = this.scannedStart ?? Math.max(START_AT, Math.min(total * START_SHARE, total - 20));
         if (at - START_AT > 3) {
           hls.stopLoad();
           hls.startLoad(at);
@@ -95,6 +113,40 @@ export const GameMusic = {
       v.addEventListener('loadedmetadata', () => (v.currentTime = Math.max(START_AT, v.duration * START_SHARE)), { once: true });
       v.addEventListener('canplay', () => this.play(g), { once: true });
     }
+  },
+
+  canPlayAv1() {
+    return !!window.dashjs && window.MediaSource?.isTypeSupported('video/mp4; codecs="av01.0.09M.08"') && !this.av1Failed;
+  },
+
+  // AV1 over DASH at the top quality, starting at the scanned point.
+  startDash(g) {
+    const v = this.video;
+    const url = g.trailer.slice(0, g.trailer.lastIndexOf('/') + 1) + 'dash_av1.mpd';
+    const player = window.dashjs.MediaPlayer().create();
+    player.updateSettings({
+      debug: { logLevel: window.dashjs.Debug.LOG_LEVEL_NONE },
+      streaming: {
+        abr: { autoSwitchBitrate: { video: false }, initialBitrate: { video: 100000 } },
+        buffer: { fastSwitchEnabled: true },
+      },
+    });
+    const at = this.scannedStart ?? START_AT;
+    this.target = at;
+    player.on(window.dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
+      const top = player.getBitrateInfoListFor('video').length - 1;
+      if (top >= 0) player.setQualityFor('video', top, true);
+    });
+    // If AV1 fails for any reason, use H.264 for the rest of the session.
+    player.on(window.dashjs.MediaPlayer.events.ERROR, () => {
+      if (g !== this.game) return;
+      this.av1Failed = true;
+      this.teardown();
+      this.start(g);
+    });
+    v.addEventListener('canplay', () => this.play(g), { once: true });
+    player.initialize(v, url, false, at);
+    this.dash = player;
   },
 
   play(g) {
@@ -138,6 +190,12 @@ export const GameMusic = {
     clearInterval(this.fader);
     this.hls?.destroy();
     this.hls = null;
+    try {
+      this.dash?.reset();
+    } catch {
+      /* already torn down */
+    }
+    this.dash = null;
     const v = this.video;
     if (!v) return;
     v.pause();

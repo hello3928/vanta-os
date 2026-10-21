@@ -33,6 +33,13 @@ export class VTile extends VComponent {
       this.img.onload = () => this.img.classList.remove('art-loading');
       this.img.src = src;
     }
+    // Badges wait for the art, so a tile never shows a tag over an empty frame.
+    if (this.img) {
+      this.artEl.classList.add('is-loading');
+      const shown = () => this.artEl.classList.remove('is-loading');
+      this.img.addEventListener('load', shown);
+      this.img.addEventListener('error', shown);
+    }
     if (glyph) this.artEl.append(h('span', 'v-tile__glyph', `${icon(glyph)}<span>${esc(title)}</span>`));
     if (badge) this.badgeHost = this.artEl.appendChild(h('span', 'v-tile__badge', new VBadge(badge).el.outerHTML));
     this.el.append(this.artEl);

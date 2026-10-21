@@ -11,6 +11,8 @@ import { GameMusic } from './core/GameMusic.js';
 import { afterLayout, h, reducedMotion } from './core/util.js';
 import { VToast } from './components/VToast.js';
 import { VDialog } from './components/VDialog.js';
+import { VTopBar } from './components/VTopBar.js';
+import { VHintBar } from './components/VHintBar.js';
 import { Keyboard } from './components/VKeyboard.js';
 import { SetupScreen } from './screens/Setup.js';
 import { UsersScreen } from './screens/Users.js';
@@ -35,6 +37,7 @@ const stage = document.getElementById('stage');
 const layer = document.getElementById('overlay');
 const dimEl = document.getElementById('dim');
 Overlays.setRoot(layer);
+const shellEl = document.getElementById('shell');
 VToast.setHost(document.getElementById('toasts'));
 
 // Icon and stand-in logo fonts must be ready before the first screen; capsules start loading too.
@@ -42,7 +45,49 @@ preload(GAMES.filter((g) => g.recent), ['capsule', 'hero', 'logo']);
 preload(GAMES, ['capsule']);
 const ready = Promise.all([loadFonts(GAMES), document.fonts.load('24px "Material Symbols Rounded"').catch(() => {}), document.fonts.load('500 16px Inter').catch(() => {}), new Promise((r) => setTimeout(r, 900))]);
 
+// The shell: one top bar and one hint bar for the whole app. Pages don't build their own; they
+// declare `shell = { title, hints, topbar, hintbar }` and the shell updates in place, so the bars
+// stay still while pages change underneath. Screens with changing prompts call App.setHints().
+const Shell = {
+  top: null,
+  hints: null,
+  scrollEl: null,
+
+  build() {
+    this.top?.el.remove();
+    this.hints?.el.remove();
+    this.top = new VTopBar({ app: App });
+    this.hints = new VHintBar();
+    shellEl.append(this.top.el, this.hints.el);
+    this.onScroll = () => this.top.el.classList.toggle('is-scrolled', this.scrollEl.scrollTop > 4);
+  },
+
+  apply(screen) {
+    const s = screen.shell || {};
+    if (!App.inGame) this.hide(false);
+    this.top.setTitle(s.title || '');
+    this.top.el.classList.toggle('is-hidden', s.topbar === false);
+    this.setHints(s.hints || [], s.hintbar === false);
+    // The bar gets a background once the page scrolls under it.
+    this.scrollEl?.removeEventListener('scroll', this.onScroll);
+    this.scrollEl = screen.el.querySelector('.screen__scroll');
+    this.scrollEl?.addEventListener('scroll', this.onScroll, { passive: true });
+    this.top.el.classList.toggle('is-scrolled', (this.scrollEl?.scrollTop || 0) > 4);
+  },
+
+  setHints(hints, hidden = false) {
+    this.hints.setHints(hints);
+    this.hints.el.classList.toggle('is-hidden', hidden || !hints.length);
+  },
+
+  // Full-screen moments (the expanded trailer, a game) hide both bars.
+  hide(on) {
+    shellEl.classList.toggle('is-hidden', on);
+  },
+};
+
 const App = {
+  shell: Shell,
   screen: null,
   stack: [],
   busy: false,
@@ -77,6 +122,7 @@ const App = {
     if (fade) screen.el.classList.add('is-entering');
     stage.append(screen.el);
     if (!GameMusic.claimed) GameMusic.release();
+    Shell.apply(screen);
     FocusManager.setRoot(screen.el, {
       onBack: () => {
         if (!screen.onBack?.()) this.back();
@@ -151,6 +197,7 @@ const App = {
 
   showGame() {
     this.inGame = true;
+    Shell.hide(true);
     this.gameEl = gameView(layer, this.running);
   },
 
@@ -166,6 +213,7 @@ const App = {
     const el = this.gameEl;
     this.gameEl = null;
     this.inGame = false;
+    Shell.hide(false);
     Motion.play(el, [{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'both' });
     setTimeout(() => el.remove(), 320);
     if (refresh) this.refresh();
@@ -216,6 +264,7 @@ const App = {
     this.gameEl?.remove();
     this.gameEl = null;
     this.inGame = false;
+    Shell.hide(false);
     GameMusic.release();
     const black = h('div', 'sleep');
     layer.append(black);
@@ -225,6 +274,10 @@ const App = {
       Motion.play(black, [{ opacity: 1 }, { opacity: 0 }], { duration: 700, fill: 'both' });
       setTimeout(() => black.remove(), 720);
     }, 1400);
+  },
+
+  setHints(hints) {
+    Shell.setHints(hints);
   },
 
   // Rebuild the current screen in the new language, keeping your place in Settings.
@@ -240,6 +293,8 @@ const App = {
 // Handy for debugging in the browser console.
 window.__vanta = App;
 
+Shell.build();
+
 // Settings → live effects
 const EFFECTS = {
   accent: (a) => (document.documentElement.dataset.accent = a),
@@ -252,6 +307,7 @@ const EFFECTS = {
   menuHaptics: (v) => (Haptics.menus = v),
   language: (code) => {
     i18n.set(code);
+    Shell.build();
     App.relocalize();
   },
   gameMusic: (on) => GameMusic.setEnabled(on),

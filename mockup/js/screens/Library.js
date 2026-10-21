@@ -1,9 +1,7 @@
 // Library: tabs (All games / Installed / Steam / Emulation) over a grid of capsules.
 // Emulation adds a row of system filters.
 
-import { VTopBar } from '../components/VTopBar.js';
 import { VTabs } from '../components/VTabs.js';
-import { VHintBar } from '../components/VHintBar.js';
 import { FocusManager } from '../core/FocusManager.js';
 import { Motion } from '../core/motion.js';
 import { esc, h } from '../core/util.js';
@@ -31,17 +29,13 @@ export class LibraryScreen {
     head.append(this.tabs.el, this.countEl);
     this.sub = h('div', 'library__sub');
     this.gridHost = h('div', 'library__grid');
-    scroll.append(new VTopBar({ app, title: t('library') }).el, head, this.sub, this.gridHost);
-    this.el.append(
-      scroll,
-      new VHintBar({
-        hints: [
+    scroll.append(h('div', 'shell-gap'), head, this.sub, this.gridHost);
+    this.el.append(scroll);
+    this.shell = { title: t('library'), hints: [
           ['accept', t('open')],
           ['tabs', t('switchTab')],
           ['back', t('back')],
-        ],
-      }).el,
-    );
+        ] };
     this.render();
   }
 

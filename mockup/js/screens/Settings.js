@@ -2,7 +2,6 @@
 // Rows are label + value, with a second line only where it tells you something you need.
 // B inside the rows returns to the list; B on the list leaves Settings.
 
-import { VTopBar } from '../components/VTopBar.js';
 import { VListItem } from '../components/VListItem.js';
 import { VToggle } from '../components/VToggle.js';
 import { VSlider } from '../components/VSlider.js';
@@ -10,7 +9,6 @@ import { VDropdown } from '../components/VDropdown.js';
 import { VButton } from '../components/VButton.js';
 import { VDialog } from '../components/VDialog.js';
 import { VToast } from '../components/VToast.js';
-import { VHintBar } from '../components/VHintBar.js';
 import { FocusManager } from '../core/FocusManager.js';
 import { Motion } from '../core/motion.js';
 import { Settings } from '../core/Settings.js';
@@ -211,16 +209,12 @@ export class SettingsScreen {
       return item;
     });
     layout.append(nav, this.pane);
-    scroll.append(new VTopBar({ app, title: t('settings') }).el, layout);
-    this.el.append(
-      scroll,
-      new VHintBar({
-        hints: [
+    scroll.append(h('div', 'shell-gap'), layout);
+    this.el.append(scroll);
+    this.shell = { title: t('settings'), hints: [
           ['accept', t('select')],
           ['back', t('back')],
-        ],
-      }).el,
-    );
+        ] };
     this.start = SECTIONS.find((s) => s.id === section) || SECTIONS[0];
     this.show(this.start);
   }

@@ -5,11 +5,10 @@
 // from the top shelf) widens the clip until the trailer fills the screen; B, Down or pulling up
 // narrows it again. Only the clip animates, so the art and video never move, rescale or restart.
 
-import { VTopBar } from '../components/VTopBar.js';
 import { VRow } from '../components/VRow.js';
 import { VTile } from '../components/VTile.js';
-import { VButton } from '../components/VButton.js';
 import { VHintBar } from '../components/VHintBar.js';
+import { VButton } from '../components/VButton.js';
 import { FocusManager } from '../core/FocusManager.js';
 import { Motion } from '../core/motion.js';
 import { Sound } from '../core/Sound.js';
@@ -75,18 +74,15 @@ export class HomeScreen {
 
     this.content = h('div', 'home__content');
     this.content.append(this.intro, this.recentRow.el, added.el, emu.el);
-    scroll.append(this.heroEl, new VTopBar({ app }).el, this.content);
-    this.el.append(
-      scroll,
-      new VHintBar({
-        hints: [
+    // A strip of page colour over the hero's clip edge (see .home__seam in screens.css).
+    scroll.append(this.heroEl, h('div', 'home__seam'), h('div', 'shell-gap'), this.content);
+    this.el.append(scroll);
+    this.shell = { title: '', hints: [
           ['accept', t('open')],
           ['up', t('trailer')],
           ['qam', t('quickAccess')],
           ['mainMenu', t('menu')],
-        ],
-      }).el,
-    );
+        ] };
     this.render(recent[0], { instant: true });
     GameMusic.attach(this.heroEl, this.game, this.shade);
     this.pullGesture();
@@ -171,6 +167,7 @@ export class HomeScreen {
     if (this.scroll.scrollTop > 0) this.scroll.scrollTop = 0;
     this.setPull(0);
     this.el.classList.add('is-expanded');
+    this.app.shell.hide(true);
 
     GameMusic.expanded = true;
     GameMusic.select(g, { now: !GameMusic.playing });
@@ -221,6 +218,7 @@ export class HomeScreen {
     player.classList.remove('is-in');
     setTimeout(() => player.remove(), 200);
     this.el.classList.remove('is-expanded');
+    this.app.shell.hide(false);
     GameMusic.expanded = false;
     GameMusic.video?.classList.toggle('is-visible', GameMusic.showVideo && GameMusic.playing);
   }

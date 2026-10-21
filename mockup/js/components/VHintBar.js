@@ -7,6 +7,7 @@ import { Input } from '../core/Input.js';
 import { Settings } from '../core/Settings.js';
 import { glyph } from '../core/glyphs.js';
 import { esc, h, whileConnected } from '../core/util.js';
+import { animate } from '../core/motion.js';
 
 const FORCED = { Xbox: 'xbox', PlayStation: 'ps', Nintendo: 'nintendo', 'Steam Deck': 'deck' };
 
@@ -31,5 +32,13 @@ export class VHintBar extends VComponent {
 
   render() {
     this.el.replaceChildren(...this.hints.map(([action, label]) => h('span', 'v-hint', `<span class="v-hint__glyphs">${promptGlyph(action)}</span>${esc(label)}`)));
+  }
+
+  // Swap the prompts in place (the shell's bar stays on screen between pages).
+  setHints(hints = []) {
+    if (JSON.stringify(hints) === JSON.stringify(this.hints)) return;
+    this.hints = hints;
+    this.render();
+    animate(this.el, 'fade-in');
   }
 }

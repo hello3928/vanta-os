@@ -5,7 +5,6 @@
 import { VComponent } from '../core/VComponent.js';
 import { VPanel } from '../components/VPanel.js';
 import { VButton } from '../components/VButton.js';
-import { VHintBar } from '../components/VHintBar.js';
 import { avatarEl } from '../components/avatar.js';
 import { FocusManager } from '../core/FocusManager.js';
 import { Profiles } from '../core/Profiles.js';
@@ -47,15 +46,11 @@ export class UsersScreen {
     add.on('activate', () => this.addUser());
     [...this.cards, guest, add].forEach((c) => this.row.append(c.el));
     wrap.append(this.row);
-    this.el.append(
-      wrap,
-      new VHintBar({
-        hints: [
+    this.el.append(wrap);
+    this.shell = { topbar: false, hints: [
           ['accept', t('select')],
           ['options', t('editProfile')],
-        ],
-      }).el,
-    );
+        ] };
   }
 
   enter() {

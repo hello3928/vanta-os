@@ -4,28 +4,32 @@
 
 import { VComponent } from '../core/VComponent.js';
 import { Profiles } from '../core/Profiles.js';
-import { icon, batteryIcon } from '../core/icons.js';
+import { bellIcon, wifiIcon, batteryIcon, moreIcon } from '../core/statusIcons.js';
 import { t } from '../core/i18n.js';
 import { esc, h } from '../core/util.js';
+import { animate } from '../core/motion.js';
 import { avatarEl } from './avatar.js';
 
 export class VTopBar extends VComponent {
   constructor({ app, title = '' } = {}) {
     super({ tag: 'header', className: 'v-topbar' });
-    const titleEl = h('div', 'v-topbar__title', esc(title));
+    const titleEl = (this.titleEl = h('div', 'v-topbar__title', esc(title)));
+    this.title = title;
 
     const status = h('div', 'v-topbar__status');
-    const bell = h('span', 'v-topbar__bell', icon('bell'));
-    const wifi = h('span', 'v-wifi', icon('wifi'));
-    this.bind('wifi', (on) => (wifi.style.opacity = on ? 1 : 0.3));
+    const bell = h('span', 'v-topbar__icon v-topbar__bell', bellIcon({ unread: true }));
+    const wifi = h('span', 'v-topbar__icon v-wifi');
+    this.bind('wifi', (on) => (wifi.innerHTML = wifiIcon({ strength: 3, off: !on })));
     this.battery = h('span', 'v-battery');
     this.clock = h('span', 'v-topbar__clock');
     const me = h('button', 'v-topbar__me');
     me.type = 'button';
     me.setAttribute('aria-label', t('menu'));
     me.append(avatarEl(Profiles.current, 'avatar avatar--xs'));
+    // The bar outlives pages, so it follows profile changes itself.
+    Profiles.onChange(() => me.replaceChildren(avatarEl(Profiles.current, 'avatar avatar--xs')));
     me.addEventListener('click', () => app.toggleMainMenu());
-    const qam = h('button', 'v-topbar__qam', icon('more'));
+    const qam = h('button', 'v-topbar__qam', moreIcon());
     qam.type = 'button';
     qam.setAttribute('aria-label', t('quickAccess'));
     qam.addEventListener('click', () => app.toggleQuickAccess());
@@ -35,6 +39,14 @@ export class VTopBar extends VComponent {
     this.tick();
     this.timer = setInterval(() => this.tick(), 15000);
     this.readBattery();
+  }
+
+  // Page titles cross-fade; the status icons on the right never move.
+  setTitle(title) {
+    if (title === this.title) return;
+    this.title = title;
+    this.titleEl.textContent = title;
+    animate(this.titleEl, 'fade-in');
   }
 
   tick() {
@@ -50,6 +62,12 @@ export class VTopBar extends VComponent {
     } catch {
       /* not available: keep the sample value */
     }
-    this.battery.innerHTML = `${icon(batteryIcon(level), 'v-battery__icon')}<span class="v-battery__pct">${Math.round(level * 100)}%</span>`;
+    let charging = false;
+    try {
+      charging = !!(await navigator.getBattery?.())?.charging;
+    } catch {
+      /* not available */
+    }
+    this.battery.innerHTML = `<span class="v-battery__pct">${Math.round(level * 100)}%</span>${batteryIcon({ level, charging })}`;
   }
 }

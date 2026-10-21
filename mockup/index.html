@@ -16,11 +16,13 @@
 
 <div id="app">
   <main id="stage"></main>
+  <div id="shell"></div>
   <div id="overlay"></div>
   <div id="toasts" class="v-toasts" aria-live="polite"></div>
   <div id="dim" aria-hidden="true"></div>
 </div>
 
-<!-- hls.js plays Steam's trailer streams for game music -->
+<!-- Trailer playback for game music: dash.js for Steam's AV1 streams, hls.js for the H.264 fallback -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/4.7.4/dash.all.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.17/hls.min.js"></script>
 <script type="module" src="js/app.js"></script>

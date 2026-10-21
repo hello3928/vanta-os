@@ -46,6 +46,8 @@
 }
 .screen.is-leaving {
   pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--t-fast) var(--ease-in);
 }
 .screen__scroll {
   position: absolute;
@@ -63,6 +65,51 @@
   image-rendering: pixelated;
 }
 
+/* ---------- Shell: the top bar and hint bar shared by every page ---------- */
+/* They live outside the pages, so they stay still while pages cross-fade underneath.
+   Pages leave a .shell-gap where the top bar sits. */
+#shell {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  transition: opacity var(--t-base) var(--ease-out);
+}
+#shell.is-hidden {
+  opacity: 0;
+}
+#shell > * {
+  pointer-events: auto;
+}
+#shell.is-hidden > * {
+  pointer-events: none;
+}
+#shell .v-topbar {
+  position: absolute;
+  inset: 0 0 auto 0;
+  transition:
+    opacity var(--t-base) var(--ease-out),
+    background-color var(--t-base) var(--ease-out),
+    box-shadow var(--t-base) var(--ease-out);
+}
+#shell .v-topbar.is-scrolled {
+  background-color: rgb(11 14 19 / 0.94);
+  box-shadow: inset 0 -1px 0 var(--line);
+}
+#shell .v-topbar.is-hidden,
+#shell .v-hintbar.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+#shell .v-hintbar {
+  transition: opacity var(--t-base) var(--ease-out);
+}
+.shell-gap {
+  position: relative;
+  height: var(--bar-h);
+  flex: none;
+}
+
 /* ---------- Home ---------- */
 /* The hero is always full height; a clip shows its top part. Expanding the trailer animates
    only the clip, so the art and video never move or rescale. */
@@ -76,6 +123,29 @@
 }
 .screen--home.is-pulling .home__hero {
   transition: none;
+}
+/* The clip edge usually lands on a fractional pixel. The browser clips the video and the shade
+   as separate layers, each with a half-transparent edge row, and the two rows together let a
+   faint line of video through. This strip of page colour covers that row. It sits above the
+   hero and below the shelves, and follows the pull-down. */
+.home__seam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--hero-h) - 2px);
+  height: 4px;
+  background: var(--bg);
+  pointer-events: none;
+  transform: translateY(var(--pull, 0px));
+  transition:
+    transform var(--t-slow) var(--ease-out),
+    opacity var(--t-fast) var(--ease-out);
+}
+.screen--home.is-pulling .home__seam {
+  transition: none;
+}
+.screen--home.is-expanded .home__seam {
+  opacity: 0;
 }
 .home__bg {
   position: absolute;
@@ -112,9 +182,6 @@
 }
 .screen--home.is-pulling .home__content {
   transition: none;
-}
-.screen--home .v-topbar {
-  transition: opacity var(--t-base) var(--ease-out);
 }
 .home__intro {
   display: flex;
@@ -175,11 +242,6 @@
   opacity: 0;
 }
 .screen--home.is-expanded .home__content {
-  opacity: 0;
-  pointer-events: none;
-}
-.screen--home.is-expanded .v-topbar,
-.screen--home.is-expanded > .v-hintbar {
   opacity: 0;
   pointer-events: none;
 }
@@ -264,9 +326,6 @@
   object-fit: contain;
   object-position: left bottom;
   filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.5));
-}
-.screen--game .v-topbar {
-  position: relative;
 }
 .game__bar {
   position: relative;

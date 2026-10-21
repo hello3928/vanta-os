@@ -3,7 +3,6 @@
 // music keeps playing from Home.
 // Real OS: the profile is saved per game and vantad applies it at launch.
 
-import { VTopBar } from '../components/VTopBar.js';
 import { VButton } from '../components/VButton.js';
 import { VDropdown } from '../components/VDropdown.js';
 import { VSlider } from '../components/VSlider.js';
@@ -13,7 +12,6 @@ import { VPanel } from '../components/VPanel.js';
 import { VListItem } from '../components/VListItem.js';
 import { VDialog } from '../components/VDialog.js';
 import { VToast } from '../components/VToast.js';
-import { VHintBar } from '../components/VHintBar.js';
 import { FocusManager } from '../core/FocusManager.js';
 import { GameMusic } from '../core/GameMusic.js';
 import { Settings } from '../core/Settings.js';
@@ -94,7 +92,7 @@ export class GameScreen {
     side.append(compat, details);
     body.append(profile, side);
 
-    const parts = [heroEl, new VTopBar({ app, title: g.title }).el, bar];
+    const parts = [heroEl, h('div', 'shell-gap'), bar];
     const thumbs = screenshots(g, 'thumb');
     if (thumbs.length) {
       const full = screenshots(g, 'full');
@@ -104,16 +102,12 @@ export class GameScreen {
       parts.push(shelf.el);
     }
     scroll.append(...parts, body);
-    this.el.append(
-      scroll,
-      new VHintBar({
-        hints: [
+    this.el.append(scroll);
+    this.shell = { title: g.title, hints: [
           ['accept', t('select')],
           ['options', t('properties')],
           ['back', t('back')],
-        ],
-      }).el,
-    );
+        ] };
   }
 
   enter() {
