@@ -7,7 +7,7 @@ import { VTabs } from '../components/VTabs.js';
 import { VListItem } from '../components/VListItem.js';
 import { VSlider } from '../components/VSlider.js';
 import { VToggle } from '../components/VToggle.js';
-import { VChoice } from '../components/VChoice.js';
+import { VDropdown } from '../components/VDropdown.js';
 import { VToast } from '../components/VToast.js';
 import { FocusManager } from '../core/FocusManager.js';
 import { Settings } from '../core/Settings.js';
@@ -89,17 +89,17 @@ function quickSettings() {
     new VToggle({ label: t('airplane'), icon: 'airplane', bind: 'airplane' }),
     new VToggle({ label: t('gameMusic'), icon: 'music_note', bind: 'gameMusic' }),
     new VToggle({ label: t('interfaceSounds'), icon: 'volume', bind: 'sfx' }),
-    new VChoice({ label: t('haptics'), icon: 'vibrate', options: ['Off', 'Low', 'High'], bind: 'haptics' }),
+    new VDropdown({ label: t('haptics'), icon: 'vibrate', options: ['Off', 'Low', 'High'], bind: 'haptics' }),
   ];
 }
 
 function performance() {
   return [
-    new VChoice({ label: t('perfOverlay'), icon: 'speed', options: ['Off', 'FPS', 'Basic', 'Full'], bind: 'overlay' }),
-    new VChoice({ label: t('frameLimit'), icon: 'speed', options: ['Off', '30', '40', '60', '90', '120'], bind: 'fpsLimit' }),
+    new VDropdown({ label: t('perfOverlay'), icon: 'speed', options: ['Off', 'FPS', 'Basic', 'Full'], bind: 'overlay' }),
+    new VDropdown({ label: t('frameLimit'), icon: 'speed', options: ['Off', '30', '40', '60', '90', '120'], bind: 'fpsLimit' }),
     new VToggle({ label: t('limitTdp'), icon: 'bolt', bind: 'tdpLimit' }),
     new VSlider({ label: t('tdpLimit'), icon: 'bolt', min: 3, max: 30, step: 1, bind: 'tdp', format: (v) => `${v} W` }),
-    new VChoice({ label: t('upscaling'), icon: 'sparkle', options: ['Off', 'Quality', 'Balanced', 'Performance'], bind: 'upscaling' }),
+    new VDropdown({ label: t('upscaling'), icon: 'sparkle', options: ['Off', 'Quality', 'Balanced', 'Performance'], bind: 'upscaling' }),
     new VToggle({ label: t('vrr'), icon: 'monitor', bind: 'vrr' }),
   ];
 }
@@ -108,7 +108,7 @@ function notifications() {
   return [
     new VListItem({ label: t('notifUpdated', { game: 'Cyberpunk 2077' }), detail: '3.1 GB', icon: 'download' }),
     new VListItem({ label: t('notifController'), icon: 'gamepad' }),
-    new VListItem({ label: t('notifUpToDate'), detail: '0.1.0', icon: 'check' }),
+    new VListItem({ label: t('notifUpToDate'), detail: '0.1.0', icon: 'checkCircle' }),
   ];
 }
 

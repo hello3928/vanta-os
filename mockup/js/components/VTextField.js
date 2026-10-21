@@ -1,36 +1,61 @@
-// VTextField: a text input you can reach with the controller. A (or a click) starts typing;
-// Enter or Esc finishes. Real OS: A opens the on-screen keyboard (Maliit or a Vanta keyboard).
+// VTextField: a text row. A (or a click) opens the on-screen keyboard; the row updates as you type.
+// password: true shows dots. Real OS: the same, with vantad's keyboard instead of VKeyboard.js.
 
 import { VComponent } from '../core/VComponent.js';
-import { FocusManager } from '../core/FocusManager.js';
+import { Keyboard } from './VKeyboard.js';
+import { icon } from '../core/icons.js';
 import { esc, h } from '../core/util.js';
 
 export class VTextField extends VComponent {
-  constructor({ label, value = '', placeholder = '', maxLength = 24, hint = '', onChange } = {}) {
-    super({ className: 'v-control v-field', focusable: true, label, activateSound: 'select' });
-    this.el.innerHTML = `<span class="v-control__label">${esc(label)}</span><span class="v-control__detail">${esc(hint)}</span>`;
-    this.input = h('input', 'v-field__input');
-    Object.assign(this.input, { type: 'text', value, placeholder, maxLength, spellcheck: false, autocomplete: 'off' });
-    this.input.setAttribute('aria-label', label);
+  constructor({ label, value = '', placeholder = '', maxLength = 24, hint = '', password = false, icon: iconName, onChange, onDone } = {}) {
+    super({ className: `v-control v-field${password ? ' v-field--password' : ''}`, focusable: true, label, activateSound: null });
+    this.el.innerHTML = `
+      <span class="v-control__icon">${iconName ? icon(iconName) : ''}</span>
+      <span class="v-control__label">${esc(label)}</span>
+      <span class="v-control__detail">${esc(hint)}</span>`;
+    this.box = h('span', 'v-field__box');
     const trail = h('span', 'v-control__trail');
-    trail.append(this.input);
+    trail.append(this.box);
     this.el.append(trail);
-    this.input.addEventListener('input', () => this.emit('change', this.value));
-    this.input.addEventListener('blur', () => this.el.classList.remove('is-typing'));
-    this.input.addEventListener('focus', () => {
-      this.el.classList.add('is-typing');
-      if (FocusManager.current !== this) FocusManager.focus(this, { silent: true });
-    });
+    Object.assign(this, { label, placeholder, maxLength, password, text: value });
     if (onChange) this.on('change', onChange);
+    if (onDone) this.on('done', onDone);
+    this.paint();
   }
 
   get value() {
-    return this.input.value;
+    return this.text;
+  }
+
+  set value(v) {
+    this.text = v;
+    this.paint();
+  }
+
+  paint() {
+    const shown = this.password ? '•'.repeat(this.text.length) : this.text;
+    this.box.classList.toggle('is-empty', !shown);
+    this.box.textContent = shown || this.placeholder;
   }
 
   activate(meta) {
-    super.activate(meta);
-    this.input.focus();
-    this.input.select();
+    if (this.disabled) return super.activate(meta);
+    this.press();
+    this.el.classList.add('is-typing');
+    Keyboard.open({
+      label: this.label,
+      value: this.text,
+      password: this.password,
+      maxLength: this.maxLength,
+      onInput: (text) => {
+        this.value = text;
+        this.emit('change', text);
+      },
+      onDone: (text) => {
+        this.el.classList.remove('is-typing');
+        this.value = text;
+        this.emit('done', text);
+      },
+    });
   }
 }

@@ -1,53 +1,60 @@
 /* Vanta OS design tokens.
-   Layout: Big Picture / Steam Deck. Thin status bar, full-bleed hero for the selected game,
-   shelves of portrait capsules, drawers for the main menu (left) and quick access (right),
-   button prompts in the footer. One deliberate dark world, so there is no light theme.
+   Direction: Valve's structure (Big Picture / Steam Deck) with PS5 polish: dark slate surfaces,
+   generous spacing, pill buttons, rounded panels, white focus rings and a single clean typeface.
+   One deliberate dark world (a console UI), so there is no light theme.
    QML port: this file becomes the Theme.qml singleton. */
 
 :root {
   color-scheme: dark;
 
-  /* Surfaces, darkest to lightest (Valve's slate blues) */
-  --bg: #0e1217;
-  --bg-2: #161a21;
-  --panel: #1c2028;
-  --surface: #23262e;
-  --surface-2: #2c313a;
-  --focus-row: #3d4450; /* focused row in lists and menus */
-  --track: #4b5260;
-  --line: rgb(255 255 255 / 0.07);
-  --scrim: rgb(6 8 11 / 0.62);
+  /* Surfaces, darkest to lightest */
+  --bg: #0b0e13;
+  --bg-2: #12161c;
+  --panel: #171b22;
+  --surface: #1f242c;
+  --surface-2: #283039;
+  --surface-3: #333c48;
+  --track: #3d4553;
+  --hover: rgb(255 255 255 / 0.06);
+  --focus-row: rgb(255 255 255 / 0.11);
+  --line: rgb(255 255 255 / 0.06);
+  --scrim: rgb(5 7 10 / 0.66);
 
   /* Text */
   --fg: #ffffff;
-  --fg-2: #dcdedf;
-  --fg-3: #8b929a;
-  --on-light: #0e1217;
-  --light: #dcdedf; /* focused buttons and tabs invert to this */
+  --fg-2: #d7dbe0;
+  --fg-3: #8d949e;
+  --fg-4: #5f6773;
+  --on-light: #0b0e13;
+  --light: #f2f4f7; /* focused buttons and tabs invert to this */
 
-  /* Accent: Steam blue by default. Settings → Appearance can switch it. */
+  /* Accent: Steam blue by default (Settings → Appearance can switch it) */
   --accent: #1a9fff;
-  --accent-hi: #4cb4ff;
+  --accent-hi: #4db5ff;
   --accent-fg: #ffffff;
   --accent-soft: rgb(26 159 255 / 0.16);
 
   /* Play is always green, as on Steam */
-  --play: #59bf40;
-  --play-hi: #6fd352;
+  --play: #4fb93a;
+  --play-hi: #66cf4f;
 
   /* Status */
-  --good: #59bf40;
+  --good: #4fb93a;
+  --good-soft: rgb(79 185 58 / 0.16);
   --warn: #e8b33f;
-  --bad: #e5484d;
+  --warn-soft: rgb(232 179 63 / 0.15);
+  --bad: #f2555a;
+  --bad-soft: rgb(242 85 90 / 0.15);
 
   /* Type */
-  --font-ui: "Albert Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-ui: "Inter", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
   --t-xs: 0.75rem;
   --t-sm: 0.875rem;
   --t-md: 1rem;
-  --t-lg: 1.15rem;
+  --t-lg: 1.125rem;
   --t-xl: 1.5rem;
   --t-2xl: 2rem;
+  --t-3xl: 2.75rem;
 
   /* Space */
   --s-1: 0.25rem;
@@ -57,44 +64,51 @@
   --s-5: 1.5rem;
   --s-6: 2rem;
   --s-7: 3rem;
+  --s-8: 4rem;
 
-  --pad: clamp(16px, 3vw, 48px);
+  --pad: clamp(16px, 3.5vw, 56px);
   --gutter-l: max(var(--pad), env(safe-area-inset-left, 0px));
   --gutter-r: max(var(--pad), env(safe-area-inset-right, 0px));
 
   /* Shape */
-  --r-xs: 3px;
-  --r-sm: 4px;
-  --r-md: 6px;
-  --r-lg: 8px;
+  --r-xs: 4px;
+  --r-sm: 6px; /* capsules, badges */
+  --r-md: 10px; /* rows, inputs */
+  --r-lg: 14px; /* panels, dialogs */
+  --r-pill: 999px; /* buttons, chips */
+
+  /* Elevation */
+  --shadow-1: 0 2px 8px rgb(0 0 0 / 0.3);
+  --shadow-2: 0 10px 30px rgb(0 0 0 / 0.45);
+  --shadow-3: 0 24px 60px rgb(0 0 0 / 0.55);
 
   /* Motion: short, never overshooting. Exits are faster than entrances. */
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-inout: cubic-bezier(0.45, 0, 0.2, 1);
   --t-instant: 90ms;
   --t-fast: 140ms;
   --t-base: 200ms;
   --t-slow: 320ms;
+  --t-slower: 480ms;
 
   /* Sizes */
   --capsule: clamp(6.5rem, 10.5vw, 9.5rem);
   --hero-h: min(66vh, 38rem);
   --bar-h: 3.25rem;
   --hint-h: 3rem;
+  --control-h: 3.25rem;
 }
 
 :root[data-accent="ember"] {
   --accent: #f26b2a;
   --accent-hi: #ff8a50;
-  --accent-fg: #ffffff;
   --accent-soft: rgb(242 107 42 / 0.16);
 }
 
 :root[data-accent="mint"] {
   --accent: #21b58a;
   --accent-hi: #3fd0a5;
-  --accent-fg: #ffffff;
   --accent-soft: rgb(33 181 138 / 0.16);
 }
 
@@ -111,8 +125,10 @@ body {
   color: var(--fg-2);
   font-family: var(--font-ui);
   font-size: var(--t-md);
-  line-height: 1.45;
+  line-height: 1.5;
+  font-feature-settings: "cv11", "ss03";
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   overflow: hidden;
 }
@@ -131,6 +147,7 @@ h1,
 h2,
 h3 {
   color: var(--fg);
+  letter-spacing: -0.015em;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -139,5 +156,6 @@ h3 {
     --t-fast: 1ms;
     --t-base: 1ms;
     --t-slow: 1ms;
+    --t-slower: 1ms;
   }
 }

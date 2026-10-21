@@ -11,12 +11,14 @@ import { GameMusic } from './core/GameMusic.js';
 import { afterLayout, h, reducedMotion } from './core/util.js';
 import { VToast } from './components/VToast.js';
 import { VDialog } from './components/VDialog.js';
+import { Keyboard } from './components/VKeyboard.js';
 import { SetupScreen } from './screens/Setup.js';
 import { UsersScreen } from './screens/Users.js';
 import { HomeScreen } from './screens/Home.js';
 import { LibraryScreen } from './screens/Library.js';
 import { GameScreen } from './screens/Game.js';
 import { SettingsScreen } from './screens/Settings.js';
+import { KitScreen } from './screens/Kit.js';
 import { openMainMenu, openQuickAccess } from './screens/Menus.js';
 import { openPowerMenu } from './screens/PowerMenu.js';
 import { launchGame, gameView } from './screens/Launch.js';
@@ -25,7 +27,7 @@ import { t, i18n } from './core/i18n.js';
 import { Profiles } from './core/Profiles.js';
 import { loadFonts, preload } from './art/index.js';
 
-const SCREENS = { setup: SetupScreen, users: UsersScreen, home: HomeScreen, library: LibraryScreen, game: GameScreen, settings: SettingsScreen };
+const SCREENS = { setup: SetupScreen, users: UsersScreen, home: HomeScreen, library: LibraryScreen, game: GameScreen, settings: SettingsScreen, kit: KitScreen };
 
 Motion.init();
 const appEl = document.getElementById('app');
@@ -38,7 +40,7 @@ VToast.setHost(document.getElementById('toasts'));
 // Icon and stand-in logo fonts must be ready before the first screen; capsules start loading too.
 preload(GAMES.filter((g) => g.recent), ['capsule', 'hero', 'logo']);
 preload(GAMES, ['capsule']);
-const ready = Promise.all([loadFonts(GAMES), document.fonts.load('24px "Material Symbols Rounded"').catch(() => {}), new Promise((r) => setTimeout(r, 900))]);
+const ready = Promise.all([loadFonts(GAMES), document.fonts.load('24px "Material Symbols Rounded"').catch(() => {}), document.fonts.load('500 16px Inter').catch(() => {}), new Promise((r) => setTimeout(r, 900))]);
 
 const App = {
   screen: null,
@@ -277,6 +279,7 @@ Input.init((action, meta) => {
     return;
   }
   if (App.busy || action === 'pointer') return;
+  if (Keyboard.handleAction(action)) return;
   // While a game is on screen it gets the input; only the system buttons reach Vanta.
   if (App.inGame && !Overlays.top() && !['mainMenu', 'qam', 'power'].includes(action)) return;
   switch (action) {

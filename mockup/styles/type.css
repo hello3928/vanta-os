@@ -1,0 +1,85 @@
+/* Typography classes. One typeface (Inter), a fixed scale, and a few roles.
+   Use these instead of one-off font sizes:
+
+   .text-display   very large titles (setup, "Who's playing?")
+   .text-title     screen and dialog titles
+   .text-heading   section headings
+   .text-body      running text
+   .text-label     row labels, button text
+   .text-caption   secondary details
+   .text-eyebrow   small uppercase marker above a title
+   .text-mono      numbers that line up (tabular figures)
+
+   Modifiers: .text-muted .text-subtle .text-accent .text-good .text-warn .text-bad
+              .text-center .text-truncate .text-balance */
+
+.text-display {
+  margin: 0;
+  font: 700 var(--t-3xl) / 1.1 var(--font-ui);
+  letter-spacing: -0.025em;
+  color: var(--fg);
+}
+.text-title {
+  margin: 0;
+  font: 700 var(--t-2xl) / 1.2 var(--font-ui);
+  letter-spacing: -0.02em;
+  color: var(--fg);
+}
+.text-heading {
+  margin: 0;
+  font: 600 var(--t-lg) / 1.35 var(--font-ui);
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.text-body {
+  margin: 0;
+  font: 400 var(--t-md) / 1.55 var(--font-ui);
+  color: var(--fg-2);
+}
+.text-label {
+  font: 500 var(--t-md) / 1.35 var(--font-ui);
+  color: var(--fg-2);
+}
+.text-caption {
+  font: 400 var(--t-sm) / 1.45 var(--font-ui);
+  color: var(--fg-3);
+}
+.text-eyebrow {
+  font: 600 var(--t-xs) / 1.2 var(--font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.text-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+.text-muted {
+  color: var(--fg-3);
+}
+.text-subtle {
+  color: var(--fg-4);
+}
+.text-accent {
+  color: var(--accent-hi);
+}
+.text-good {
+  color: var(--good);
+}
+.text-warn {
+  color: var(--warn);
+}
+.text-bad {
+  color: var(--bad);
+}
+.text-center {
+  text-align: center;
+}
+.text-truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.text-balance {
+  text-wrap: balance;
+}

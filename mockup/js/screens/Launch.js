@@ -9,6 +9,7 @@ import { Haptics } from '../core/Haptics.js';
 import { Settings } from '../core/Settings.js';
 import { Motion } from '../core/motion.js';
 import { promptGlyph } from '../components/VHintBar.js';
+import { VSpinner } from '../components/VSpinner.js';
 import { h, esc } from '../core/util.js';
 import { t } from '../core/i18n.js';
 import { systemOf } from '../data.js';
@@ -21,15 +22,19 @@ export function launchGame(layer, g, done) {
   const center = h('div', 'launch__center');
   const logo = artImg(g, 'logo', 'launch__logo');
   logo.alt = g.title;
-  const status = h('div', 'launch__status', `<span class="launch__spinner"></span><span>${esc(t('launching'))}</span>`);
+  const status = h('div', 'launch__status', `<span>${esc(t('launching'))}</span>`);
+  status.prepend(new VSpinner({ size: 'sm', tone: 'light', label: t('launching') }).el);
   center.append(logo, status);
-  el.append(bg, h('div', 'launch__veil'), center);
+  const veil = h('div', 'launch__veil');
+  el.append(bg, veil, center);
   layer.append(el);
 
   Sound.play('launch');
   Haptics.play('launch');
   Motion.play(el, [{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: Motion.out, fill: 'both' });
-  Motion.play(bg, [{ transform: 'scale(1)', filter: 'brightness(1)' }, { transform: 'scale(1.12)', filter: 'brightness(0.35)' }], { duration: 2600, easing: Motion.out, fill: 'both' });
+  // Push in and darken. The darkening is the veil's opacity, not a filter, so it stays cheap.
+  Motion.play(bg, [{ transform: 'scale(1)' }, { transform: 'scale(1.1)' }], { duration: 2600, easing: Motion.out, fill: 'both' });
+  Motion.play(veil, [{ opacity: 0.35 }, { opacity: 1 }], { duration: 2000, easing: Motion.out, fill: 'both' });
   Motion.play(logo, [{ opacity: 0, transform: 'scale(0.92)' }, { opacity: 1, transform: 'scale(1)' }], { delay: 250, duration: 900, easing: Motion.out, fill: 'both' });
   Motion.play(status, [{ opacity: 0 }, { opacity: 1 }], { delay: 700, duration: 400, fill: 'both' });
 

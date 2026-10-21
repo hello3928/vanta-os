@@ -14,22 +14,38 @@ Every screen in the mockup is built from these components. Each one lives in `mo
 
 | Component | What it is | Key options | Notes |
 |---|---|---|---|
-| `VButton` | Button | `label`, `icon`, `variant` (primary, secondary, ghost, danger), `size` (sm, md, lg), `block` | Focused buttons invert to white. Icon-only when there is no label. |
+| `VButton` | Pill button | `label`, `icon`, `variant` (play, primary, secondary, ghost, danger), `size` (sm, md, lg), `block` | Focused buttons invert to near-white; primary and play keep their color and gain a white ring. Icon-only when there is no label. |
 | `VTile` | Art you can focus: game capsule, landscape tile, card | `game` + `kind`, `src`, `fit` (cover, box), `shape` (capsule, landscape, card), `badge`, `glyph` | Lifts slightly with a white ring inside the art. Retro box art sits whole over a blurred copy. |
 | `VRow` | Titled horizontal shelf | `title`, `meta`, `align` (`start` pins focus to the left edge) | A focus group. |
 | `VTabs` | Tabs | `tabs`, `value`, `variant` (line, chips, rail), `bumpers` | LB/RB step through tabs. The rail variant is the quick access menu's icon column. |
 | `VToggle` | On/off row | `label`, `detail`, `icon`, `bind` | Separate on/off sounds. |
 | `VSlider` | Value row | `min`, `max`, `step`, `format`, `bind` | Left/right adjust the value. The tick pitch follows the value. Drag or tap with a pointer. |
-| `VChoice` | One-of-many row, drawn like a compact dropdown | `options`, `value`, `bind` | Left/right or A cycle through the options. |
+| `VDropdown` | Row with a value that opens a popup list | `options` (strings or `{ value, label }`), `value`, `bind` | A opens the list, up/down moves, A picks, B closes without a change. Opens upward near the bottom of the screen. |
+| `VChoice` | Stepper row | `options`, `value`, `bind` | Left/right or A cycle through the options. For short numeric lists. |
 | `VListItem` | Menu or info row | `label`, `detail`, `icon`, `badge`, `trail`, `chevron` | Used for menus, settings categories and status rows. |
-| `VBadge` | Small status label | `text`, `tone` (default, accent, good, warn, muted), `icon` | Not focusable. |
+| `VBadge` | Small status label | `text`, `tone` (default, accent, good, warn, bad, muted), `icon` | Not focusable. |
+| `VProgress` | Loading bar | `value` (0 to 1), `indeterminate`, `label`, `showValue`, `size` (sm, md, lg), `tone` (accent, good, light) | `set()`, `setLabel()`, `setIndeterminate()`. The fill moves with a transform. |
+| `VSpinner` | Spinning wheel | `size` (sm, md, lg), `tone` (accent, light, muted), `label` | For waits of unknown length. Use `VProgress` when progress is known. |
+| `VBanner` | Inline message inside a page | `tone` (error, warning, info, success), `title`, `message`, `action`, `onAction` | Not a popup. |
 | `VPanel` | Drawer from the left or right | `title`, `subtitle`, `side`, `rail`, `header` | Opens its own focus scope. B or tapping outside closes it. |
-| `VDialog` | Modal with actions | `title`, `body`, `actions`, `stack`; `VDialog.confirm()` | For "are you sure?" steps. |
+| `VDialog` | Modal with actions | `title`, `body`, `actions`, `stack`, `icon`, `tone`, `code`; `VDialog.confirm()` | For "are you sure?" steps. Error dialogs shake once and play the error sound. |
+| `VAlert` | Error and status popups | `VAlert.error / warning / info / success({ title, message, code, actions })` | Resolves with the chosen action id, or `null` when closed with B. |
 | `VToast` | Notification, bottom right | `VToast.show(text, { icon, tone })` | Plays the notify sound and rumble. |
 | `VTopBar` | Vanta button and page title, status, quick access button | `title` | Pointer-only. Controllers use the Guide/View and Start buttons. |
-| `VTextField` | Text input reachable by controller | `label`, `value`, `placeholder` | A starts typing (on-screen keyboard in the real OS); Enter or Esc finishes. |
+| `VTextField` | Text row | `label`, `value`, `placeholder`, `password`, `maxLength` | A opens the on-screen keyboard. The row updates as you type. |
+| `Keyboard` (`VKeyboard.js`) | On-screen keyboard | `Keyboard.open({ label, value, password, maxLength, onInput, onDone })` | Letters and symbols layouts, shift and caps lock. Controller: A types, B deletes, X adds a space, LB/RB move the cursor, Start finishes. A physical keyboard types directly while it is open. |
 | `avatarEl()` | Round profile picture: the cropped photo, or the name's initial on the profile color | `profile`, size class | Used in the top bar, menu, setup and "Who's playing?". |
 | `VHintBar` | Button prompts in the footer | `hints` | Glyphs match the controller in use (Xbox, PlayStation, Nintendo, Deck) or show keycaps on keyboard. `promptGlyph(action)` draws one anywhere. |
+
+## Style classes
+
+| File | Classes |
+|---|---|
+| `styles/type.css` | `.text-display`, `.text-title`, `.text-heading`, `.text-body`, `.text-label`, `.text-caption`, `.text-eyebrow`, `.text-mono`, plus `.text-muted`, `.text-subtle`, `.text-accent`, `.text-good`, `.text-warn`, `.text-bad`, `.text-center`, `.text-truncate`, `.text-balance` |
+| `styles/animations.css` | Entrances `.anim-fade-in`, `.anim-slide-up/-down/-left/-right`, `.anim-scale-in`, `.anim-rise`; exits `.anim-fade-out`, `.anim-slide-out-down`, `.anim-scale-out`; feedback `.anim-press`, `.anim-shake`, `.anim-nudge`; loops `.anim-spin`, `.anim-pulse`, `.skeleton`; delays `.anim-delay-1` to `-4`. From JS: `animate(el, name)` and `animateOut(el, name)` in `core/motion.js` |
+| `styles/tokens.css` | Colors, type scale, spacing, radii, shadows and motion durations. Becomes `Theme.qml` |
+
+All animation classes use transform and opacity only, never overshoot, and respect reduced motion.
 
 ## Core modules
 
@@ -54,6 +70,7 @@ Every screen in the mockup is built from these components. Each one lives in `mo
 | `ProfileEditor` | Picture chooser (colors, upload, remove) and the Edit profile panel, shared by setup, "Who's playing?", Settings and the menu |
 | `PhotoCrop` | Positions an uploaded photo in a round mask (drag, wheel, pinch, D-pad, zoom slider) and saves a 320×320 JPEG |
 | `Lightbox` | Full-screen screenshot viewer for the game page |
+| `Kit` | Settings → System → Interface components. Every component, style class and popup on one page, for review and testing |
 
 ## Controls in the mockup
 

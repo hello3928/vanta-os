@@ -1,4 +1,5 @@
-// Icons come from Google's Material Symbols (Rounded, filled; Apache 2.0), loaded as a font.
+// Icons come from Google's Material Symbols (Rounded, outlined at weight 400; Apache 2.0), loaded as a font.
+// Add the class `ms--fill` for the filled version (used for selected tabs and status icons).
 // icon('name') takes our short names so screens don't depend on the icon set.
 // QML port: the same font works in Qt (Text with font.family "Material Symbols Rounded").
 
@@ -29,12 +30,13 @@ const NAMES = {
   info: 'info',
   user: 'person',
   gauge: 'speed',
-  check: 'check_circle',
+  check: 'check',
+  checkCircle: 'check_circle',
   close: 'close',
   folder: 'folder',
   chip: 'memory',
   update: 'system_update',
-  sparkle: 'auto_awesome',
+  sparkle: 'high_quality',
   trash: 'delete',
   search: 'search',
   airplane: 'flight',

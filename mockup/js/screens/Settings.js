@@ -6,7 +6,7 @@ import { VTopBar } from '../components/VTopBar.js';
 import { VListItem } from '../components/VListItem.js';
 import { VToggle } from '../components/VToggle.js';
 import { VSlider } from '../components/VSlider.js';
-import { VChoice } from '../components/VChoice.js';
+import { VDropdown } from '../components/VDropdown.js';
 import { VButton } from '../components/VButton.js';
 import { VDialog } from '../components/VDialog.js';
 import { VToast } from '../components/VToast.js';
@@ -55,8 +55,8 @@ const SECTIONS = [
       new VSlider({ label: t('brightness'), min: 10, max: 100, step: 5, bind: 'brightness' }),
       new VToggle({ label: t('vrr'), bind: 'vrr' }),
       new VToggle({ label: t('hdr'), bind: 'hdr' }),
-      new VChoice({ label: t('upscaling'), options: ['Off', 'Quality', 'Balanced', 'Performance'], bind: 'upscaling' }),
-      new VChoice({ label: t('frameLimit'), options: ['Off', '30', '40', '60', '90', '120'], bind: 'fpsLimit' }),
+      new VDropdown({ label: t('upscaling'), options: ['Off', 'Quality', 'Balanced', 'Performance'], bind: 'upscaling' }),
+      new VDropdown({ label: t('frameLimit'), options: ['Off', '30', '40', '60', '90', '120'], bind: 'fpsLimit' }),
     ],
   },
   {
@@ -93,8 +93,8 @@ const SECTIONS = [
       window.addEventListener('gamepadconnected', () => status.setDetail(describePads()));
       return [
         status,
-        new VChoice({ label: t('buttonPrompts'), detail: t('buttonPromptsDetail'), options: ['Automatic', 'Xbox', 'PlayStation', 'Nintendo', 'Steam Deck'], bind: 'glyphs' }),
-        new VChoice({ label: t('hapticsStrength'), options: ['Off', 'Low', 'High'], bind: 'haptics' }),
+        new VDropdown({ label: t('buttonPrompts'), detail: t('buttonPromptsDetail'), options: ['Automatic', 'Xbox', 'PlayStation', 'Nintendo', 'Steam Deck'], bind: 'glyphs' }),
+        new VDropdown({ label: t('hapticsStrength'), options: ['Off', 'Low', 'High'], bind: 'haptics' }),
         new VToggle({ label: t('menuHaptics'), bind: 'menuHaptics' }),
         new VListItem({ label: t('testHaptics'), chevron: true, onActivate: () => Haptics.play('test', { force: true }) }),
         new VListItem({ label: t('buttonLayout'), chevron: true, onActivate: () => VToast.show(t('notAvailable'), { icon: 'info' }) }),
@@ -107,8 +107,8 @@ const SECTIONS = [
     icon: 'bolt',
     build: () => [
       new VSlider({ label: t('defaultTdp'), min: 3, max: 30, step: 1, bind: 'tdp', format: (v) => `${v} W` }),
-      new VChoice({ label: t('epp'), options: ['Power saver', 'Balanced', 'Performance'], bind: 'epp' }),
-      new VChoice({ label: t('scheduler'), options: ['scx_lavd', 'Kernel default'], bind: 'scheduler' }),
+      new VDropdown({ label: t('epp'), options: ['Power saver', 'Balanced', 'Performance'], bind: 'epp' }),
+      new VDropdown({ label: t('scheduler'), options: ['scx_lavd', 'Kernel default'], bind: 'scheduler' }),
       new VToggle({ label: 'GameMode', bind: 'gamemode' }),
     ],
   },
@@ -118,7 +118,7 @@ const SECTIONS = [
     icon: 'disc',
     build: () => [
       new VListItem({ label: t('romFolder'), detail: '~/Games/roms', trail: t('gamesCount', { n: EMU_COUNT }) }),
-      new VListItem({ label: t('rescan'), chevron: true, onActivate: () => setTimeout(() => VToast.show(t('libraryUpToDate'), { icon: 'check' }), 400) }),
+      new VListItem({ label: t('rescan'), chevron: true, onActivate: () => setTimeout(() => VToast.show(t('libraryUpToDate'), { icon: 'checkCircle' }), 400) }),
       label(t('systems')),
       ...SYSTEMS.map((s) => new VListItem({ label: s.name, detail: s.emulator, badge: { text: t(BIOS_LABEL[s.bios].key), tone: BIOS_LABEL[s.bios].tone } })),
       note(t('biosNote')),
@@ -129,9 +129,9 @@ const SECTIONS = [
     label: () => t('appearance'),
     icon: 'palette',
     build: () => {
-      const accent = new VChoice({ label: t('accent'), options: Object.keys(ACCENTS), value: nameOf(ACCENTS, Settings.get('accent')) });
+      const accent = new VDropdown({ label: t('accent'), options: Object.keys(ACCENTS), value: nameOf(ACCENTS, Settings.get('accent')) });
       accent.on('change', (n) => Settings.set('accent', ACCENTS[n]));
-      const brand = new VChoice({ label: t('logo'), options: Object.keys(BRANDS), value: nameOf(BRANDS, Settings.get('brand')) });
+      const brand = new VDropdown({ label: t('logo'), options: Object.keys(BRANDS), value: nameOf(BRANDS, Settings.get('brand')) });
       brand.on('change', (n) => Settings.set('brand', BRANDS[n]));
       const link = h('a', 'settings__link', esc(t('compareLogos')));
       link.href = 'logos.html';
@@ -143,13 +143,8 @@ const SECTIONS = [
     label: () => t('language'),
     icon: 'language',
     build: () => {
-      const names = LANGUAGES.map((l) => l.name);
-      const choice = new VChoice({ label: t('language'), options: names, value: LANGUAGES.find((l) => l.code === i18n.lang).name });
-      // Applied when you leave the row, so cycling through languages doesn't rebuild the screen under you.
-      choice.on('blur', () => {
-        const code = LANGUAGES.find((l) => l.name === choice.value).code;
-        if (code !== i18n.lang) Settings.set('language', code);
-      });
+      const choice = new VDropdown({ label: t('language'), options: LANGUAGES.map((l) => ({ value: l.code, label: l.name })), value: i18n.lang });
+      choice.on('change', (code) => Settings.set('language', code));
       return [choice];
     },
   },
@@ -159,8 +154,8 @@ const SECTIONS = [
     icon: 'update',
     build: (app) => [
       new VListItem({ label: 'Vanta OS 0.1.0', detail: 'ghcr.io/hello3928/vanta-os:stable', badge: { text: t('upToDate'), tone: 'good' } }),
-      new VChoice({ label: t('updateChannel'), options: ['Stable', 'Beta'], bind: 'channel' }),
-      new VListItem({ label: t('checkUpdates'), chevron: true, onActivate: () => setTimeout(() => VToast.show(t('latest'), { icon: 'check' }), 500) }),
+      new VDropdown({ label: t('updateChannel'), options: ['Stable', 'Beta'], bind: 'channel' }),
+      new VListItem({ label: t('checkUpdates'), chevron: true, onActivate: () => setTimeout(() => VToast.show(t('latest'), { icon: 'checkCircle' }), 500) }),
       new VListItem({
         label: t('rollback'),
         chevron: true,
@@ -170,6 +165,7 @@ const SECTIONS = [
         },
       }),
       new VListItem({ label: t('runSetup'), chevron: true, onActivate: () => app.go('setup', {}, { replace: true }) }),
+      new VListItem({ label: t('componentGallery'), chevron: true, onActivate: () => app.go('kit') }),
     ],
   },
   {

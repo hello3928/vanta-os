@@ -430,7 +430,7 @@
 }
 .settings__pane-title {
   margin: var(--s-2) 0 var(--s-3) var(--s-3);
-  font: 700 var(--t-xl) / 1.25 var(--font-ui);
+  font: 600 var(--t-xl) / 1.25 var(--font-ui);
 }
 .settings__label {
   margin: var(--s-5) var(--s-3) var(--s-2);
@@ -547,7 +547,7 @@
 .launch__veil {
   position: absolute;
   inset: 0;
-  background: radial-gradient(60% 60% at 50% 50%, rgb(0 0 0 / 0.25), rgb(0 0 0 / 0.78));
+  background: radial-gradient(60% 60% at 50% 50%, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.88));
 }
 .launch__center {
   position: relative;
@@ -569,20 +569,7 @@
   gap: var(--s-3);
   color: var(--fg-2);
   font-size: var(--t-sm);
-  font-weight: 600;
-}
-.launch__spinner {
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
-  border: 2px solid rgb(255 255 255 / 0.2);
-  border-top-color: #ffffff;
-  animation: spin 800ms linear infinite;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  font-weight: 500;
 }
 .ingame {
   z-index: 15;
@@ -621,7 +608,8 @@
 }
 .users__title {
   margin: 0;
-  font: 700 var(--t-2xl) / 1.2 var(--font-ui);
+  font: 600 var(--t-2xl) / 1.2 var(--font-ui);
+  letter-spacing: -0.02em;
   text-align: center;
 }
 .users__row {
@@ -664,10 +652,18 @@
 }
 
 /* ---------- First-time setup ---------- */
-/* A centred column that scrolls on its own; nothing is clipped at any width or language. */
+/* Two columns, as on PS5: the step on the left, the choices on the right. Below 52rem it
+   becomes one column. Each side scrolls with the page, so nothing clips in any language. */
 .setup {
   position: absolute;
   inset: 0 0 var(--hint-h) 0;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: start;
+  gap: clamp(2rem, 6vw, 6rem);
+  width: min(72rem, 100%);
+  margin: 0 auto;
+  padding: clamp(2rem, 12vh, 7rem) var(--gutter-r) var(--s-7) var(--gutter-l);
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
@@ -675,86 +671,109 @@
 .setup::-webkit-scrollbar {
   display: none;
 }
-.setup__inner {
+.setup__aside {
+  position: sticky;
+  top: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--s-5);
-  width: min(38rem, 100%);
-  margin: 0 auto;
-  padding: clamp(1.5rem, 8vh, 5rem) var(--gutter-r) var(--s-7) var(--gutter-l);
-}
-.setup__progress {
-  display: flex;
-  gap: var(--s-2);
-}
-.setup__progress span {
-  flex: 1;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--surface-2);
-}
-.setup__progress span.is-done {
-  background: var(--accent);
+  gap: var(--s-6);
+  min-width: 0;
 }
 .setup__head {
   display: flex;
   flex-direction: column;
-  gap: var(--s-2);
+  gap: var(--s-3);
   min-width: 0;
 }
 .setup__step {
   font-size: var(--t-sm);
-  font-weight: 600;
+  font-weight: 500;
   color: var(--fg-3);
 }
 .setup__title {
   margin: 0;
-  font: 700 var(--t-2xl) / 1.2 var(--font-ui);
+  font: 600 var(--t-3xl) / 1.12 var(--font-ui);
+  letter-spacing: -0.025em;
   overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 .setup__sub {
   margin: 0;
-  color: var(--fg-2);
-  max-width: 52ch;
-  line-height: 1.5;
+  color: var(--fg-3);
+  max-width: 40ch;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+.setup__progress {
+  display: flex;
+  gap: 6px;
+}
+.setup__progress span {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-3);
+}
+.setup__progress span.is-done {
+  background: var(--fg-3);
+}
+.setup__progress span.is-current {
+  width: 24px;
+  background: var(--fg);
 }
 .setup__body {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   min-width: 0;
 }
-.setup__body.is-switching {
+.setup__check {
+  color: var(--accent-hi);
+  font-size: 1.3rem;
   opacity: 0;
+  transition: opacity var(--t-fast) var(--ease-out);
 }
-.setup__body,
-.setup__head {
-  transition: opacity var(--t-base) var(--ease-out);
+.is-selected > .v-control__trail .setup__check,
+.v-list-item.is-selected .setup__check {
+  opacity: 1;
+}
+.v-control.is-focused .setup__check {
+  color: var(--fg);
 }
 .setup__actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--s-3);
-  margin-top: var(--s-4);
+  margin-top: var(--s-5);
 }
 .setup__label {
-  margin: var(--s-4) var(--s-3) var(--s-1);
+  margin: var(--s-4) var(--s-4) var(--s-1);
   font-weight: 600;
-  font-size: var(--t-sm);
+  font-size: var(--t-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--fg-3);
 }
+.setup__card,
 .setup__pad {
   display: flex;
   flex-direction: column;
   gap: var(--s-4);
   padding: var(--s-5);
-  margin-bottom: var(--s-3);
-  border-radius: var(--r-md);
-  background: var(--bg-2);
+  border-radius: var(--r-lg);
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px var(--line);
   min-width: 0;
 }
+.setup__pad {
+  margin-bottom: var(--s-2);
+}
+.setup__pad-icon {
+  color: var(--fg-3);
+  font-size: 1.6rem;
+}
 .setup__pad-name {
-  font-weight: 700;
+  font-weight: 600;
   font-size: var(--t-lg);
   color: var(--fg);
   overflow-wrap: anywhere;
@@ -767,15 +786,107 @@
 .setup__pad-glyphs .v-glyph {
   height: 2rem;
 }
+.setup__avatar {
+  padding: 0 var(--s-4) var(--s-3);
+}
 .setup__done {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-4);
+  padding: var(--s-2) 0;
+  min-width: 0;
+}
+.setup__name {
+  font: 600 var(--t-xl) / 1.2 var(--font-ui);
+  color: var(--fg);
+  overflow-wrap: anywhere;
+}
+@media (max-width: 52rem) {
+  .setup {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-5);
+    padding-top: var(--s-6);
+  }
+  .setup__aside {
+    position: static;
+    gap: var(--s-4);
+  }
+  .setup__title {
+    font-size: var(--t-2xl);
+  }
+}
+
+/* ---------- Interface components (Settings → System) ---------- */
+.kit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  width: min(60rem, 100%);
+  padding: var(--s-2) var(--gutter-r) var(--s-7) var(--gutter-l);
+}
+.kit__intro {
+  margin: 0;
+}
+.kit__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.kit__title {
+  margin: 0;
+}
+.kit__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+}
+.kit__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 40rem;
+}
+.kit__stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  max-width: 40rem;
+}
+.kit__type {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.kit__spinners {
   display: flex;
   align-items: center;
   gap: var(--s-5);
-  padding: var(--s-3) 0;
-  min-width: 0;
 }
-.setup__done .profile__name {
-  font-size: var(--t-xl);
-  color: var(--fg);
-  text-align: left;
+.kit__anim {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-5);
+}
+.kit__sample {
+  display: grid;
+  place-items: center;
+  width: 8rem;
+  height: 5rem;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.kit__anim .kit__row {
+  flex: 1;
+  min-width: 16rem;
+}
+.setup .avatar-picker {
+  gap: var(--s-2);
+}
+.setup .avatar-pick .avatar--md {
+  width: 2.9rem;
+  height: 2.9rem;
+  font-size: 2.9rem;
 }

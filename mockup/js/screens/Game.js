@@ -5,7 +5,7 @@
 
 import { VTopBar } from '../components/VTopBar.js';
 import { VButton } from '../components/VButton.js';
-import { VChoice } from '../components/VChoice.js';
+import { VDropdown } from '../components/VDropdown.js';
 import { VSlider } from '../components/VSlider.js';
 import { VToggle } from '../components/VToggle.js';
 import { VBadge } from '../components/VBadge.js';
@@ -72,11 +72,11 @@ export class GameScreen {
     profile.append(h('h2', 'game__heading', esc(t('perfProfile'))));
     [
       new VSlider({ label: t('tdpLimit'), min: 3, max: 30, step: 1, value: Settings.get('tdp'), format: (v) => `${v} W` }),
-      new VChoice({ label: t('frameLimit'), options: ['Off', '30', '40', '60', '90', '120'], value: Settings.get('fpsLimit') }),
-      new VChoice({ label: t('upscaling'), options: ['Off', 'Quality', 'Balanced', 'Performance'], value: Settings.get('upscaling') }),
+      new VDropdown({ label: t('frameLimit'), options: ['Off', '30', '40', '60', '90', '120'], value: Settings.get('fpsLimit') }),
+      new VDropdown({ label: t('upscaling'), options: ['Off', 'Quality', 'Balanced', 'Performance'], value: Settings.get('upscaling') }),
       sys
-        ? new VChoice({ label: t('internalRes'), options: ['Native', '2×', '3×', '4×'], value: '2×' })
-        : new VChoice({ label: t('compatTool'), options: ['Proton 10', 'Proton Experimental', 'GE-Proton'] }),
+        ? new VDropdown({ label: t('internalRes'), options: ['Native', '2×', '3×', '4×'], value: '2×' })
+        : new VDropdown({ label: t('compatTool'), options: ['Proton 10', 'Proton Experimental', 'GE-Proton'] }),
       new VToggle({ label: t('perfOverlay') }),
     ].forEach((c) => profile.append(c.el));
 
@@ -130,8 +130,8 @@ export class GameScreen {
     const panel = new VPanel({ title: t('properties'), subtitle: g.title });
     const items = [
       sys
-        ? new VChoice({ label: t('emulator'), icon: 'chip', options: [sys.emulator, ...(sys.emulator.startsWith('RetroArch') ? [] : ['RetroArch'])] })
-        : new VChoice({ label: t('compatTool'), icon: 'chip', options: ['Proton 10', 'Proton Experimental', 'GE-Proton'] }),
+        ? new VDropdown({ label: t('emulator'), icon: 'chip', options: [sys.emulator, ...(sys.emulator.startsWith('RetroArch') ? [] : ['RetroArch'])] })
+        : new VDropdown({ label: t('compatTool'), icon: 'chip', options: ['Proton 10', 'Proton Experimental', 'GE-Proton'] }),
       new VToggle({ label: t('cloudSaves'), icon: 'cloud', value: true }),
       new VListItem({ label: t('browseFiles'), icon: 'folder', chevron: true, onActivate: () => VToast.show(t('notAvailable'), { icon: 'info' }) }),
     ];

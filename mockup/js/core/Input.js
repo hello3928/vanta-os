@@ -36,11 +36,18 @@ export const Input = {
   family: 'xbox',
   handler: null,
   deviceListeners: [],
+  // Set by the on-screen keyboard: gets first look at physical key presses, returns true if it used one.
+  capture: null,
 
   init(handler) {
     this.handler = handler;
     window.addEventListener('keydown', (e) => {
       if (e.altKey || e.ctrlKey || e.metaKey) return;
+      if (this.capture?.(e)) {
+        e.preventDefault();
+        this.setDevice('keyboard');
+        return;
+      }
       // While typing in a text field, keys type. Enter or Esc finishes, up/down leave the field.
       if (e.target.matches?.('input, textarea')) {
         if (e.key === 'Enter' || e.key === 'Escape') {

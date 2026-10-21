@@ -65,6 +65,43 @@ export const Motion = {
 
 const tweens = new WeakMap();
 
+// Play one of the animation classes from styles/animations.css ('slide-up', 'shake', ...).
+// Resolves when it ends; the class is removed so it can play again.
+export function animate(el, name) {
+  return new Promise((resolve) => {
+    if (!el) return resolve();
+    const cls = `anim-${name}`;
+    el.classList.remove(cls);
+    void el.offsetWidth;
+    el.classList.add(cls);
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      el.classList.remove(cls);
+      resolve();
+    };
+    el.addEventListener('animationend', finish, { once: true });
+    setTimeout(finish, 700); // background tabs may never fire animationend
+  });
+}
+
+// Exit animation for an element about to be removed: it keeps its end state until removed.
+export function animateOut(el, name = 'fade-out') {
+  return new Promise((resolve) => {
+    if (!el) return resolve();
+    el.classList.add(`anim-${name}`);
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      resolve();
+    };
+    el.addEventListener('animationend', finish, { once: true });
+    setTimeout(finish, 400);
+  });
+}
+
 // The sliding list highlight was removed: rows now show focus with their own background,
 // which can't drift out of place while lists scroll or rebuild.
 export const Highlight = { move() {} };
