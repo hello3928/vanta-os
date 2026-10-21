@@ -37,12 +37,12 @@ export function openMainMenu(app) {
     const now = h('div', 'menu__now');
     now.append(artImg(g, 'header', 'menu__now-art'), h('div', 'menu__now-text', `<span>${esc(t('nowPlaying'))}</span><strong>${esc(g.title)}</strong>`));
     panel.addItems(now);
-    const resume = new VListItem({ label: t('resumeGame'), icon: 'resume' });
+    const resume = new VListItem({ label: t('resumeGame') });
     resume.on('activate', () => {
       panel.close({ silent: true });
       app.resume();
     });
-    const exit = new VListItem({ label: t('exitGame'), icon: 'exit' });
+    const exit = new VListItem({ label: t('exitGame') });
     exit.on('activate', () => {
       panel.close({ silent: true });
       app.exitGame();
@@ -60,8 +60,8 @@ export function openMainMenu(app) {
     ...(me ? [['edit', t('editProfile'), 'person_edit', () => openProfileEditor(app, me)]] : []),
     ['user', t('switchUser'), 'user', () => app.switchUser()],
     ['power', t('power'), 'power', () => app.openPower()],
-  ].forEach(([id, label, ic, go]) => {
-    const item = new VListItem({ label, icon: ic });
+  ].forEach(([id, label, , go]) => {
+    const item = new VListItem({ label });
     item.el.classList.add('menu__item');
     if (id === current && !app.inGame) item.setSelected(true);
     item.on('activate', () => {
@@ -86,12 +86,12 @@ function quickSettings() {
   return [
     new VSlider({ label: t('brightness'), icon: 'sun', min: 10, max: 100, step: 5, bind: 'brightness' }),
     new VSlider({ label: t('volume'), icon: 'volume', min: 0, max: 100, step: 5, bind: 'volume' }),
-    new VToggle({ label: t('wifi'), detail: 'Home-5G', icon: 'wifi', bind: 'wifi' }),
-    new VToggle({ label: t('bluetooth'), icon: 'bluetooth', bind: 'bluetooth' }),
-    new VToggle({ label: t('airplane'), icon: 'airplane', bind: 'airplane' }),
-    new VToggle({ label: t('gameMusic'), icon: 'music_note', bind: 'gameMusic' }),
-    new VToggle({ label: t('interfaceSounds'), icon: 'volume', bind: 'sfx' }),
-    new VDropdown({ label: t('haptics'), icon: 'vibrate', options: ['Off', 'Low', 'High'], bind: 'haptics' }),
+    new VToggle({ label: t('wifi'), detail: 'Home-5G', bind: 'wifi' }),
+    new VToggle({ label: t('bluetooth'), bind: 'bluetooth' }),
+    new VToggle({ label: t('airplane'), bind: 'airplane' }),
+    new VToggle({ label: t('gameMusic'), bind: 'gameMusic' }),
+    new VToggle({ label: t('interfaceSounds'), bind: 'sfx' }),
+    new VDropdown({ label: t('haptics'), options: ['Off', 'Low', 'High'], bind: 'haptics' }),
   ];
 }
 
@@ -99,12 +99,12 @@ function quickSettings() {
 function performance(app) {
   const game = app.running;
   return [
-    new VDropdown({ label: t('perfOverlay'), icon: 'speed', options: ['Off', 'FPS', 'Basic', 'Full'], bind: 'overlay' }),
-    frameLimit({ icon: 'speed' }),
-    tdpToggle({ icon: 'bolt' }),
-    tdpSlider({ icon: 'bolt' }),
-    upscaling({ icon: 'sparkle', game }),
-    vrrToggle({ icon: 'monitor' }),
+    new VDropdown({ label: t('perfOverlay'), options: ['Off', 'FPS', 'Basic', 'Full'], bind: 'overlay' }),
+    frameLimit(),
+    tdpToggle(),
+    tdpSlider(),
+    upscaling({ game }),
+    vrrToggle(),
   ];
 }
 

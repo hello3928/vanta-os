@@ -125,16 +125,15 @@ export class GameScreen {
     const sys = systemOf(g);
     const panel = new VPanel({ title: t('properties'), subtitle: g.title });
     const items = [
-      runtimeControl(g, { icon: 'chip' }),
-      new VToggle({ label: t('cloudSaves'), icon: 'cloud', value: true }),
-      new VListItem({ label: t('browseFiles'), icon: 'folder', chevron: true, onActivate: () => VToast.show(t('notAvailable'), { icon: 'info' }) }),
+      runtimeControl(g),
+      new VToggle({ label: t('cloudSaves'), value: true }),
+      new VListItem({ label: t('browseFiles'), chevron: true, onActivate: () => VToast.show(t('notAvailable'), { icon: 'info' }) }),
     ];
     if (g.installed) {
       items.push(
         new VListItem({
           label: t('uninstall'),
           detail: g.size || '',
-          icon: 'trash',
           chevron: true,
           onActivate: async () => {
             const ok = await VDialog.confirm({ title: t('uninstallQ', { game: g.title }), body: t('uninstallBody'), confirmLabel: t('uninstall'), cancelLabel: t('cancel'), danger: true });

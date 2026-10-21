@@ -1,59 +1,12 @@
-// Icons come from Google's Material Symbols (Rounded, outlined at weight 400; Apache 2.0), loaded as a font.
-// Add the class `ms--fill` for the filled version (used for selected tabs and status icons).
-// icon('name') takes our short names so screens don't depend on the icon set.
-// QML port: the same font works in Qt (Text with font.family "Material Symbols Rounded").
+// Icons: Phosphor (MIT), inlined as SVG from iconData.js. Solid glyphs for objects (home,
+// controller, bell), bold strokes for small marks (carets, check, close), the closest open set to
+// SteamOS's own icons. Inline SVG needs no font download and maps directly to QML (PathSvg).
+// Top-bar status icons with live state are separate: statusIcons.js.
 
-const NAMES = {
-  home: 'home',
-  library: 'grid_view',
-  sliders: 'tune',
-  power: 'power_settings_new',
-  wifi: 'wifi',
-  bluetooth: 'bluetooth',
-  bolt: 'bolt',
-  sun: 'light_mode',
-  volume: 'volume_up',
-  vibrate: 'vibration',
-  bell: 'notifications',
-  palette: 'palette',
-  play: 'play_arrow',
-  more: 'more_horiz',
-  chevron: 'chevron_right',
-  gamepad: 'sports_esports',
-  disc: 'album',
-  trophy: 'emoji_events',
-  moon: 'bedtime',
-  restart: 'restart_alt',
-  desktop: 'desktop_windows',
-  download: 'download',
-  storage: 'hard_drive',
-  info: 'info',
-  user: 'person',
-  gauge: 'speed',
-  check: 'check',
-  checkCircle: 'check_circle',
-  close: 'close',
-  folder: 'folder',
-  chip: 'memory',
-  update: 'system_update',
-  sparkle: 'high_quality',
-  trash: 'delete',
-  search: 'search',
-  airplane: 'flight',
-  cloud: 'cloud_done',
-  exit: 'logout',
-  resume: 'play_circle',
-  frame: 'speed',
-  monitor: 'monitor',
-  keyboard: 'keyboard',
-  sync: 'sync',
-};
+import { ICON_DATA } from './iconData.js';
 
 export function icon(name, className = '') {
-  return `<span class="v-icon ms ${className}" aria-hidden="true">${NAMES[name] || name}</span>`;
-}
-
-export function batteryIcon(level) {
-  if (level >= 0.95) return 'battery_full';
-  return `battery_${Math.max(0, Math.min(6, Math.round(level * 7) - 1))}_bar`;
+  const body = ICON_DATA[name];
+  if (!body) return '';
+  return `<svg class="v-icon ms ${className}" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" focusable="false">${body}</svg>`;
 }

@@ -157,7 +157,6 @@ export class KitScreen {
     animWrap.append(sample, anims);
 
     page.append(
-      h('p', 'kit__intro text-body text-muted', esc(t('componentGallerySub'))),
       section('Typography', type),
       section('Buttons', buttons, buttons2),
       section('Controls', inputs),

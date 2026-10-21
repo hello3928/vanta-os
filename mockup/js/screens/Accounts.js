@@ -136,7 +136,7 @@ export function steamSignIn(host, { onDone }) {
 // Library, achievements, screenshots and friends coming in one after another.
 function syncCard(later) {
   const el = h('div', 'signin signin--sync');
-  el.append(h('div', 'signin__text', `<strong>${esc(t('syncTitle'))}</strong><span>${esc(t('syncBody'))}</span>`));
+  el.append(h('div', 'signin__text', `<strong>${esc(t('syncTitle'))}</strong>`));
   const list = h('div', 'sync');
   const rows = SYNC.map((s) => {
     const row = h('div', 'sync__row', `<span class="sync__icon">${icon(s.icon)}</span><span class="sync__label">${esc(t(s.key))}</span><span class="sync__state"></span>`);
@@ -171,7 +171,7 @@ export function vantaSignIn(host, { onDone }) {
   const fields = h('div', 'signin__fields');
   fields.dataset.focusGroup = '';
   fields.append(email.el, password.el);
-  host.replaceChildren(h('p', 'signin__intro', esc(t('vantaIntro'))), fields, message, actions);
+  host.replaceChildren(fields, message, actions);
   FocusManager.focus(email, { silent: true });
 
   const submit = (mode) => {

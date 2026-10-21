@@ -60,7 +60,7 @@ const SECTIONS = [
           }),
         );
       } else {
-        rows.push(new VListItem({ label: t('signInSteam'), icon: 'qr_code_2', detail: t('steamOptionDetail'), chevron: true, onActivate: () => openSignIn(app, 'steam') }));
+        rows.push(new VListItem({ label: t('signInSteam'), detail: t('steamOptionDetail'), chevron: true, onActivate: () => openSignIn(app, 'steam') }));
       }
       rows.push(label(t('vantaAccount')));
       if (me.vanta) {
@@ -77,7 +77,7 @@ const SECTIONS = [
           }),
         );
       } else {
-        rows.push(new VListItem({ label: t('vantaAccount'), icon: 'person', detail: t('vantaOptionDetail'), chevron: true, onActivate: () => openSignIn(app, 'vanta') }));
+        rows.push(new VListItem({ label: t('vantaAccount'), detail: t('vantaOptionDetail'), chevron: true, onActivate: () => openSignIn(app, 'vanta') }));
       }
       return rows;
     },

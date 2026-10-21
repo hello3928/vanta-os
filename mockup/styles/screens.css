@@ -1069,3 +1069,12 @@
   opacity: 1;
   font-size: 1.1rem;
 }
+
+/* Main menu: text only, larger, as in SteamOS */
+.menu__item .v-control__label {
+  font-size: var(--t-lg);
+  font-weight: 500;
+}
+.menu__item {
+  box-shadow: none;
+}

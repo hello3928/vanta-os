@@ -48,7 +48,7 @@ export function upscaling({ icon, game, bind = 'upscaling', value } = {}) {
   const dd = new VDropdown({ label: t('upscaling'), icon, options: ['Off', 'Quality', 'Balanced', 'Performance'], bind: value === undefined ? bind : undefined, value });
   if (game && runtimeOf(game) === 'emulator') return dd.setUnsupported(t('capEmuUpscale'));
   const detail = dd.el.querySelector('.v-control__detail');
-  const show = (mode) => (detail.textContent = mode === 'Off' ? t('upscaleOff', { res: `${Device.current.display.w}×${Device.current.display.h}` }) : t('upscaleRenders', { res: Device.renderSize(mode) }));
+  const show = (mode) => (detail.textContent = mode === 'Off' ? '' : t('upscaleRenders', { res: Device.renderSize(mode) }));
   if (value === undefined) dd.bind(bind, show);
   else {
     show(dd.value);
@@ -65,6 +65,6 @@ export function runtimeControl(g, { icon } = {}) {
     const sys = systemOf(g);
     return new VDropdown({ label: t('emulator'), icon, options: [sys.emulator, ...(sys.emulator.startsWith('RetroArch') ? [] : ['RetroArch'])] });
   }
-  if (runtime === 'native') return new VListItem({ label: t('compatTool'), icon, detail: t('runtimeNativeDetail'), trail: t('runtimeNative') });
-  return new VDropdown({ label: t('compatTool'), icon, detail: t('runtimeProtonDetail'), options: PROTON });
+  if (runtime === 'native') return new VListItem({ label: t('compatTool'), icon, trail: t('runtimeNative') });
+  return new VDropdown({ label: t('compatTool'), icon, options: PROTON });
 }

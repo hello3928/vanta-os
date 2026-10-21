@@ -5,39 +5,17 @@
    - art (capsules, cards): a 3px white ring drawn inside the art, plus a small lift
    - rows (lists, settings): the row fills with a light slate
    - buttons and tabs: they invert to near-white with dark text
-   Icons are outlined (Material Symbols Rounded, weight 400). Add .ms--fill for the filled form.
+   Icons are Phosphor glyphs inlined as SVG (js/core/icons.js).
    Motion rules: only transform and opacity animate; nothing overshoots; exits are faster. */
 
-/* ---------- Icons ---------- */
-.v-icon {
-  width: 1.25em;
-  height: 1.25em;
-  flex: none;
-}
+/* ---------- Icons (inline SVG, see js/core/icons.js) ---------- */
 .ms {
-  font-family: "Material Symbols Rounded";
-  font-weight: normal;
-  font-style: normal;
-  font-size: 1.35em;
-  line-height: 1;
+  display: inline-block;
+  flex: none;
   width: 1em;
   height: 1em;
-  display: inline-block;
-  overflow: clip;
-  overflow-clip-margin: 3px;
-  white-space: nowrap;
-  letter-spacing: normal;
-  text-transform: none;
-  direction: ltr;
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
-  -webkit-font-smoothing: antialiased;
-}
-.ms--fill,
-.v-tab.is-active .ms,
-.v-toast .ms,
-.v-banner__icon .ms,
-.v-dialog__icon .ms {
-  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-size: 1.25em;
+  vertical-align: -0.18em;
 }
 
 .v-focusable {
@@ -505,7 +483,9 @@
   row-gap: 0.15rem;
   min-height: var(--control-h);
   padding: 0.7rem 1rem;
-  border-radius: var(--r-md);
+  border-radius: var(--r-xs);
+  /* SteamOS lists: a hairline between rows; the focused row fills instead. */
+  box-shadow: inset 0 -1px 0 var(--line);
   transition: background-color var(--t-fast) var(--ease-out);
 }
 .v-control__icon {
@@ -534,6 +514,14 @@
 .v-control__detail:empty {
   display: none;
 }
+/* No second line: the label takes both rows, so it centres on the control. */
+.v-control:has(> .v-control__detail:empty) > .v-control__label,
+.v-control:not(:has(> .v-control__detail)) > .v-control__label {
+  grid-row: 1 / 3;
+}
+.v-slider > .v-control__label {
+  grid-row: auto;
+}
 .v-control__trail {
   grid-area: trail;
   display: flex;
@@ -550,6 +538,7 @@
 }
 .v-control.is-focused {
   background: var(--focus-row);
+  box-shadow: none;
 }
 .v-control.is-focused .v-control__label,
 .v-control.is-focused .v-control__value,
@@ -588,9 +577,13 @@
   width: 1.15rem;
   height: 1.15rem;
   border-radius: 50%;
+  background: var(--fg-3);
+  transition:
+    transform var(--t-base) var(--ease-out),
+    background-color var(--t-base) var(--ease-out);
+}
+.v-toggle.is-on .v-switch::after {
   background: #ffffff;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
-  transition: transform var(--t-base) var(--ease-out);
 }
 .v-toggle.is-on .v-switch {
   background: var(--accent);
@@ -609,8 +602,8 @@
 .v-slider__track {
   grid-area: track;
   position: relative;
-  height: 6px;
-  border-radius: 3px;
+  height: 4px;
+  border-radius: 2px;
   background: var(--track);
   touch-action: none;
 }
@@ -639,12 +632,11 @@
   position: absolute;
   top: 50%;
   left: 0;
-  width: 1rem;
-  height: 1rem;
-  margin: -0.5rem 0 0 -0.5rem;
+  width: 0.875rem;
+  height: 0.875rem;
+  margin: -0.4375rem 0 0 -0.4375rem;
   border-radius: 50%;
   background: #ffffff;
-  box-shadow: 0 1px 4px rgb(0 0 0 / 0.45);
   transition: transform var(--t-fast) var(--ease-out);
 }
 .v-slider.is-focused .v-slider__thumb {

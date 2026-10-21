@@ -43,7 +43,7 @@ export function pictureChooser(draft, onChange) {
       swatches.append(c.el);
     });
     const list = h('div', 'picture-chooser__actions');
-    const upload = new VListItem({ label: t('uploadPhoto'), icon: 'add_photo_alternate', chevron: true });
+    const upload = new VListItem({ label: t('uploadPhoto'), chevron: true });
     upload.on('activate', async () => {
       const file = await pickPhoto();
       if (!file) return;
@@ -56,7 +56,7 @@ export function pictureChooser(draft, onChange) {
     if (focusKey === 'upload') refocus = upload;
     list.append(upload.el);
     if (draft.photo) {
-      const remove = new VListItem({ label: t('removePhoto'), icon: 'hide_image' });
+      const remove = new VListItem({ label: t('removePhoto') });
       remove.on('activate', () => {
         draft.photo = null;
         onChange(draft);
@@ -88,7 +88,7 @@ export function openProfileEditor(app, profile) {
     Profiles.update(profile.id, { color: d.color, photo: d.photo });
     paint();
   });
-  const del = new VListItem({ label: t('deleteProfile'), icon: 'delete' });
+  const del = new VListItem({ label: t('deleteProfile') });
   del.el.classList.add('is-danger');
   del.on('activate', async () => {
     const ok = await VDialog.confirm({ title: t('deleteQ', { name: profile.name }), body: t('deleteBody'), confirmLabel: t('deleteProfile'), cancelLabel: t('cancel'), danger: true });

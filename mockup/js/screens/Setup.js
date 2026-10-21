@@ -125,7 +125,8 @@ export class SetupScreen {
   title(key, subKey) {
     const last = STEPS.length - 1;
     const step = this.step < last ? `<span class="setup__step">${esc(t('stepOf', { n: this.step + 1, total: last }))}</span>` : '';
-    this.head.innerHTML = `${step}<h1 class="setup__title">${esc(t(key))}</h1>${subKey ? `<p class="setup__sub">${esc(t(subKey))}</p>` : ''}`;
+    const sub = subKey ? t(subKey) : '';
+    this.head.innerHTML = `${step}<h1 class="setup__title">${esc(t(key))}</h1>${sub ? `<p class="setup__sub">${esc(sub)}</p>` : ''}`;
   }
 
   actions(...buttons) {
@@ -343,8 +344,8 @@ export class SetupScreen {
     this.stopSignIn = null;
     this.accountView = 'choose';
     const { steam, vanta } = this.accounts;
-    const steamRow = new VListItem({ label: t('signInSteam'), icon: 'qr_code_2', detail: steam ? t('signedInAs', { name: steam.persona }) : t('steamOptionDetail'), chevron: !steam });
-    const vantaRow = new VListItem({ label: t('vantaAccount'), icon: 'person', detail: vanta ? vanta.email : t('vantaOptionDetail'), chevron: !vanta });
+    const steamRow = new VListItem({ label: t('signInSteam'), detail: steam ? t('signedInAs', { name: steam.persona }) : t('steamOptionDetail'), chevron: !steam });
+    const vantaRow = new VListItem({ label: t('vantaAccount'), detail: vanta ? vanta.email : t('vantaOptionDetail'), chevron: !vanta });
     [
       [steamRow, steam],
       [vantaRow, vanta],
