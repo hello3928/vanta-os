@@ -49,11 +49,9 @@ export class HomeScreen {
     this.tiles = recent.map((g) => {
       const tile = this.recentRow.addItem(gameCapsule(app, g));
       tile.on('focus', () => this.show(g));
-      tile.on('edge', (dir) => dir === 'up' && this.expand());
       return tile;
     });
     const lib = new VTile({ title: t('library'), glyph: 'library', className: 'v-tile--more', onActivate: () => app.go('library') });
-    lib.on('edge', (dir) => dir === 'up' && this.expand());
     this.recentRow.addItem(lib);
 
     const added = new VRow({ title: t('recentlyAdded') });
@@ -77,9 +75,9 @@ export class HomeScreen {
     // A strip of page colour over the hero's clip edge (see .home__seam in screens.css).
     scroll.append(this.heroEl, h('div', 'home__seam'), h('div', 'shell-gap'), this.content);
     this.el.append(scroll);
-    this.shell = { title: '', topbarNav: false, hints: [
+    this.shell = { title: '', hints: [
           ['accept', t('open')],
-          ['up', t('trailer')],
+          ['options', t('trailer')],
           ['qam', t('quickAccess')],
           ['mainMenu', t('menu')],
         ] };
@@ -118,7 +116,7 @@ export class HomeScreen {
     const front = this.layers.find((l) => l.classList.contains('is-on'));
     const next = this.layers.find((l) => l !== front);
     setArt(next, g, 'hero');
-    next.classList.toggle('is-pixel', g.source === 'emu');
+    next.classList.toggle('is-retro', g.source === 'emu');
     const swap = () => {
       if (this.game !== g) return;
       next.classList.add('is-on');
@@ -157,6 +155,11 @@ export class HomeScreen {
   setPull(px) {
     this.pull = px;
     this.el.style.setProperty('--pull', `${px}px`);
+  }
+
+  // X opens the trailer full screen (Up goes to the top bar, as on every page).
+  onOptions() {
+    this.expand();
   }
 
   expand() {

@@ -1,4 +1,5 @@
-// First-time setup. Two columns, as on PS5: the step title on the left, the choices on the right.
+// First-time setup, laid out like SteamOS's: the step title centred on the left, the choices in a
+// full-height panel on the right. No step counter.
 // Steps: language, network (password on the on-screen keyboard), system and Steam updates, sign-in
 // (Steam and/or a Vanta account), controller, profile, done. Updates come before sign-in because
 // the preinstalled Steam client has to be current before it can sign in.
@@ -24,8 +25,9 @@ import { t, i18n, LANGUAGES } from '../core/i18n.js';
 import { esc, h } from '../core/util.js';
 import { avatarEl } from '../components/avatar.js';
 import { steamSignIn, vantaSignIn } from './Accounts.js';
+import { Region, timeZones, DETECTED_ZONE } from '../core/Region.js';
 
-const STEPS = ['language', 'network', 'updates', 'account', 'controller', 'profile', 'done'];
+const STEPS = ['language', 'network', 'timezone', 'updates', 'account', 'controller', 'profile', 'done'];
 const NETWORKS = [
   { ssid: 'Home-5G', bars: 'wifi', secured: true },
   { ssid: 'Home-2.4G', bars: 'network_wifi_3_bar', secured: true },
@@ -102,16 +104,15 @@ export class SetupScreen {
 
   render(anim) {
     const id = STEPS[this.step];
-    const frame = h('div', 'setup');
+    const frame = h('div', `setup setup--${id}`);
     const aside = h('div', 'setup__aside');
     this.head = h('div', 'setup__head');
-    const progress = h('div', 'setup__progress');
-    progress.setAttribute('aria-hidden', 'true');
-    STEPS.slice(0, -1).forEach((_, i) => progress.append(h('span', i < this.step ? 'is-done' : i === this.step ? 'is-current' : '')));
-    aside.append(this.head, progress);
+    aside.append(this.head);
+    const panel = h('div', 'setup__panel');
     this.body = h('div', 'setup__body');
     this.body.dataset.focusGroup = '';
-    frame.append(aside, this.body);
+    panel.append(this.body);
+    frame.append(aside, panel);
     this[id]();
     this.el.replaceChildren(frame);
     this.shell = { topbar: false, hints: this.hints() };
@@ -123,10 +124,8 @@ export class SetupScreen {
   }
 
   title(key, subKey) {
-    const last = STEPS.length - 1;
-    const step = this.step < last ? `<span class="setup__step">${esc(t('stepOf', { n: this.step + 1, total: last }))}</span>` : '';
     const sub = subKey ? t(subKey) : '';
-    this.head.innerHTML = `${step}<h1 class="setup__title">${esc(t(key))}</h1>${sub ? `<p class="setup__sub">${esc(sub)}</p>` : ''}`;
+    this.head.innerHTML = `<h1 class="setup__title">${esc(t(key))}</h1>${sub ? `<p class="setup__sub">${esc(sub)}</p>` : ''}`;
   }
 
   actions(...buttons) {
@@ -283,7 +282,29 @@ export class SetupScreen {
     this.actions(next);
   }
 
-  // ---------- 3. Updates: Vanta OS, then Steam ----------
+  // ---------- Time zone (detected one selected) ----------
+  timezone() {
+    this.title('setupTimeZone');
+    const current = Region.zone;
+    let selected = null;
+    timeZones().forEach((z) => {
+      const item = new VListItem({ label: z.label });
+      item.el.querySelector('.v-control__trail').innerHTML = icon('check', 'setup__check');
+      if (z.value === current) {
+        item.setSelected(true);
+        selected = item;
+      }
+      item.on('activate', () => {
+        Settings.set('tzAuto', z.value === DETECTED_ZONE);
+        Settings.set('timeZone', z.value);
+        this.go(this.step + 1);
+      });
+      this.body.append(item.el);
+    });
+    if (selected) requestAnimationFrame(() => selected.el.scrollIntoView({ block: 'center' }));
+  }
+
+  // ---------- Updates: Vanta OS, then Steam ----------
   updates() {
     this.title('setupUpdates', 'setupUpdatesSub');
     const card = h('div', 'setup__card');

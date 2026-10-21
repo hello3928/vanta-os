@@ -46,9 +46,11 @@ const LOOK = {
 };
 
 const FALLBACK_LOGO = { font: 'Albert Sans', weight: 800, upper: true, tracking: 0.04, fill: '#ffffff' };
+// Retro games have no logo art: their title is set plainly in the UI typeface.
+const TITLE_LOGO = { font: 'Figtree', weight: 700, upper: false, tracking: -0.01, fill: '#ffffff' };
 
 const steam = (o) => ({ source: 'steam', installed: true, recent: 0, logo: FALLBACK_LOGO, ...o, art: { ...LOOK[o.look] } });
-const retro = (o) => ({ source: 'emu', installed: true, recent: 0, logo: FALLBACK_LOGO, ...o, art: { ...LOOK[o.look], pixel: o.pixel ?? 3 } });
+const retro = (o) => ({ source: 'emu', installed: true, recent: 0, logo: TITLE_LOGO, ...o, art: { ...LOOK[o.look], pixel: o.pixel ?? 3 } });
 
 export const GAMES = [
   steam({ id: 'elden-ring', appid: 1245620, shots: ['ss_943bf6fe62352757d9070c1d33e50b92fe8539f1.1920x1080.jpg', 'ss_dcdac9e4b26ac0ee5248bfd2967d764fd00cdb42.1920x1080.jpg', 'ss_3c41384a24d86dddd58a8f61db77f9dc0bfda8b5.1920x1080.jpg', 'ss_e0316c76f8197405c1312d072b84331dd735d60b.1920x1080.jpg', 'ss_ef61b771ee6b269b1f0cb484233e07a0bfb5f81b.1920x1080.jpg', 'ss_b1b91299d7e4b94201ac840aa64de54d9f5cb7f3.1920x1080.jpg'], trailer: 'https://video.akamai.steamstatic.com/store_trailers/1245620/442824/a3bab1a4bce2217b8a62606d4d7398cf739a5dab/1750650436/hls_264_master.m3u8?t=1645743462', title: 'Elden Ring', genre: 'Action RPG', hours: 142, last: 0, ach: [38, 42], size: '49.0 GB', recent: 1, look: 'gold' }),

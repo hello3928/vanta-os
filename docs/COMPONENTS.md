@@ -53,8 +53,10 @@ All animation classes use transform and opacity only, never overshoot, and respe
 |---|---|
 | `FocusManager` | Spatial navigation, focus scopes for drawers and dialogs, per-group memory, `data-nav-<dir>` routing |
 | `Input` | Keyboard and Gamepad API mapped to console actions, with D-pad/stick auto-repeat |
-| `Sound` | UI sound set. Synthesized in the mockup, loads designed WAVs with `Sound.useFiles()` |
-| `Haptics` | Rumble patterns through the Gamepad API (SDL3 in the real OS) |
+| `Sound` | UI sounds: Kenney's Interface Sounds (CC0) in `assets/sounds/`, levels balanced per sound; synthesized fallback |
+| `Haptics` | Rumble patterns through the Gamepad API (SDL3 in the real OS). Pulses are lifted to a minimum a rumble motor can play |
+| `SonyHaptics` | DualSense and DualShock 4 rumble over WebHID (USB and Bluetooth), for browsers that don't pass rumble to Sony controllers |
+| `Region` | Time zone, region and clock format, with names from the browser's Intl data |
 | `Settings` | Small reactive store. Every control and live effect reads from it |
 | `GameMusic` | PS5-style game music: the selected game's official trailer fades in as music and a moving hero background, and follows you onto the game page |
 | `glyphs` | Button prompt art for Xbox, PlayStation, Nintendo and Steam Deck controllers, plus keyboard keycaps. Detected from the controller, or forced in Settings |

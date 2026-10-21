@@ -12,6 +12,7 @@ import { esc, h } from '../core/util.js';
 import { animate } from '../core/motion.js';
 import { avatarEl } from './avatar.js';
 import { Device } from '../core/Device.js';
+import { Region } from '../core/Region.js';
 
 class BarButton extends VComponent {
   constructor({ className, label, onActivate }) {
@@ -55,6 +56,7 @@ export class VTopBar extends VComponent {
     this.el.append(titleEl, h('div', 'v-topbar__spacer'), status);
     this.tick();
     this.timer = setInterval(() => this.tick(), 15000);
+    ['clock24', 'tzAuto', 'timeZone', 'region'].forEach((k) => this.bind(k, () => this.tick()));
     this.readBattery();
   }
 
@@ -69,7 +71,7 @@ export class VTopBar extends VComponent {
   tick() {
     if (this.started && !this.el.isConnected) return clearInterval(this.timer);
     this.started = true;
-    this.clock.el.textContent = new Date().toLocaleTimeString(document.documentElement.lang || [], { hour: 'numeric', minute: '2-digit' });
+    this.clock.el.textContent = Region.time();
   }
 
   async readBattery() {

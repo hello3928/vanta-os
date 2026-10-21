@@ -28,6 +28,10 @@ import { GAMES } from './data.js';
 import { t, i18n } from './core/i18n.js';
 import { Profiles } from './core/Profiles.js';
 import { normalizeForDevice } from './core/Device.js';
+import { SonyHaptics } from './core/SonyHaptics.js';
+
+SonyHaptics.restore();
+Sound.useFiles('assets/sounds/');
 import { loadFonts, preload } from './art/index.js';
 
 const SCREENS = { setup: SetupScreen, users: UsersScreen, home: HomeScreen, library: LibraryScreen, game: GameScreen, settings: SettingsScreen, kit: KitScreen };
@@ -44,7 +48,7 @@ VToast.setHost(document.getElementById('toasts'));
 // Icon and stand-in logo fonts must be ready before the first screen; capsules start loading too.
 preload(GAMES.filter((g) => g.recent), ['capsule', 'hero', 'logo']);
 preload(GAMES, ['capsule']);
-const ready = Promise.all([loadFonts(GAMES), document.fonts.load('500 16px Inter').catch(() => {}), new Promise((r) => setTimeout(r, 900))]);
+const ready = Promise.all([loadFonts(GAMES), document.fonts.load('500 16px Figtree').catch(() => {}), new Promise((r) => setTimeout(r, 900))]);
 
 // The shell: one top bar and one hint bar for the whole app. Pages don't build their own; they
 // declare `shell = { title, hints, topbar, hintbar }` and the shell updates in place, so the bars

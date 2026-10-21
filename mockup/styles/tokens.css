@@ -8,13 +8,13 @@
   color-scheme: dark;
 
   /* Surfaces, darkest to lightest */
-  --bg: #0b0e13;
-  --bg-2: #12161c;
-  --panel: #171b22;
-  --surface: #1f242c;
-  --surface-2: #283039;
-  --surface-3: #333c48;
-  --track: #3d4553;
+  --bg: #1a1d23;
+  --bg-2: #14161b;
+  --panel: #23262e;
+  --surface: #2b2f38;
+  --surface-2: #3a3f4a;
+  --surface-3: #474d5a;
+  --track: #4a505c;
   --hover: rgb(255 255 255 / 0.06);
   --focus-row: rgb(255 255 255 / 0.11);
   --line: rgb(255 255 255 / 0.07);
@@ -22,10 +22,10 @@
 
   /* Text */
   --fg: #ffffff;
-  --fg-2: #d7dbe0;
-  --fg-3: #8d949e;
-  --fg-4: #5f6773;
-  --on-light: #0b0e13;
+  --fg-2: #dcdedf;
+  --fg-3: #8b929a;
+  --fg-4: #5f6670;
+  --on-light: #1a1d23;
   --light: #f2f4f7; /* focused buttons and tabs invert to this */
 
   /* Accent: Steam blue by default (Settings → Appearance can switch it) */
@@ -47,7 +47,7 @@
   --bad-soft: rgb(242 85 90 / 0.15);
 
   /* Type */
-  --font-ui: "Inter", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-ui: "Figtree", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
   --t-xs: 0.75rem;
   --t-sm: 0.875rem;
   --t-md: 1rem;
@@ -97,7 +97,7 @@
   --hero-h: min(66vh, 38rem);
   --bar-h: 3.25rem;
   --hint-h: 3rem;
-  --control-h: 3.25rem;
+  --control-h: 2.9rem;
 }
 
 :root[data-accent="ember"] {
@@ -126,7 +126,6 @@ body {
   font-family: var(--font-ui);
   font-size: var(--t-md);
   line-height: 1.5;
-  font-feature-settings: "cv11", "ss03";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;

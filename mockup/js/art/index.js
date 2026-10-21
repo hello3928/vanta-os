@@ -74,8 +74,74 @@ const hostOf = (u) => {
   }
 };
 
+// Retro games have no wide hero art. Like Steam does for games without art, the hero is built
+// from what exists: the box art, blurred into a colour wash, with the real game screen on top
+// in a frame, scaled without smoothing so pixels stay sharp. Composited once per game.
+const retroHeroes = new Map();
+async function bitmap(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(res.status);
+  return createImageBitmap(await res.blob());
+}
+function retroHero(g) {
+  if (!retroHeroes.has(g.id)) {
+    retroHeroes.set(
+      g.id,
+      (async () => {
+        const sys = systemOf(g);
+        const name = encodeURIComponent(g.rom);
+        const [box, snap] = await Promise.all([
+          bitmap(`${THUMBS}/${sys.thumbs}/master/Named_Boxarts/${name}.png`).catch(() => null),
+          bitmap(`${THUMBS}/${sys.thumbs}/master/Named_Snaps/${name}.png`).catch(() => null),
+        ]);
+        if (!box && !snap) throw new Error('no art');
+        const W = 1920;
+        const H = 1080;
+        const c = canvas(W, H);
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = '#14171c';
+        ctx.fillRect(0, 0, W, H);
+        const wash = box || snap;
+        const s = Math.max(W / wash.width, H / wash.height) * 1.15;
+        ctx.filter = 'blur(60px) saturate(1.25) brightness(0.55)';
+        ctx.drawImage(wash, (W - wash.width * s) / 2, (H - wash.height * s) / 2, wash.width * s, wash.height * s);
+        ctx.filter = 'none';
+        if (snap) {
+          // About a third of the height in the upper right, clear of the shelves below the hero.
+          // Nearest-neighbour scaling keeps the pixels square.
+          const k = (H * 0.32) / snap.height;
+          const w = Math.round(snap.width * k);
+          const hh = Math.round(snap.height * k);
+          const x = Math.round(W * 0.92 - w);
+          const y = Math.round(H * 0.085);
+          ctx.save();
+          ctx.shadowColor = 'rgba(0,0,0,0.55)';
+          ctx.shadowBlur = 60;
+          ctx.shadowOffsetY = 16;
+          ctx.fillStyle = '#000';
+          ctx.fillRect(x - 6, y - 6, w + 12, hh + 12);
+          ctx.restore();
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(snap, x, y, w, hh);
+        }
+        return c.toDataURL('image/jpeg', 0.9);
+      })(),
+    );
+  }
+  return retroHeroes.get(g.id);
+}
+
 // Points an <img> at the real art, falling back to generated art on error.
 export function setArt(img, g, kind) {
+  if (g.source === 'emu' && (kind === 'hero' || kind === 'header') && g.rom) {
+    img.classList.add('art-loading');
+    img.onload = () => img.classList.remove('art-loading');
+    retroHero(g).then(
+      (url) => (img.src = url),
+      () => (img.src = generated(g, kind)),
+    );
+    return;
+  }
   const url = realUrl(g, kind);
   const useFallback = () => {
     img.onerror = null;

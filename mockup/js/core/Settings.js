@@ -7,6 +7,11 @@ const KEY = 'vanta.mockup.settings.v3';
 const DEFAULTS = {
   setupDone: false,
   device: 'ally-x', // mockup only: which real device to preview
+  timeAuto: true,
+  tzAuto: true,
+  timeZone: '',
+  clock24: false,
+  region: '',
   steamAchievements: true,
   steamScreenshots: true,
   steamFriends: true,

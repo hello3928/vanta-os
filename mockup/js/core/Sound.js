@@ -1,8 +1,8 @@
-// Vanta UI sounds. Short, soft and quiet: rounded plastic ticks and low taps with a small
-// amount of room, no melodies.
+// Vanta UI sounds. Short, soft and quiet, no melodies.
 //
-// Mockup: synthesized live with WebAudio so there are no files to license. A generated
-// 0.4 s room impulse gives every sound the same small space.
+// Mockup: designed sound files from Kenney's Interface Sounds (CC0, assets/sounds/), loaded at
+// start with Sound.useFiles(). The synthesized versions below are the fallback if a file can't
+// load. A generated 0.4 s room impulse gives every sound the same small space.
 // Real OS: replace with designed WAV assets (one per name below) played through Qt Multimedia
 // SoundEffect over PipeWire. Drop files in assets/sounds/<name>.wav and Sound.useFiles() picks them up.
 // Browsers only allow audio after a user gesture, so call Sound.unlock() from an input handler.
@@ -195,11 +195,21 @@ const SOUNDS = {
   },
 };
 
-function playFile(name) {
-  const buf = files.get(name);
+// The pack is normalised loud; these levels balance it for menus (navigation quietest).
+const FILE_GAIN = {
+  move: 0.32, tab: 0.4, select: 0.42, back: 0.4, toggleOn: 0.5, toggleOff: 0.5, slider: 0.3,
+  key: 0.35, keyDelete: 0.35, open: 0.45, close: 0.4, error: 0.5, notify: 0.45, launch: 0.55,
+};
+
+function playFile(name, opts = {}) {
   const src = ctx.createBufferSource();
-  src.buffer = buf;
-  src.connect(bus);
+  src.buffer = files.get(name);
+  // The slider tick rises in pitch with the value; navigation varies very slightly.
+  if (name === 'slider') src.playbackRate.value = 0.85 + (opts.t ?? 0.5) * 0.35;
+  else if (name === 'move' || name === 'key') src.playbackRate.value = rand(0.97, 1.03);
+  const g = ctx.createGain();
+  g.gain.value = FILE_GAIN[name] ?? 0.45;
+  src.connect(g).connect(bus);
   src.start();
 }
 
@@ -214,7 +224,7 @@ export const Sound = {
     if (!init() || !state.unlocked) return;
     const run = () => {
       try {
-        if (files.has(name)) playFile(name);
+        if (files.has(name)) playFile(name, opts);
         else SOUNDS[name](opts);
       } catch {
         /* never let audio break the UI */
@@ -224,11 +234,11 @@ export const Sound = {
     else ctx.resume().then(run, () => {});
   },
   // Load designed sound files in place of the synthesized ones, e.g. Sound.useFiles('assets/sounds/').
-  async useFiles(base) {
+  async useFiles(base, ext = 'wav') {
     if (!init()) return;
     await Promise.allSettled(
-      Object.keys(SOUNDS).map(async (name) => {
-        const res = await fetch(`${base}${name}.wav`);
+      Object.keys(FILE_GAIN).map(async (name) => {
+        const res = await fetch(`${base}${name}.${ext}`);
         if (res.ok) files.set(name, await ctx.decodeAudioData(await res.arrayBuffer()));
       }),
     );

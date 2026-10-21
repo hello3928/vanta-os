@@ -8,6 +8,8 @@ import { VSlider } from '../components/VSlider.js';
 import { VDropdown } from '../components/VDropdown.js';
 import { frameLimit, tdpSlider, upscaling, vrrToggle, hdrToggle } from './perf.js';
 import { Device, DEVICES } from '../core/Device.js';
+import { SonyHaptics } from '../core/SonyHaptics.js';
+import { Region, timeZones, regions, DETECTED_REGION } from '../core/Region.js';
 import { VButton } from '../components/VButton.js';
 import { VDialog } from '../components/VDialog.js';
 import { VToast } from '../components/VToast.js';
@@ -147,6 +149,7 @@ const SECTIONS = [
         new VDropdown({ label: t('buttonPrompts'), detail: t('buttonPromptsDetail'), options: ['Automatic', 'Xbox', 'PlayStation', 'Nintendo', 'Steam Deck'], bind: 'glyphs' }),
         new VDropdown({ label: t('hapticsStrength'), options: ['Off', 'Low', 'High'], bind: 'haptics' }),
         new VToggle({ label: t('menuHaptics'), bind: 'menuHaptics' }),
+        ...(SonyHaptics.supported ? [psHapticsRow()] : []),
         new VListItem({ label: t('testHaptics'), chevron: true, onActivate: () => Haptics.play('test', { force: true }) }),
         new VListItem({ label: t('buttonLayout'), chevron: true, onActivate: () => VToast.show(t('notAvailable'), { icon: 'info' }) }),
       ];
@@ -197,6 +200,32 @@ const SECTIONS = [
       const choice = new VDropdown({ label: t('language'), options: LANGUAGES.map((l) => ({ value: l.code, label: l.name })), value: i18n.lang });
       choice.on('change', (code) => Settings.set('language', code));
       return [choice];
+    },
+  },
+  {
+    id: 'datetime',
+    label: () => t('dateTime'),
+    icon: 'clock',
+    build: () => {
+      const zone = new VDropdown({ label: t('timeZone'), options: timeZones(), value: Region.zone });
+      const syncZone = () => {
+        zone.render(Region.zone);
+        zone.setDisabled(Settings.get('tzAuto'));
+        zone.el.querySelector('.v-control__detail').textContent = Settings.get('tzAuto') ? t('setAutomatically') : '';
+      };
+      zone.on('change', (z) => Settings.set('timeZone', z));
+      zone.bind('tzAuto', syncZone);
+      const example = new VListItem({ label: t('formatExample') });
+      const paint = () => example.setDetail(`${Region.date()} · ${Region.time()}`);
+      ['clock24', 'region', 'tzAuto', 'timeZone'].forEach((k) => example.bind(k, paint));
+      return [
+        new VToggle({ label: t('setTimeAuto'), bind: 'timeAuto' }),
+        new VToggle({ label: t('setZoneAuto'), bind: 'tzAuto' }),
+        zone,
+        new VToggle({ label: t('clock24'), bind: 'clock24' }),
+        new VDropdown({ label: t('region'), options: regions(), value: Settings.get('region') || DETECTED_REGION, onChange: (r) => Settings.set('region', r) }),
+        example,
+      ];
     },
   },
   {
@@ -255,6 +284,17 @@ function openSignIn(app, kind) {
   };
   const stop = kind === 'steam' ? steamSignIn(host, { onDone }) : vantaSignIn(host, { onDone });
   panel.on('close', stop);
+}
+
+// PlayStation controllers rumble through WebHID; Chrome needs one permission prompt.
+function psHapticsRow() {
+  const row = new VListItem({ label: t('psHaptics'), trail: SonyHaptics.connected ? t('psHapticsOn') : t('connect') });
+  const paint = (on) => (row.el.querySelector('.v-control__value').textContent = on ? t('psHapticsOn') : t('connect'));
+  SonyHaptics.onChange(paint);
+  row.on('activate', async () => {
+    if (await SonyHaptics.request()) Haptics.play('test', { force: true });
+  });
+  return row;
 }
 
 function describePads() {

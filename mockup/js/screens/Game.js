@@ -36,7 +36,7 @@ export class GameScreen {
     const scroll = h('div', 'screen__scroll');
 
     const heroEl = h('div', 'game__hero');
-    const bg = artImg(g, 'hero', `game__bg${sys ? ' is-pixel' : ''}`);
+    const bg = artImg(g, 'hero', `game__bg${sys ? ' is-retro' : ''}`);
     const lg = artImg(g, 'logo', 'game__logo');
     lg.alt = g.title;
     const shade = h('div', 'game__shade');

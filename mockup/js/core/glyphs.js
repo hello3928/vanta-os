@@ -6,7 +6,7 @@
 
 const FACE_BG = '#1f252e';
 const RING = 'rgb(255 255 255 / 0.28)';
-const FONT = "font-family=\"Inter, 'Segoe UI', sans-serif\" font-weight=\"700\"";
+const FONT = "font-family=\"Figtree, 'Segoe UI', sans-serif\" font-weight=\"700\"";
 
 const svg = (w, body, label) => `<svg class="v-glyph" viewBox="0 0 ${w} 24" width="${w}" height="24" role="img" aria-label="${label}">${body}</svg>`;
 const disc = (inner) => `<circle cx="12" cy="12" r="11" fill="${FACE_BG}" stroke="${RING}"/>${inner}`;

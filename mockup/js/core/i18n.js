@@ -293,6 +293,18 @@ const en = {
   signOutSteamBody: "Steam games can't be played until you sign in again.",
   signOut: 'Sign out',
   syncSettings: 'Sync profile and settings',
+  dateTime: 'Date & time',
+  setTimeAuto: 'Set time automatically',
+  setZoneAuto: 'Set time zone automatically',
+  timeZone: 'Time zone',
+  clock24: '24-hour clock',
+  region: 'Region',
+  formatExample: 'Format',
+  setAutomatically: 'Set automatically',
+  setupTimeZone: 'Select your time zone',
+  psHaptics: 'PlayStation controller haptics',
+  psHapticsOn: 'Connected',
+  connect: 'Connect',
   opt: {},
 };
 
@@ -571,6 +583,18 @@ const es = {
   signOutSteamBody: 'No podrás jugar a los juegos de Steam hasta que vuelvas a iniciar sesión.',
   signOut: 'Cerrar sesión',
   syncSettings: 'Sincronizar perfil y ajustes',
+  dateTime: 'Fecha y hora',
+  setTimeAuto: 'Ajustar la hora automáticamente',
+  setZoneAuto: 'Ajustar la zona horaria automáticamente',
+  timeZone: 'Zona horaria',
+  clock24: 'Reloj de 24 horas',
+  region: 'Región',
+  formatExample: 'Formato',
+  setAutomatically: 'Automático',
+  setupTimeZone: 'Selecciona tu zona horaria',
+  psHaptics: 'Vibración del mando de PlayStation',
+  psHapticsOn: 'Conectado',
+  connect: 'Conectar',
   opt: { Off: 'Desactivado', Low: 'Baja', High: 'Alta', Automatic: 'Automático', Quality: 'Calidad', Balanced: 'Equilibrado', Performance: 'Rendimiento', 'Power saver': 'Ahorro de energía', Native: 'Nativa', Stable: 'Estable', 'Kernel default': 'Predeterminado del kernel', Basic: 'Básica', Full: 'Completa' },
 };
 
@@ -849,6 +873,18 @@ const fr = {
   signOutSteamBody: 'Les jeux Steam ne pourront pas être lancés avant de vous reconnecter.',
   signOut: 'Se déconnecter',
   syncSettings: 'Synchroniser le profil et les réglages',
+  dateTime: 'Date et heure',
+  setTimeAuto: 'Régler l’heure automatiquement',
+  setZoneAuto: 'Régler le fuseau horaire automatiquement',
+  timeZone: 'Fuseau horaire',
+  clock24: 'Format 24 heures',
+  region: 'Région',
+  formatExample: 'Format',
+  setAutomatically: 'Automatique',
+  setupTimeZone: 'Sélectionnez votre fuseau horaire',
+  psHaptics: 'Vibrations de la manette PlayStation',
+  psHapticsOn: 'Connectée',
+  connect: 'Connecter',
   opt: { Off: 'Désactivé', Low: 'Faible', High: 'Forte', Automatic: 'Automatique', Quality: 'Qualité', Balanced: 'Équilibré', Performance: 'Performances', 'Power saver': 'Économie d’énergie', Native: 'Native', Stable: 'Stable', 'Kernel default': 'Par défaut du noyau', Basic: 'Basique', Full: 'Complet' },
 };
 
@@ -1128,6 +1164,18 @@ const de = {
   signOutSteamBody: 'Steam-Spiele sind erst nach erneuter Anmeldung spielbar.',
   signOut: 'Abmelden',
   syncSettings: 'Profil und Einstellungen synchronisieren',
+  dateTime: 'Datum und Uhrzeit',
+  setTimeAuto: 'Uhrzeit automatisch einstellen',
+  setZoneAuto: 'Zeitzone automatisch einstellen',
+  timeZone: 'Zeitzone',
+  clock24: '24-Stunden-Format',
+  region: 'Region',
+  formatExample: 'Format',
+  setAutomatically: 'Automatisch',
+  setupTimeZone: 'Wähle deine Zeitzone',
+  psHaptics: 'Vibration des PlayStation-Controllers',
+  psHapticsOn: 'Verbunden',
+  connect: 'Verbinden',
   opt: { Off: 'Aus', Low: 'Niedrig', High: 'Hoch', Automatic: 'Automatisch', Quality: 'Qualität', Balanced: 'Ausgewogen', Performance: 'Leistung', 'Power saver': 'Energiesparen', Native: 'Nativ', Stable: 'Stabil', 'Kernel default': 'Kernel-Standard', Basic: 'Einfach', Full: 'Vollständig' },
 };
 
@@ -1406,6 +1454,18 @@ const ptBR = {
   signOutSteamBody: 'Os jogos da Steam só podem ser jogados depois que você entrar de novo.',
   signOut: 'Sair',
   syncSettings: 'Sincronizar perfil e configurações',
+  dateTime: 'Data e hora',
+  setTimeAuto: 'Ajustar a hora automaticamente',
+  setZoneAuto: 'Ajustar o fuso horário automaticamente',
+  timeZone: 'Fuso horário',
+  clock24: 'Relógio de 24 horas',
+  region: 'Região',
+  formatExample: 'Formato',
+  setAutomatically: 'Automático',
+  setupTimeZone: 'Selecione seu fuso horário',
+  psHaptics: 'Vibração do controle PlayStation',
+  psHapticsOn: 'Conectado',
+  connect: 'Conectar',
   opt: { Off: 'Desativado', Low: 'Baixa', High: 'Alta', Automatic: 'Automático', Quality: 'Qualidade', Balanced: 'Equilibrado', Performance: 'Desempenho', 'Power saver': 'Economia de energia', Native: 'Nativa', Stable: 'Estável', 'Kernel default': 'Padrão do kernel', Basic: 'Básica', Full: 'Completa' },
 };
 
@@ -1681,6 +1741,18 @@ const ja = {
   signOutSteamBody: '再度サインインするまでSteamのゲームはプレイできません。',
   signOut: 'サインアウト',
   syncSettings: 'プロフィールと設定を同期',
+  dateTime: '日付と時刻',
+  setTimeAuto: '時刻を自動設定',
+  setZoneAuto: 'タイムゾーンを自動設定',
+  timeZone: 'タイムゾーン',
+  clock24: '24時間表示',
+  region: '地域',
+  formatExample: '表示形式',
+  setAutomatically: '自動',
+  setupTimeZone: 'タイムゾーンを選択',
+  psHaptics: 'PlayStationコントローラーの振動',
+  psHapticsOn: '接続済み',
+  connect: '接続',
   opt: { Off: 'オフ', Low: '弱', High: '強', Automatic: '自動', Quality: '画質優先', Balanced: 'バランス', Performance: 'パフォーマンス', 'Power saver': '省電力', Native: 'ネイティブ', Stable: '安定版', Beta: 'ベータ版', 'Kernel default': 'カーネル標準', Basic: '基本', Full: 'すべて' },
 };
 
@@ -1708,7 +1780,8 @@ export const i18n = {
 export function t(key, vars = {}) {
   const dict = DICTS[lang];
   const plural = 'n' in vars && new Intl.PluralRules(lang).select(vars.n) === 'one' ? `${key}_one` : null;
-  let s = (plural && (dict[plural] ?? en[plural])) || dict[key] || en[key] || key;
+  // An empty string is a real value (a line deliberately left blank), not a missing key.
+  let s = (plural && (dict[plural] ?? en[plural])) || (dict[key] ?? en[key] ?? key);
   for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, v);
   return s;
 }

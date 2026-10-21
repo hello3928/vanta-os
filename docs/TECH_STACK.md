@@ -41,7 +41,7 @@ The interface follows the Steam Big Picture / Steam Deck model:
 - A main menu on the left (Guide/View button)
 - A quick access menu on the right (Start button) with notifications, quick settings and performance
 
-The look is deliberately plain: neutral blue-black surfaces, one UI typeface (Inter), Phosphor icons inlined as SVG, SteamOS corner radii (2–6 px), hairline dividers between list rows, and a white focus outline. Text is short and literal. The game art carries the screen. Art comes from Steam's library assets and, for emulated games, SteamGridDB/libretro-thumbnails.
+The look is deliberately plain: neutral blue-black surfaces, Steam-style blue-grey surfaces, one UI typeface (Figtree, the closest free match to Steam's Motiva Sans), Phosphor icons inlined as SVG, SteamOS corner radii (2–6 px), hairline dividers between list rows, and a white focus outline. Text is short and literal. The game art carries the screen. Art comes from Steam's library assets and, for emulated games, SteamGridDB/libretro-thumbnails.
 
 Motion follows a few strict rules, so it stays smooth on handheld hardware:
 - Only transform and opacity animate (no width, height or filters on large areas).

@@ -1,5 +1,6 @@
 // Controller haptics. Each pattern is a list of [durationMs, weak, strong] pulses and gap numbers (ms).
-// Mockup: Gamepad API dual-rumble (Chrome/Edge), Firefox hapticActuators, or phone vibration.
+// Mockup: Gamepad API dual-rumble (Chrome/Edge), WebHID for PlayStation controllers (SonyHaptics.js),
+// Firefox hapticActuators, or phone vibration.
 // Real OS: SDL3 SDL_RumbleGamepad / SDL_RumbleGamepadTriggers, with InputPlumber passing force-feedback through on handhelds.
 
 const PATTERNS = {
@@ -14,6 +15,14 @@ const PATTERNS = {
   boot: [[160, 0.12, 0], [200, 0.3, 0.15], [360, 0.55, 0.45]],
   test: [[120, 1, 0], 120, [120, 0, 1], 120, [220, 0.8, 0.8]],
 };
+
+import { SonyHaptics } from './SonyHaptics.js';
+
+// Rumble motors can't render very short or very light pulses, so menu ticks are lifted to
+// what a controller can actually play.
+const MIN_MS = 35;
+const MIN_LEVEL = 0.3;
+const floor = (v) => (v > 0 ? Math.max(MIN_LEVEL, v) : 0);
 
 const MENU_PATTERNS = new Set(['tick', 'slider', 'select', 'back', 'toggle']);
 const LEVELS = { Off: 0, Low: 0.45, High: 1 };
@@ -45,12 +54,18 @@ export const Haptics = {
         at += p;
         continue;
       }
-      segs.push({ at, d: p[0], weak: Math.min(1, p[1] * mult), strong: Math.min(1, p[2] * mult) });
-      at += p[0];
+      segs.push({ at, d: Math.max(MIN_MS, p[0]), weak: floor(Math.min(1, p[1] * mult)), strong: floor(Math.min(1, p[2] * mult)) });
+      at += Math.max(MIN_MS, p[0]);
     }
 
     let rumbled = false;
+    if (SonyHaptics.connected) {
+      segs.forEach((s) => setTimeout(() => SonyHaptics.rumble(s.weak, s.strong, s.d), s.at));
+      rumbled = true;
+    }
     for (const pad of pads()) {
+      // A PlayStation controller connected over WebHID is already handled above.
+      if (SonyHaptics.connected && /054c|playstation|dualsense|dualshock|wireless controller/i.test(pad.id)) continue;
       const act = pad.vibrationActuator;
       if (act?.playEffect) {
         // A new effect preempts the current one, so pulses are scheduled one after another.
