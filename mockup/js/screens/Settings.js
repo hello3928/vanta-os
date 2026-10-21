@@ -185,9 +185,7 @@ const SECTIONS = [
     build: () => {
       const accent = new VDropdown({ label: t('accent'), options: Object.keys(ACCENTS), value: nameOf(ACCENTS, Settings.get('accent')) });
       accent.on('change', (n) => Settings.set('accent', ACCENTS[n]));
-      const link = h('a', 'settings__link', esc(t('logo')));
-      link.href = 'logos.html';
-      return [accent, link];
+      return [accent];
     },
   },
   {
@@ -245,10 +243,16 @@ const SECTIONS = [
           if (ok) VToast.show(t('rollbackScheduled'), { icon: 'restart' });
         },
       }),
-      new VListItem({ label: t('runSetup'), chevron: true, onActivate: () => app.go('setup', {}, { replace: true }) }),
       new VListItem({ label: t('showTour'), chevron: true, onActivate: () => app.tour() }),
       new VDropdown({ label: t('previewDevice'), detail: t('previewDeviceDetail'), options: Object.entries(DEVICES).map(([value, d]) => ({ value, label: d.name })), bind: 'device' }),
-      new VListItem({ label: t('componentGallery'), chevron: true, onActivate: () => app.go('kit') }),
+      new VListItem({
+        label: t('resetSystem'),
+        chevron: true,
+        onActivate: async () => {
+          const ok = await VDialog.confirm({ title: t('resetSystemQ'), body: t('resetSystemBody'), confirmLabel: t('resetSystem'), cancelLabel: t('cancel'), danger: true });
+          if (ok) app.resetSystem();
+        },
+      }),
     ],
   },
   {

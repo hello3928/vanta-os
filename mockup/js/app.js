@@ -20,7 +20,6 @@ import { HomeScreen } from './screens/Home.js';
 import { LibraryScreen } from './screens/Library.js';
 import { GameScreen } from './screens/Game.js';
 import { SettingsScreen } from './screens/Settings.js';
-import { KitScreen } from './screens/Kit.js';
 import { playWelcome, startTour } from './screens/Tour.js';
 import { openMainMenu, openQuickAccess } from './screens/Menus.js';
 import { openPowerMenu } from './screens/PowerMenu.js';
@@ -34,7 +33,7 @@ import { SonyHaptics } from './core/SonyHaptics.js';
 SonyHaptics.restore();
 import { loadFonts, preload } from './art/index.js';
 
-const SCREENS = { setup: SetupScreen, users: UsersScreen, home: HomeScreen, library: LibraryScreen, game: GameScreen, settings: SettingsScreen, kit: KitScreen };
+const SCREENS = { setup: SetupScreen, users: UsersScreen, home: HomeScreen, library: LibraryScreen, game: GameScreen, settings: SettingsScreen };
 
 Motion.init();
 const appEl = document.getElementById('app');
@@ -326,6 +325,27 @@ const App = {
 
   setHints(hints) {
     Shell.setHints(hints);
+  },
+
+  // Reset system: erase profiles, accounts, settings and saved networks, then start again at
+  // first-time setup. Real OS: vantad removes user data and /etc changes, keeping installed
+  // games, and the device reboots into setup.
+  resetSystem() {
+    Overlays.closeAll();
+    GameMusic.release();
+    const black = h('div', 'sleep');
+    layer.append(black);
+    Motion.play(black, [{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'both' });
+    setTimeout(() => {
+      try {
+        Object.keys(localStorage)
+          .filter((k) => k.startsWith('vanta.'))
+          .forEach((k) => localStorage.removeItem(k));
+      } catch {
+        /* storage blocked: nothing saved to erase */
+      }
+      location.reload();
+    }, 900);
   },
 
   // End of first-time setup: the logo and jingle, then the tour of Home.
