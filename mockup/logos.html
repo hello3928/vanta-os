@@ -6,7 +6,7 @@
 <title>Vanta OS Logos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;600;700;800&family=Michroma&family=Outfit:wght@700&family=Saira:ital,wght@1,800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&display=swap">
 <style>
   /* Layout: one sheet per direction. A large mark on black, then the same mark tested at
      real sizes, on light, as an app tile, and in the top bar it would live in. */
@@ -21,7 +21,7 @@
     --paper: #f2f4f7;
     --ink: #0d1117;
     --accent: #2f80ed;
-    --font: "Albert Sans", "Segoe UI", system-ui, sans-serif;
+    --font: "Figtree", "Segoe UI", system-ui, sans-serif;
   }
   * { box-sizing: border-box; }
   body {
@@ -62,7 +62,7 @@
   <header>
     <div>
       <h1>Vanta OS logo directions</h1>
-      <p>Consoles brand themselves with a wordmark, so each direction is a wordmark plus a one-letter monogram for small spaces. Each is shown large, on light, as an app icon and in the menu. Pick one in the mockup under Settings → Appearance → Logo.</p>
+      <p>Each direction is a drawn mark with the wordmark, shown large, on light, as an app icon, small, and in the menu. Switch between them in the mockup under Settings → Appearance → Logo.</p>
     </div>
     <a href="index.html">Back to the mockup</a>
   </header>
@@ -78,7 +78,7 @@
     s.innerHTML = `
       <div class="stage">${wordmark(id, { height: 64, color: '#ffffff' })}</div>
       <div class="info">
-        <div><span class="label">Direction ${'ABC'[i]} · ${d.font}</span><h2>${d.name}</h2></div>
+        <div><span class="label">Direction ${'ABC'[i]}</span><h2>${d.name}</h2></div>
         <p class="summary">${d.summary}</p>
         <div class="tests">
           <div class="test light">${wordmark(id, { height: 28, color: '#0d1117' })}</div>

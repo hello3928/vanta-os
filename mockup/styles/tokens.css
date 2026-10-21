@@ -98,6 +98,7 @@
   --bar-h: 3.25rem;
   --hint-h: 3rem;
   --control-h: 2.9rem;
+  --settings-nav: 16rem; /* Settings category strip, continued through the top bar */
 }
 
 :root[data-accent="ember"] {

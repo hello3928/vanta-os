@@ -31,7 +31,6 @@ import { normalizeForDevice } from './core/Device.js';
 import { SonyHaptics } from './core/SonyHaptics.js';
 
 SonyHaptics.restore();
-Sound.useFiles('assets/sounds/');
 import { loadFonts, preload } from './art/index.js';
 
 const SCREENS = { setup: SetupScreen, users: UsersScreen, home: HomeScreen, library: LibraryScreen, game: GameScreen, settings: SettingsScreen, kit: KitScreen };
@@ -74,6 +73,8 @@ const Shell = {
     FocusManager.chrome = s.topbar === false ? null : this.top.el;
     FocusManager.chromeNav = s.topbarNav !== false;
     this.top.setTitle(s.title || '');
+    // A page with a dark side strip (Settings) continues it up through the top bar.
+    this.top.el.style.setProperty('--strip', s.strip || '0px');
     this.top.el.classList.toggle('is-hidden', s.topbar === false);
     this.setHints(s.hints || [], s.hintbar === false);
     // The bar gets a background once the page scrolls under it.

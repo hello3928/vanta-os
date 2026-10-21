@@ -92,6 +92,9 @@
     background-color var(--t-base) var(--ease-out),
     box-shadow var(--t-base) var(--ease-out);
 }
+#shell .v-topbar {
+  background-image: linear-gradient(90deg, var(--bg-2) var(--strip, 0px), transparent var(--strip, 0px));
+}
 #shell .v-topbar.is-scrolled {
   background-color: rgb(26 29 35 / 0.94);
   box-shadow: inset 0 -1px 0 var(--line);
@@ -470,7 +473,7 @@
    the right with a title, small sub-headings and compact rows. */
 .settings {
   display: grid;
-  grid-template-columns: 16rem minmax(0, 1fr);
+  grid-template-columns: var(--settings-nav) minmax(0, 1fr);
   min-height: calc(100vh - var(--bar-h) - var(--hint-h));
   align-items: stretch;
 }

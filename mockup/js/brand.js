@@ -1,68 +1,62 @@
-// Vanta OS logo directions. Consoles brand themselves with wordmarks (PlayStation, Xbox, Steam),
-// so each direction is a wordmark plus a one-letter monogram for small spaces (app icon, boot, tray).
-// Drawn as SVG text in typefaces loaded from Google Fonts. Once a direction is chosen, a designer
-// should outline and hand-kern it; tools/export-logos.mjs writes SVGs that load the font.
+// Vanta OS logo directions, in the Valve manner: a simple drawn mark (like Steam's badge) and a
+// bold wordmark. The marks are geometry, not font glyphs, so they stay sharp at any size and
+// export as clean SVG. tools/export-logos.mjs writes them to brand/.
 
 export const DIRECTIONS = {
-  extended: {
-    name: 'Extended',
-    summary: 'Wide, spaced capitals. Calm and premium, in the family of console hardware branding.',
-    font: 'Michroma',
-    weight: 400,
-    style: 'normal',
-    text: 'VANTA',
-    tracking: 0.32,
-    monogram: 'V',
+  disc: {
+    name: 'Disc',
+    summary: 'A solid badge with a V cut out.',
   },
-  sport: {
-    name: 'Sport',
-    summary: 'Heavy italic capitals that lean forward. Fast and loud, closest to a gaming peripheral brand.',
-    font: 'Saira',
-    weight: 800,
-    style: 'italic',
-    text: 'VANTA',
-    tracking: 0.02,
-    monogram: 'V',
+  notch: {
+    name: 'Notch',
+    summary: 'A rounded tile with a V notched into the top.',
   },
-  soft: {
-    name: 'Soft',
-    summary: 'Rounded lowercase with tight spacing. Friendly and approachable, like a living-room device.',
-    font: 'Outfit',
-    weight: 700,
-    style: 'normal',
-    text: 'vanta',
-    tracking: -0.03,
-    monogram: 'v',
+  split: {
+    name: 'Split',
+    summary: 'Two angled strokes forming a V.',
   },
 };
 
-const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Michroma&family=Outfit:wght@700&family=Saira:ital,wght@1,800&display=swap';
+const DEFAULT = 'disc';
+const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Figtree:wght@800&display=swap';
+const pick = (id) => (DIRECTIONS[id] ? id : DEFAULT);
 
-// Approximate advance widths (em) so the SVG box fits the text without measuring.
-const WIDTH = { extended: 0.98, sport: 0.62, soft: 0.6 };
-
-function textEl(d, size, color, x, anchor = 'start') {
-  return `<text x="${x}" y="${(size * 0.86).toFixed(1)}" font-family="'${d.font}', sans-serif" font-weight="${d.weight}" font-style="${d.style}" font-size="${size}" letter-spacing="${(d.tracking * size).toFixed(2)}" fill="${color}" text-anchor="${anchor}">`;
+// The mark on a 100×100 grid. `hole` is the colour the cut-outs show (transparent by default).
+function markShapes(id, color, uid) {
+  switch (pick(id)) {
+    case 'notch':
+      return `<mask id="m${uid}"><rect width="100" height="100" fill="#fff"/><path d="M31 4h38L50 46z" fill="#000"/></mask>
+        <rect x="6" y="6" width="88" height="88" rx="20" fill="${color}" mask="url(#m${uid})"/>`;
+    case 'split':
+      return `<g stroke="${color}" stroke-width="15" stroke-linecap="round" fill="none"><path d="M24 24 45.5 73"/><path d="M76 24 54.5 73"/></g>`;
+    default:
+      return `<mask id="m${uid}"><rect width="100" height="100" fill="#fff"/><path d="M26 28h13.5L50 56l10.5-28H74L57 74H43z" fill="#000"/></mask>
+        <circle cx="50" cy="50" r="46" fill="${color}" mask="url(#m${uid})"/>`;
+  }
 }
 
+let uidCounter = 0;
+
+// One mark. `tile` puts it on a rounded square (app icon).
+export function mark(id, { size = 64, color = 'currentColor', tile = null } = {}) {
+  const uid = `${pick(id)}${uidCounter++}`;
+  const inner = tile ? `<rect width="100" height="100" rx="22" fill="${tile}"/><g transform="translate(18 18) scale(0.64)">${markShapes(id, color, uid)}</g>` : markShapes(id, color, uid);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${size}" height="${size}" role="img" aria-label="Vanta OS">${inner}</svg>`;
+}
+
+// Mark + "VANTA" in Figtree ExtraBold. `height` is the mark's height.
 export function wordmark(id, { height = 32, color = 'currentColor', standalone = false } = {}) {
-  const d = DIRECTIONS[id];
-  const size = height;
-  const width = Math.round(d.text.length * size * (WIDTH[id] + d.tracking) + size * 0.2);
+  const uid = `${pick(id)}${uidCounter++}`;
+  const size = height * 0.6;
+  const gap = height * 0.32;
+  const textW = size * 5 * 0.7 + size * 0.06 * 4;
+  const width = Math.round(height + gap + textW);
   const style = standalone ? `<style>@import url('${FONT_CSS}');</style>` : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${Math.round(size * 1.1)}" width="${width}" height="${Math.round(size * 1.1)}" role="img" aria-label="Vanta">${style}${textEl(d, size, color, size * 0.04)}${d.text}</text></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="Vanta">${style}
+    <g transform="scale(${height / 100})">${markShapes(id, color, uid)}</g>
+    <text x="${height + gap}" y="${(height / 2 + size * 0.36).toFixed(1)}" font-family="Figtree, sans-serif" font-weight="800" font-size="${size.toFixed(1)}" letter-spacing="${(size * 0.06).toFixed(2)}" fill="${color}">VANTA</text></svg>`;
 }
 
-// One-letter monogram. `tile` puts it on a rounded square (app icon).
-export function mark(id, { size = 64, color = 'currentColor', tile = null, standalone = false } = {}) {
-  const d = DIRECTIONS[id];
-  const fontSize = id === 'soft' ? 92 : 74;
-  const y = id === 'soft' ? 73 : 78;
-  const style = standalone ? `<style>@import url('${FONT_CSS}');</style>` : '';
-  const bg = tile ? `<rect width="100" height="100" rx="22" fill="${tile}"/>` : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${size}" height="${size}" role="img" aria-label="Vanta OS">${style}${bg}<text x="50" y="${y}" text-anchor="middle" font-family="'${d.font}', sans-serif" font-weight="${d.weight}" font-style="${d.style}" font-size="${tile ? fontSize * 0.72 : fontSize}" fill="${color}"${tile ? ' transform="translate(0 -6)"' : ''}>${d.monogram}</text></svg>`;
-}
-
-export function lockup(id, { height = 48, color = 'currentColor', standalone = false } = {}) {
-  return wordmark(id, { height, color, standalone });
+export function lockup(id, opts) {
+  return wordmark(id, opts);
 }

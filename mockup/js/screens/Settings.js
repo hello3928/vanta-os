@@ -330,7 +330,7 @@ export class SettingsScreen {
     layout.append(nav, this.pane);
     scroll.append(h('div', 'shell-gap'), layout);
     this.el.append(scroll);
-    this.shell = { title: t('settings'), hints: [
+    this.shell = { title: t('settings'), strip: 'var(--settings-nav)', hints: [
           ['accept', t('select')],
           ['back', t('back')],
         ] };

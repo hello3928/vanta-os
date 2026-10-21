@@ -53,7 +53,7 @@ All animation classes use transform and opacity only, never overshoot, and respe
 |---|---|
 | `FocusManager` | Spatial navigation, focus scopes for drawers and dialogs, per-group memory, `data-nav-<dir>` routing |
 | `Input` | Keyboard and Gamepad API mapped to console actions, with D-pad/stick auto-repeat |
-| `Sound` | UI sounds: Kenney's Interface Sounds (CC0) in `assets/sounds/`, levels balanced per sound; synthesized fallback |
+| `Sound` | Tactile UI clicks modelled live (a noise strike into tuned resonators, plus a low thump), dry, levels measured with `Sound.render()`. Designed WAVs can replace any of them with `Sound.useFiles()` |
 | `Haptics` | Rumble patterns through the Gamepad API (SDL3 in the real OS). Pulses are lifted to a minimum a rumble motor can play |
 | `SonyHaptics` | DualSense and DualShock 4 rumble over WebHID (USB and Bluetooth), for browsers that don't pass rumble to Sony controllers |
 | `Region` | Time zone, region and clock format, with names from the browser's Intl data |
