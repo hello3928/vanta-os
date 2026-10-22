@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Vanta OS
+Comment=Vanta OS game mode
+Exec=gamescope-session-plus ogui-steam
+Type=Application
+DesktopNames=gamescope

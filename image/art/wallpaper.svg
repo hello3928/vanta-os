@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2160" width="3840" height="2160">
+  <!-- Desktop mode wallpaper: the shell's page colour with its faint top-left lift, and the Orbit
+       mark small and dim in the centre. -->
+  <defs>
+    <radialGradient id="lift" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 0) scale(3072 1296)">
+      <stop offset="0" stop-color="#1a212b"/>
+      <stop offset="0.65" stop-color="#1a212b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="3840" height="2160" fill="#1a1d23"/>
+  <rect width="3840" height="2160" fill="url(#lift)"/>
+  <g transform="translate(1800 960) scale(2.4)" fill="none" stroke="#2b2f38" stroke-width="7" stroke-linecap="round">
+    <path d="M50.00 8.00A42 42 0 1 1 13.63 71.00"/>
+    <path d="M75.96 39.51A28 28 0 1 1 41.81 23.22" stroke-opacity="0.6"/>
+    <path d="M50.00 64.00A14 14 0 0 1 37.88 43.00"/>
+    <circle cx="50" cy="50" r="4.5" fill="#2b2f38" stroke="none"/>
+  </g>
+</svg>

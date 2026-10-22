@@ -1,0 +1,17 @@
+#!/usr/bin/bash
+# Vanta OS game mode. steamos-manager always starts this session (gamescope-session-plus@ogui-steam),
+# so logging in, "Return to Gaming Mode" and the session switcher all land in Vanta.
+# Steam's session settings stay, for the games Steam runs (VRR, HDR, frame limiter, mangoapp).
+
+STEAM_SESSION_FILE=/usr/share/gamescope-session-plus/sessions.d/steam
+[[ -f "${STEAM_SESSION_FILE}" ]] && . "${STEAM_SESSION_FILE}"
+
+# Steam's hook copies startup videos into Steam's UI, which this session doesn't show.
+post_gamescope_start() {
+	:
+}
+
+# The shell has its own keyboard; Steam's input method isn't used here.
+unset QT_IM_MODULE GTK_IM_MODULE
+
+CLIENTCMD="/usr/libexec/vanta-session"

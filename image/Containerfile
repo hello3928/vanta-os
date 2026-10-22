@@ -1,0 +1,47 @@
+# Vanta OS: Bazzite's deck image with the Vanta shell as game mode and Bazzite's name and logo
+# replaced. Build from the repo root:
+#   podman build -f image/Containerfile -t vanta-os .
+
+ARG BASE_IMAGE=ghcr.io/ublue-os/bazzite-deck:stable
+
+# ---- The shell, built against the base image's own Qt ----
+FROM ${BASE_IMAGE} AS shell
+
+RUN dnf5 -y install --setopt=install_weak_deps=False \
+        cargo rust gcc-c++ clang \
+        qt6-qtbase-devel qt6-qtdeclarative-devel qt6-qtmultimedia-devel qt6-qtsvg-devel qt6-qtshadertools-devel \
+        systemd-devel librsvg2-tools \
+    && dnf5 clean all
+
+ENV QMAKE=/usr/bin/qmake6 CARGO_HOME=/var/cargo
+
+COPY shell /src/shell
+RUN cd /src/shell \
+    && cargo build --release --locked \
+    && install -Dm755 target/release/vanta-shell /out/usr/bin/vanta-shell \
+    && mkdir -p /out/usr/share/vanta \
+    && cp -r data/. /out/usr/share/vanta/
+
+COPY brand /src/brand
+COPY image/art /src/art
+RUN bash /src/art/render.sh /src/brand /src/art /out
+
+# ---- The image ----
+FROM ${BASE_IMAGE}
+
+ARG VANTA_VERSION=0.1.0
+ARG VANTA_IMAGE_REF=ghcr.io/hello3928/vanta-os
+
+COPY --from=shell /out/ /
+COPY image/files/ /
+COPY image/build/debrand.sh /tmp/debrand.sh
+RUN VANTA_VERSION=${VANTA_VERSION} VANTA_IMAGE_REF=${VANTA_IMAGE_REF} bash /tmp/debrand.sh \
+    && rm /tmp/debrand.sh \
+    && bootc container lint
+
+LABEL org.opencontainers.image.title="Vanta OS" \
+      org.opencontainers.image.description="Console-style gaming OS for PCs and handhelds" \
+      org.opencontainers.image.vendor="hello3928" \
+      org.opencontainers.image.url="https://github.com/hello3928/vanta-os" \
+      org.opencontainers.image.source="https://github.com/hello3928/vanta-os" \
+      org.opencontainers.image.version="${VANTA_VERSION}"

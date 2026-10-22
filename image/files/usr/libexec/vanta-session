@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+# The Vanta OS game mode client, started by gamescope-session-plus (sessions.d/ogui-steam).
+# Steam runs in the background without its own UI, for games, downloads and sign-in. The Vanta
+# shell is what's on screen; games Steam starts take focus in gamescope and Vanta comes back when
+# they end.
+
+export VANTA_SESSION=1
+
+steam -silent &
+
+exec /usr/bin/vanta-shell

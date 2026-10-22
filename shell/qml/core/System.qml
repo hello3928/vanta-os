@@ -2,13 +2,13 @@
 // real system. Everything goes through the system's own tools:
 //   Wi-Fi and radios: nmcli · Bluetooth: bluetoothctl · volume: wpctl (PipeWire)
 //   brightness: logind SetBrightness on the backlight · time: timedatectl · language: localectl
-//   power profile: powerprofilesctl · TDP: PowerStation over D-Bus (handhelds)
-//   updates: rpm-ostree · desktop mode: steamos-session-select
+//   TDP, performance profile, CPU scheduler: steamosctl (Valve's steamos-manager, which drives
+//   PowerStation and tuned on handhelds) · updates: rpm-ostree · desktop mode: steamos-session-select
 // Capabilities are read from the hardware: the battery from sysfs, VRR and HDR from the
-// display's EDID, TDP control from PowerStation being present. Settings only offer what applies;
-// controls the device can't support stay visible but disabled, with the reason underneath.
-// Frame limit, upscaling, overlay, VRR/HDR switching, scheduler and GameMode are saved here and
-// applied per game at launch by vantad (not written yet).
+// display's EDID, TDP control and its range from steamos-manager. Settings only offer what
+// applies; controls the device can't support stay visible but disabled, with the reason underneath.
+// Frame limit, upscaling, overlay, VRR/HDR switching and GameMode are saved here and applied per
+// game at launch by vantad (not written yet).
 pragma Singleton
 import QtQuick
 import dev.vanta.shell
@@ -33,7 +33,9 @@ QtObject {
     property bool charging: false
     property string backlight: ""
     property int backlightMax: 0
-    property bool powerStation: false
+    property bool powerStation: false   // TDP can be set (steamos-manager reports a range)
+    property var perfProfiles: []        // what steamosctl offers, e.g. power-saver, balanced
+    property var cpuSchedulers: []
     property var tdpRange: ({ min: 5, max: 30 })
     property var storageInfo: ({ free: 0, total: 0 })
     property string osVersion: "0.1.0"
@@ -116,8 +118,8 @@ QtObject {
         readEdid()
         readBattery()
         storageInfo = JSON.parse(os.storage(os.home))
-        const rel = /VERSION_ID="?([^"\n]+)/.exec(os.readText("/etc/os-release"))
-        if (rel && os.readText("/etc/os-release").indexOf("Vanta") >= 0) osVersion = rel[1]
+        const rel = /IMAGE_VERSION="?([^"\n]+)/.exec(os.readText("/etc/os-release"))
+        if (rel) osVersion = rel[1]
     }
 
     // VRR: the EDID's range limits with continuous frequency. HDR: a CTA HDR static metadata block.
@@ -231,9 +233,18 @@ QtObject {
     function applyTdp() {
         if (!powerStation) return
         const watts = Settings.tdpLimit ? Settings.tdp : tdpRange.max
-        App.system("tdp", "busctl", ["--system", "set-property", "org.shadowblip.PowerStation", "/org/shadowblip/Performance/GPU/card1",
-                   "org.shadowblip.GPU.Card.TDP", "TDP", "d", String(watts)])
+        App.system("tdp", "steamosctl", ["set-tdp-limit", String(watts)])
     }
+
+    // The closest name steamos-manager offers for a setting's value.
+    function pick(list, words) {
+        for (const w of words) {
+            const hit = list.find(x => x.indexOf(w) >= 0)
+            if (hit) return hit
+        }
+        return ""
+    }
+    function words(out) { return (out.match(/[a-z][a-z0-9_-]+/g) || []) }
 
     readonly property var locales: ({ en: "en_US", es: "es_ES", fr: "fr_FR", de: "de_DE", "pt-BR": "pt_BR", ja: "ja_JP" })
     function applyLocale() {
@@ -253,8 +264,14 @@ QtObject {
             if (Settings.airplane) App.system("bt", "bluetoothctl", ["power", "off"])
         }
         function onEppChanged() {
-            const p = { "Power saver": "power-saver", Balanced: "balanced", Performance: "performance" }[Settings.epp]
-            App.system("epp", "powerprofilesctl", ["set", p])
+            const want = { "Power saver": ["power-saver", "low-power", "quiet", "power"], Balanced: ["balanced"], Performance: ["performance"] }[Settings.epp]
+            const p = sys.pick(sys.perfProfiles, want) || want[0]
+            App.system("epp", "steamosctl", ["set-performance-profile", p])
+        }
+        function onSchedulerChanged() {
+            const s = Settings.scheduler === "scx_lavd" ? sys.pick(sys.cpuSchedulers, ["lavd"])
+                : sys.cpuSchedulers.find(x => x.indexOf("lavd") < 0 && x.indexOf("bpfland") < 0) || ""
+            if (s) App.system("scheduler", "steamosctl", ["set-cpu-scheduler", s])
         }
         function onTdpChanged() { sys.applyTdp() }
         function onTdpLimitChanged() { sys.applyTdp() }
@@ -295,8 +312,19 @@ QtObject {
                 sys.updateState = code === 0 ? "available" : code === 77 ? "none" : "failed"
             } else if (tag === "update-install") {
                 sys.updateState = code === 0 ? "ready" : "failed"
-            } else if (tag === "ps-check") {
-                sys.powerStation = out.indexOf("org.shadowblip.PowerStation") >= 0
+            } else if (tag === "tdp-max" && code === 0) {
+                const n = parseFloat((out.match(/[\d.]+/) || [""])[0])
+                if (n > 0) {
+                    sys.tdpRange = { min: sys.tdpRange.min, max: Math.round(n) }
+                    sys.powerStation = true
+                }
+            } else if (tag === "tdp-min" && code === 0) {
+                const n = parseFloat((out.match(/[\d.]+/) || [""])[0])
+                if (n > 0) sys.tdpRange = { min: Math.round(n), max: sys.tdpRange.max }
+            } else if (tag === "perf-profiles" && code === 0) {
+                sys.perfProfiles = sys.words(out)
+            } else if (tag === "cpu-schedulers" && code === 0) {
+                sys.cpuSchedulers = sys.words(out)
             } else if (tag === "volume-read" && code === 0) {
                 const m = /Volume:\s*([\d.]+)/.exec(out)
                 if (m) { Settings.loaded = false; Settings.volume = Math.round(parseFloat(m[1]) * 20) * 5; Settings.loaded = true }
@@ -312,7 +340,10 @@ QtObject {
     Component.onCompleted: {
         readDevice()
         readWifi()
-        App.query("ps-check", "busctl", ["--system", "--no-pager", "list"])
+        App.query("tdp-min", "steamosctl", ["get-tdp-limit-min"])
+        App.query("tdp-max", "steamosctl", ["get-tdp-limit-max"])
+        App.query("perf-profiles", "steamosctl", ["get-available-performance-profiles"])
+        App.query("cpu-schedulers", "steamosctl", ["get-available-cpu-schedulers"])
         App.query("volume-read", "wpctl", ["get-volume", "@DEFAULT_AUDIO_SINK@"])
         App.query("image", "rpm-ostree", ["status", "--json"])
     }
