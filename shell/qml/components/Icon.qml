@@ -1,15 +1,23 @@
-// An icon from the shared set (Phosphor, MIT), drawn from data/icons/<name>.svg in white.
+// An icon from the shared set (Phosphor, MIT): data/icons/<name>.svg, tinted to `color`.
 import QtQuick
+import QtQuick.Controls.impl
 import dev.vanta.shell
 
-Image {
+Item {
+    id: icon
+
     property string name
-    property string dataDir
-    property real size: Theme.tLg
+    property real size: 1.25 * Theme.tMd
+    property color color: Theme.fg2
+
     width: size
     height: size
-    sourceSize: Qt.size(size * 2, size * 2)
-    source: name ? "file://" + dataDir + "/icons/" + name + ".svg" : ""
-    fillMode: Image.PreserveAspectFit
-    smooth: true
+
+    IconImage {
+        anchors.fill: parent
+        sourceSize: Qt.size(Math.ceil(icon.size * 2), Math.ceil(icon.size * 2))
+        source: icon.name ? "file://" + App.sys.dataDir + "/icons/" + icon.name + ".svg" : ""
+        color: icon.color
+        fillMode: Image.PreserveAspectFit
+    }
 }

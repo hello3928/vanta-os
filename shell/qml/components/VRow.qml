@@ -1,55 +1,66 @@
-// VRow: a titled horizontal shelf of capsules. Left/right move; the focused tile stays pinned
-// toward the left edge as on Steam Deck.
+// A titled horizontal shelf (the mockup's VRow). It's a focus group, so it remembers the last
+// focused item. alignStart keeps the focused item pinned to the left edge, console style.
+// Room above and below the tiles keeps a focused tile's lift from being cut off.
 import QtQuick
 import dev.vanta.shell
 
-FocusScope {
+Column {
     id: row
+
     property string title
-    property var games: []
-    property alias currentIndex: list.currentIndex
-    signal activated(var game)
-    implicitHeight: heading.height + list.anchors.topMargin + list.height
+    property string meta
+    property bool alignStart: false
+    readonly property bool focusGroup: true
+    readonly property bool revealBlock: true
+    default property alias items: track.data
+    property alias track: track
+    property alias scroller: scroller
 
-    Text {
-        id: heading
-        x: Theme.gutter
-        text: row.title
-        color: Theme.fg
-        font { family: Theme.font; pixelSize: Theme.tLg; weight: Font.DemiBold }
-        lineHeightMode: Text.FixedHeight
-        lineHeight: 1.3 * Theme.tLg
-    }
+    width: parent ? parent.width : 0
 
-    ListView {
-        id: list
-        // Room above and below the tiles for the focus lift, as in the mockup's track padding.
-        // (A horizontal ListView sets its delegates' y, so the offset goes on the list.)
-        anchors { left: parent.left; right: parent.right; top: heading.bottom; topMargin: 0.85 * Theme.rem }
-        height: Theme.capsule * 1.5 + 1.4 * Theme.rem
-        orientation: ListView.Horizontal
-        spacing: Theme.s3
-        leftMargin: Theme.gutter
-        rightMargin: Theme.gutter
-        focus: true
-        clip: false
-        model: row.games
-        highlightRangeMode: ListView.ApplyRange
-        preferredHighlightBegin: Theme.gutter
-        preferredHighlightEnd: Theme.gutter + Theme.capsule * 2
-        highlightMoveDuration: 260
-        keyNavigationEnabled: true
-        boundsBehavior: Flickable.StopAtBounds
-
-        delegate: VTile {
-            required property var modelData
-            required property int index
-            source: modelData.capsule
-            title: modelData.title
-            current: ListView.isCurrentItem && row.activeFocus
+    Item {
+        width: row.width
+        height: row.title ? head.height : 0
+        visible: row.title !== ""
+        Row {
+            id: head
+            x: Theme.gutter
+            spacing: Theme.s3
+            VText {
+                text: row.title
+                size: Theme.tLg
+                weight: Font.DemiBold
+                color: Theme.fg
+                lineHeightMode: Text.FixedHeight
+                lineHeight: 1.3 * Theme.tLg
+            }
+            VText {
+                visible: row.meta !== ""
+                text: row.meta
+                size: Theme.tSm
+                color: Theme.fg3
+                anchors.baseline: parent.children[0].baseline
+            }
         }
-
-        Keys.onReturnPressed: row.activated(row.games[currentIndex])
-        Keys.onEnterPressed: row.activated(row.games[currentIndex])
     }
+
+    VScroll {
+        id: scroller
+        horizontal: true
+        alignStart: row.alignStart
+        padStart: Theme.gutter
+        padEnd: Theme.gutter
+        width: row.width
+        height: track.height + 0.85 * Theme.rem + 1.4 * Theme.rem
+        contentWidth: track.width + 2 * Theme.gutter
+        contentHeight: height
+        Row {
+            id: track
+            x: Theme.gutter
+            y: 0.85 * Theme.rem
+            spacing: Theme.s3
+        }
+    }
+    // The mockup's track has margin-bottom: -0.4rem.
+    bottomPadding: -0.4 * Theme.rem
 }

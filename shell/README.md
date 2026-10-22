@@ -1,6 +1,27 @@
 # Vanta shell
 
-The console UI: Qt 6 / QML with Rust (cxx-qt 0.10). Layouts follow `mockup/`.
+The console UI: Qt 6 / QML with Rust (cxx-qt 0.10). Every page, panel and control is a port of
+`mockup/`, with the same names (`VTile.js` → `VTile.qml`).
+
+## Layout
+
+| Folder | What's in it |
+|---|---|
+| `src/` | Rust: `sys.rs` (files, commands, /proc), `gamepad.rs` (controllers and rumble through gilrs), `library.rs` (Steam's files and ROM folders) |
+| `qml/core/` | Singletons: `App` (router, overlays, power), `Nav` (spatial focus), `Settings`, `Profiles`, `I18n`, `Region`, `Games`, `System` (device and system settings), `Sound`, `Haptics`, `Music` (game music), `Notifications`, `Theme` |
+| `qml/components/` | The mockup's components: `VButton`, `VTile`, `VRow`, `VTabs`, `VListItem`, `VToggle`, `VSlider`, `VDropdown`, `VTextField`, `VPanel`, `VDialog`, `VTopBar`, `VHintBar`, `Glyph`, `Logo`, ... |
+| `qml/screens/` | Home, Library, Game, Settings, Users ("Who's playing?"), Setup |
+| `qml/overlays/` | Main menu, Quick access, dropdown menu, keyboard, launch, welcome, tour, screenshot viewer, profile editor, photo picker and crop, sign-in, game properties |
+| `data/` | Icons, Figtree, UI sounds, translations, the sample library |
+
+Assets come from the mockup so the two can't drift:
+
+| Asset | Made by |
+|---|---|
+| `data/icons` | `node tools/export-icons.mjs` |
+| `data/i18n` | `node tools/export-i18n.mjs` (shell-only strings in `tools/i18n-shell.json`) |
+| `data/sample-library.json` | `node tools/export-sample-library.mjs` |
+| `data/sounds` | `tools/render-sounds.js` in the mockup page, saved by `tools/sound-sink.mjs` |
 
 ## Build (WSL, Fedora 44)
 
@@ -8,27 +29,41 @@ The console UI: Qt 6 / QML with Rust (cxx-qt 0.10). Layouts follow `mockup/`.
 wsl -d FedoraLinux-44 -- bash /mnt/c/Users/Thomas/Documents/VantaOS/tools/wsl/build-shell.sh
 ```
 
-Build output goes to `~/vanta-target/shell` inside WSL, not the Windows disk.
+Build output goes to `~/vanta-target/shell` inside WSL. Needs Qt 6 (base, declarative, svg,
+multimedia), libudev (`systemd-devel`) and Rust.
 
-## Screenshot without a display
+## Screenshots without a display
 
 ```
-wsl -d FedoraLinux-44 -- bash /mnt/c/Users/Thomas/Documents/VantaOS/tools/wsl/shot-shell.sh /tmp/home.png
+wsl -d FedoraLinux-44 -- bash /mnt/c/Users/Thomas/Documents/VantaOS/tools/wsl/shot-shell.sh /tmp/home.png home
 ```
 
-Renders offscreen at 1280×800 through OpenGL (Mesa llvmpipe) and saves one frame after 4 s. QML `console.log` output is shown.
+Renders offscreen at 1280×800 through OpenGL (Mesa llvmpipe), starting from a copy of
+`tools/wsl/dev-config` (setup done, one profile). `tools/wsl/shots.sh` renders several at once.
 
 ## Environment
 
 | Variable | Use |
 |---|---|
-| `VANTA_DATA` | Folder with `icons/` and `fonts/`. Default `/usr/share/vanta`. |
-| `VANTA_SCREENSHOT` | Save one frame to this path and quit. |
+| `VANTA_SESSION=1` | Set by the Vanta session. Without it, commands that change the machine (power, Wi-Fi, time zone, language, updates) are printed instead of run. |
+| `VANTA_DATA` | Folder with `icons/`, `fonts/`, `sounds/`, `i18n/`. Default `/usr/share/vanta`. |
+| `VANTA_CONFIG` | Settings and profiles. Default `~/.config/vanta`. |
+| `VANTA_ROMS` | An extra ROM folder (besides `~/Games/roms` and `~/Emulation/roms`). |
+| `VANTA_ACCOUNT_URL` | Vanta account service. Not running yet. |
+| `VANTA_SCREENSHOT` | Save one frame to this path and quit (`VANTA_SHOT_DELAY` ms, default 5000). |
+| `VANTA_PAGE`, `VANTA_GAME`, `VANTA_STEP`, `VANTA_OVERLAY` | Open on a page (`home`, `library`, `game`, `settings`, `users`, `setup`), game, setup step or overlay. |
+| `VANTA_KEYS` | Console actions to play, for testing: `"down down accept wait:800 back"`. |
+| `VANTA_PAD` | Show a controller's prompts: `xbox`, `ps`, `nintendo`, `deck`. |
 
 Pass `--window` to run in a window instead of fullscreen.
 
 ## Notes
 
 - QML is compiled into the binary. Rebuild after editing any `.qml` file.
-- Qt's software renderer skips shader effects (the logo shadow). Use the GL path for screenshots.
-- Property names starting with `on` are read as signal handlers in QML.
+- Qt's software renderer skips shader effects (shadows, blur, masks). Use the GL path.
+- Figtree is a variable font whose default is Light; `VText` sets the weight axis directly.
+- Positioners lay out lazily. `Nav.settle()` forces it before choosing focus by position.
+- Property names starting with `on` are read as signal handlers. A horizontal ListView sets its
+  delegates' `y`. `GradientStop` and `ShapePath` children can't use `parent`.
+- Trailers: FFmpeg's Vulkan video decoding is skipped (`QT_FFMPEG_DECODING_HW_DEVICE_TYPES=vaapi`),
+  so AV1 falls back to software where VA-API can't decode it.

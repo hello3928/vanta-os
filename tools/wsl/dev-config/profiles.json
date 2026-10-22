@@ -1,0 +1,6 @@
+{
+ "list": [
+  { "id": "p1", "name": "Thomas", "color": "#3d5a80", "photo": "", "steam": null, "vanta": null }
+ ],
+ "current": "p1"
+}
