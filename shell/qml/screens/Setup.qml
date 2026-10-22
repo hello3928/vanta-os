@@ -6,6 +6,7 @@
 // staged with rpm-ostree, Steam updates itself, and the profile and accounts are saved. It runs
 // once; only Settings > System > Reset system brings it back.
 import QtQuick
+import QtQuick.Shapes
 import dev.vanta.shell
 
 Screen {
@@ -194,6 +195,9 @@ Screen {
     }
 
     // ---------- layout ----------
+    // Background: a darkened wall of popular games.
+    ArtWall { anchors.fill: parent }
+
     Item {
         id: frame
         anchors { fill: parent; bottomMargin: Theme.hintH }
@@ -202,6 +206,21 @@ Screen {
             id: aside
             width: parent.width - panel.width
             height: parent.height
+            // A soft darker area behind the title so it reads over the game art.
+            Shape {
+                anchors.fill: parent
+                ShapePath {
+                    strokeColor: "transparent"
+                    fillGradient: RadialGradient {
+                        centerX: aside.width / 2; centerY: aside.height / 2
+                        focalX: centerX; focalY: centerY
+                        centerRadius: Math.max(aside.width, aside.height) * 0.45
+                        GradientStop { position: 0; color: Qt.rgba(20 / 255, 22 / 255, 27 / 255, 0.7) }
+                        GradientStop { position: 1; color: "transparent" }
+                    }
+                    PathRectangle { width: aside.width; height: aside.height }
+                }
+            }
             Column {
                 anchors.centerIn: parent
                 width: Math.min(30 * Theme.rem, parent.width - 2 * Theme.gutter)
