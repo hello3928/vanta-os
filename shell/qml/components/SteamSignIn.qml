@@ -10,7 +10,10 @@ Column {
     id: s
 
     signal done(var account)
-    property string phase: "wait"   // wait | ok | sync | ready | failed
+    property string phase: "wait"   // wait | ok | sync | client | ready | failed
+    // The Steam client on this device, signed in to the same account (its loginusers.vdf).
+    readonly property bool clientSignedIn: { Games.lib.accountJson; return !!account && !!Games.account && Games.account.steamId === account.steamId }
+    readonly property bool clientNeeded: !simulated && !App.kiosk && App.sys.which("steam") !== ""
     property var account: null
     readonly property bool simulated: App.sample
     readonly property bool scanned: !simulated && Steam.phase === "scanned"
@@ -64,13 +67,42 @@ Column {
     // The rest of the rows, one after another.
     function tick() {
         if (synced >= syncRows.length) {
-            phase = "ready"
-            Sound.play("notify")
-            App.later(0, () => Nav.focus(next, true))
+            if (clientNeeded && !clientSignedIn) return signInClient()
+            finish()
             return
         }
         App.later(450, () => { synced++; Sound.play("key"); tick() })
     }
+    function finish() {
+        clientPoll.stop()
+        App.hideSteamWindow()
+        phase = "ready"
+        Sound.play("notify")
+        App.later(0, () => Nav.focus(next, true))
+    }
+
+    // Second step: the Steam client signs in on its own screen (it can't take Vanta's sign-in).
+    // Its window comes forward with its QR code; Vanta carries on once Steam records the account.
+    function signInClient() {
+        phase = "client"
+        App.showSteamWindow(300000)
+        App.sys.spawn("steam", JSON.stringify([]))
+        clientPoll.start()
+        App.later(0, () => Nav.focus(openClient, true))
+    }
+    Timer {
+        id: clientPoll
+        interval: 2000
+        repeat: true
+        onTriggered: {
+            Games.lib.refresh()
+            if (s.clientSignedIn) {
+                Sound.play("toggleOn")
+                s.finish()
+            }
+        }
+    }
+
     Timer {
         id: waitOwned
         interval: 300
@@ -227,7 +259,7 @@ Column {
                 }
             }
             VText {
-                visible: !s.simulated && s.phase === "ready"
+                visible: !s.simulated && s.phase === "ready" && s.clientNeeded && !s.clientSignedIn
                 width: parent.width
                 text: I18n.t("steamInstallSignIn")
                 size: Theme.tSm
@@ -236,6 +268,43 @@ Column {
             }
         }
     }
+    // The Steam client's own sign-in
+    Rectangle {
+        visible: s.phase === "client"
+        width: parent.width
+        height: clientCol.height + 2 * Theme.s5
+        radius: Theme.rLg
+        color: Theme.panel
+        border.width: 1
+        border.color: Theme.line
+        Column {
+            id: clientCol
+            x: Theme.s5
+            y: Theme.s5
+            width: parent.width - 2 * Theme.s5
+            spacing: Theme.s2
+            VText { width: parent.width; text: I18n.t("steamClientTitle"); weight: Font.DemiBold; color: Theme.fg; wrapMode: Text.Wrap }
+            VText { width: parent.width; text: I18n.t("steamClientBody"); size: Theme.tSm; color: Theme.fg3; wrapMode: Text.Wrap }
+            Row {
+                spacing: Theme.s3
+                topPadding: Theme.s2
+                VSpinner { size: "sm"; anchors.verticalCenter: parent.verticalCenter }
+                VText { text: I18n.t("steamWaiting"); size: Theme.tSm; anchors.verticalCenter: parent.verticalCenter }
+            }
+        }
+    }
+    Row {
+        visible: s.phase === "client"
+        spacing: Theme.s3
+        VButton {
+            id: openClient
+            label: I18n.t("steamClientOpen")
+            variant: "primary"
+            onActivated: { App.showSteamWindow(300000); App.sys.spawn("steam", JSON.stringify([])) }
+        }
+        VButton { label: I18n.t("later"); onActivated: s.finish() }
+    }
+
     VButton {
         id: next
         visible: s.phase === "ready"

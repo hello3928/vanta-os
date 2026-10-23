@@ -476,5 +476,8 @@
  "storageSystem": "Sistema e outros",
  "largestGames": "Maiores jogos",
  "thisDevice": "Este dispositivo",
- "steamWindowOpen": "Continue na Steam. Aperte o botão Steam para voltar."
+ "steamWindowOpen": "Continue na Steam. Aperte o botão Steam para voltar.",
+ "steamClientTitle": "Entre na Steam neste dispositivo",
+ "steamClientBody": "Downloads e jogos passam pelo cliente da Steam, que faz login separadamente. Escaneie o código QR na janela da Steam com o app Steam Mobile.",
+ "steamClientOpen": "Mostrar login da Steam"
 }

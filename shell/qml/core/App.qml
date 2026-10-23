@@ -69,9 +69,10 @@ QtObject {
     // while Steam is first on gamescope's list. Vanta comes back once the download appears or the
     // game is gone (Games.qml), on Steam or Home, or after 90 seconds.
     property bool steamWindow: false
-    function showSteamWindow() {
+    function showSteamWindow(ms) {
         steamWindow = true
         gamescopeFocus()
+        steamWindowEnd.interval = ms || 90000
         steamWindowEnd.restart()
         toast(I18n.t("steamWindowOpen"), { icon: "info" })
     }

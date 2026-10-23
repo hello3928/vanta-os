@@ -462,5 +462,8 @@
  "storageSystem": "System and other",
  "largestGames": "Largest games",
  "thisDevice": "This device",
- "steamWindowOpen": "Continue in Steam. Press the Steam button to come back."
+ "steamWindowOpen": "Continue in Steam. Press the Steam button to come back.",
+ "steamClientTitle": "Sign in to Steam on this device",
+ "steamClientBody": "Downloads and games run through the Steam client, which signs in on its own. Scan the QR code in Steam's window with the Steam Mobile App.",
+ "steamClientOpen": "Show Steam sign-in"
 }

@@ -476,5 +476,8 @@
  "storageSystem": "System und Sonstiges",
  "largestGames": "Größte Spiele",
  "thisDevice": "Dieses Gerät",
- "steamWindowOpen": "Weiter in Steam. Mit der Steam-Taste kommst du zurück."
+ "steamWindowOpen": "Weiter in Steam. Mit der Steam-Taste kommst du zurück.",
+ "steamClientTitle": "Auf diesem Gerät bei Steam anmelden",
+ "steamClientBody": "Downloads und Spiele laufen über den Steam-Client, der sich separat anmeldet. Scanne den QR-Code im Steam-Fenster mit der Steam Mobile App.",
+ "steamClientOpen": "Steam-Anmeldung anzeigen"
 }

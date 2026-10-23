@@ -477,5 +477,8 @@
  "storageSystem": "システムとその他",
  "largestGames": "サイズの大きいゲーム",
  "thisDevice": "このデバイス",
- "steamWindowOpen": "Steamで続けてください。Steamボタンで戻ります。"
+ "steamWindowOpen": "Steamで続けてください。Steamボタンで戻ります。",
+ "steamClientTitle": "このデバイスでSteamにサインイン",
+ "steamClientBody": "ダウンロードとゲームはSteamクライアントを通じて行われ、クライアントは別にサインインします。SteamウィンドウのQRコードをSteamモバイルアプリでスキャンしてください。",
+ "steamClientOpen": "Steamのサインインを表示"
 }

@@ -476,5 +476,8 @@
  "storageSystem": "Sistema y otros",
  "largestGames": "Juegos más grandes",
  "thisDevice": "Este dispositivo",
- "steamWindowOpen": "Continúa en Steam. Pulsa el botón Steam para volver."
+ "steamWindowOpen": "Continúa en Steam. Pulsa el botón Steam para volver.",
+ "steamClientTitle": "Inicia sesión en Steam en este dispositivo",
+ "steamClientBody": "Las descargas y los juegos funcionan con el cliente de Steam, que inicia sesión por separado. Escanea el código QR de la ventana de Steam con la aplicación móvil de Steam.",
+ "steamClientOpen": "Mostrar inicio de sesión de Steam"
 }

@@ -476,5 +476,8 @@
  "storageSystem": "Système et autres",
  "largestGames": "Jeux les plus volumineux",
  "thisDevice": "Cet appareil",
- "steamWindowOpen": "Continuez dans Steam. Appuyez sur le bouton Steam pour revenir."
+ "steamWindowOpen": "Continuez dans Steam. Appuyez sur le bouton Steam pour revenir.",
+ "steamClientTitle": "Se connecter à Steam sur cet appareil",
+ "steamClientBody": "Les téléchargements et les jeux passent par le client Steam, qui se connecte séparément. Scannez le code QR dans la fenêtre de Steam avec l'application mobile Steam.",
+ "steamClientOpen": "Afficher la connexion Steam"
 }
