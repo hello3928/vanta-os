@@ -21,13 +21,14 @@ Window {
 
     FontLoader { source: "file://" + App.sys.dataDir + "/fonts/Figtree.ttf" }
 
-    // Root font size: clamp(13px, 0.5vw + 9.5px, 20px).
+    // Root font size: clamp(13px, 0.5vw + 9.5px, 20px), 8% larger on handhelds.
     function scaleType() {
         Theme.width = width
         Theme.height = height
-        Theme.rem = Math.max(13, Math.min(20, width * 0.005 + 9.5))
+        Theme.rem = Math.max(13, Math.min(20, width * 0.005 + 9.5)) * (System.handheld ? 1.08 : 1)
     }
     onWidthChanged: scaleType()
+    Connections { target: System; function onHandheldChanged() { window.scaleType() } }
     onHeightChanged: scaleType()
 
     Gamepads {

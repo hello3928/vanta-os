@@ -69,6 +69,8 @@ QtObject {
         "Steam Deck OLED": { min: 3, max: 15 }, "Legion Go": { min: 5, max: 30 }, "Legion Go S": { min: 5, max: 30 }
     })
     readonly property string deviceName: productName || I18n.t("device")
+    // A handheld PC we know by name (Steam Deck, ROG Ally, Legion Go): the UI is drawn a little larger.
+    readonly property bool handheld: Object.values(deviceNames).indexOf(productName) >= 0
     readonly property string displayLine: displayW + "×" + displayH + " · " + refresh + " Hz" + (vrrCapable ? " · VRR" : "") + (hdrCapable ? " · HDR" : "")
 
     // Why a device-level control is unavailable, or "" when it works.

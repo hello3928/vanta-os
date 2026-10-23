@@ -2,6 +2,7 @@
 //! window for development (--window). VANTA_SCREENSHOT=/path.png saves a frame and exits (used
 //! to check layouts without a display); VANTA_PAGE picks the page it opens on.
 
+pub mod deckbuttons;
 pub mod gamepad;
 pub mod gamescope;
 pub mod library;

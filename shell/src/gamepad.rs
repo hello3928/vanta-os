@@ -71,6 +71,9 @@ pub struct GamepadsRust {
 }
 
 /// Controller family from the USB vendor: Sony, Nintendo, Valve, else Xbox-style.
+/// On a Steam Deck, Steam takes over the built-in controls while it runs and presents a virtual
+/// pad instead ("Steam Virtual Gamepad", or an emulated "Microsoft X-Box 360 pad 0"), so those
+/// are the Deck's own buttons there.
 fn family_of(vendor: Option<u16>, name: &str) -> &'static str {
     let n = name.to_lowercase();
     match vendor {
@@ -80,8 +83,34 @@ fn family_of(vendor: Option<u16>, name: &str) -> &'static str {
         _ if n.contains("playstation") || n.contains("dualsense") || n.contains("dualshock") => "ps",
         _ if n.contains("nintendo") || n.contains("pro controller") || n.contains("joy-con") => "nintendo",
         _ if n.contains("steam deck") || n.contains("valve") => "deck",
+        _ if is_steam_virtual(&n) && on_steam_deck() => "deck",
         _ => "xbox",
     }
+}
+
+/// One line per controller in the journal, for working out which pad is which on a device.
+fn log_pad(g: &gilrs::Gamepad) {
+    eprintln!(
+        "vanta-shell: controller \"{}\" vendor {:04x?} product {:04x?} family {} rumble {}",
+        g.name(),
+        g.vendor_id(),
+        g.product_id(),
+        family_of(g.vendor_id(), g.name()),
+        g.is_ff_supported()
+    );
+}
+
+/// Steam's virtual pads; a real wired Xbox 360 pad has no number after its name.
+fn is_steam_virtual(lower_name: &str) -> bool {
+    lower_name.starts_with("steam virtual gamepad")
+        || lower_name.strip_prefix("microsoft x-box 360 pad ").is_some_and(|rest| rest.chars().all(|c| c.is_ascii_digit()))
+}
+
+/// Jupiter (LCD) and Galileo (OLED), from the firmware.
+fn on_steam_deck() -> bool {
+    std::fs::read_to_string("/sys/class/dmi/id/product_name")
+        .map(|p| matches!(p.trim(), "Jupiter" | "Galileo"))
+        .unwrap_or(false)
 }
 
 fn button_action(b: Button) -> Option<&'static str> {
@@ -116,6 +145,13 @@ impl qobject::Gamepads {
         self.as_mut().rust_mut().rumble_tx = Some(tx);
         let qt = self.qt_thread();
         thread::spawn(move || run(qt, rx));
+        // The Deck's Steam and "..." buttons, which Steam keeps from the virtual pad.
+        if on_steam_deck() {
+            let qt = self.qt_thread();
+            crate::deckbuttons::watch(move |action| {
+                let _ = qt.queue(move |obj| obj.action(q(action), false));
+            });
+        }
     }
 
     pub fn rumble(&self, weak: f64, strong: f64, ms: i32) {
@@ -154,6 +190,9 @@ fn run(qt: cxx_qt::CxxQtThread<qobject::Gamepads>, rumble: Receiver<(f32, f32, u
         });
     };
     publish(&gilrs, &qt);
+    for (_, g) in gilrs.gamepads() {
+        log_pad(&g);
+    }
 
     loop {
         while let Some(ev) = gilrs.next_event_blocking(Some(Duration::from_millis(8))) {
@@ -169,6 +208,7 @@ fn run(qt: cxx_qt::CxxQtThread<qobject::Gamepads>, rumble: Receiver<(f32, f32, u
                 EventType::Connected => {
                     publish(&gilrs, &qt);
                     let g = gilrs.gamepad(ev.id);
+                    log_pad(&g);
                     let (name, fam) = (g.name().to_string(), family_of(g.vendor_id(), g.name()));
                     let _ = qt.queue(move |obj| obj.pad_connected(q(&name), q(fam)));
                 }
@@ -232,5 +272,19 @@ fn run(qt: cxx_qt::CxxQtThread<qobject::Gamepads>, rumble: Receiver<(f32, f32, u
         while effects.front().is_some_and(|(end, _)| *end < now) {
             effects.pop_front();
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_steam_virtual;
+
+    #[test]
+    fn tells_steam_virtual_pads_from_real_ones() {
+        assert!(is_steam_virtual("steam virtual gamepad"));
+        assert!(is_steam_virtual("microsoft x-box 360 pad 0"));
+        assert!(is_steam_virtual("microsoft x-box 360 pad 12"));
+        assert!(!is_steam_virtual("microsoft x-box 360 pad"));
+        assert!(!is_steam_virtual("xbox wireless controller"));
     }
 }
