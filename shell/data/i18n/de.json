@@ -464,5 +464,17 @@
    "NZ": "Neuseeland",
    "ZA": "Südafrika"
   }
- }
+ },
+ "downloading": "Wird heruntergeladen",
+ "downloadPaused": "Angehalten",
+ "downloadQueued": "In der Warteschlange",
+ "installingGame": "Wird installiert",
+ "bytesOf": "{done} von {total}",
+ "downloadsActive": "{n} werden geladen",
+ "storageGames": "Spiele",
+ "storageMedia": "Screenshots und Videos",
+ "storageSystem": "System und Sonstiges",
+ "largestGames": "Größte Spiele",
+ "thisDevice": "Dieses Gerät",
+ "steamWindowOpen": "Weiter in Steam. Mit der Steam-Taste kommst du zurück."
 }

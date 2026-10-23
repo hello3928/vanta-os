@@ -1,0 +1,12 @@
+# Hides the GRUB menu on the next start once this one reached the login screen (vanta-boot-menu).
+[Unit]
+Description=Boot without the GRUB menu
+After=display-manager.service
+ConditionPathIsDirectory=/boot/grub2
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/vanta-boot-menu
+
+[Install]
+WantedBy=graphical.target

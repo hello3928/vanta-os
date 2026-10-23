@@ -95,13 +95,16 @@ rm -rf /usr/share/wallpapers/bazzite
 rm -f /usr/share/wallpapers/convergence.jxl /usr/share/wallpapers/giants.jxl
 
 # ---- session files copied from image/files ----
-chmod 755 /usr/libexec/vanta-session /usr/libexec/vanta-kiosk /usr/libexec/vanta-boot-message /usr/libexec/vanta-factory-reset /usr/share/gamescope-session-plus/sessions.d/ogui-steam
+chmod 755 /usr/libexec/vanta-session /usr/libexec/vanta-kiosk /usr/libexec/vanta-boot-message /usr/libexec/vanta-factory-reset /usr/libexec/vanta-boot-menu /usr/share/gamescope-session-plus/sessions.d/ogui-steam
 
 # Bazzite's hardware setup puts its own line under the splash part way through; keep Vanta's.
 sed -i 's/plymouth display-message --text="Preparing System - Please wait, this may take a while"/plymouth display-message --text="Running first boot hardware setup"/' /usr/libexec/bazzite-hardware-setup
 
 # ---- factory reset (Settings > System > Reset system) ----
 systemctl enable vanta-factory-reset-apply.service
+
+# ---- no GRUB menu (vanta-boot-menu) ----
+systemctl enable vanta-boot-menu.service
 
 # ---- boot splash ----
 # Vanta's Plymouth theme (image/art/plymouth) instead of the firmware logo and Fedora's spinner.

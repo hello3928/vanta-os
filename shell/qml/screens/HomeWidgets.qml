@@ -16,6 +16,7 @@ VRow {
     readonly property int achAll: achGames.reduce((a, g) => a + g.ach[1], 0)
     readonly property int notInstalled: { Games.revision; return Games.all.filter(g => !g.installed).length }
     readonly property int updating: { Games.revision; return Games.all.filter(g => g.updating).length }
+    readonly property int active: { Games.revision; return Games.downloads().length }
     readonly property var friends: Games.sample ? [
         { name: "rook", color: "#3d5a80", game: "Helldivers 2" },
         { name: "mira", color: "#7a3e52", game: null },
@@ -136,10 +137,10 @@ VRow {
 
     Widget {
         label: I18n.t("downloads")
-        onActivated: App.toast(I18n.t("noDownloads"), { icon: "download" })
+        onActivated: App.open("downloads")
         Value {
             anchors.bottom: parent.bottom
-            value: row.updating ? I18n.t("updatingCount", { n: row.updating }) : I18n.t("upToDate")
+            value: row.active ? I18n.t("downloadsActive", { n: row.active }) : row.updating ? I18n.t("updatingCount", { n: row.updating }) : I18n.t("upToDate")
             detail: row.notInstalled ? I18n.t("notInstalledCount", { n: row.notInstalled }) : ""
         }
     }
@@ -147,7 +148,7 @@ VRow {
     Widget {
         visible: row.storage.total > 0
         label: I18n.t("storage")
-        onActivated: App.go("settings", { section: "about" })
+        onActivated: App.open("storage")
         Column {
             anchors.bottom: parent.bottom
             width: parent.width

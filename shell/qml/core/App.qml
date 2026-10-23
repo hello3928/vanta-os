@@ -60,8 +60,28 @@ QtObject {
     // running Steam game in front of it while it's in view. Steam's own windows stay hidden.
     function gamescopeFocus() {
         const g = running && running.source === "steam" && running.appid ? running.appid : 0
-        sys.gamescopeShow(JSON.stringify(!g ? [0] : inGame ? [g, 0] : [0, g]))
+        const list = !g ? [0] : inGame ? [g, 0] : [0, g]
+        // 769 is Steam's own app ID in gamescope.
+        sys.gamescopeShow(JSON.stringify(steamWindow ? [769].concat(list) : list))
     }
+
+    // Steam's own dialogs (installing asks for a drive, uninstalling for confirmation) only show
+    // while Steam is first on gamescope's list. Vanta comes back once the download appears or the
+    // game is gone (Games.qml), on Steam or Home, or after 90 seconds.
+    property bool steamWindow: false
+    function showSteamWindow() {
+        steamWindow = true
+        gamescopeFocus()
+        steamWindowEnd.restart()
+        toast(I18n.t("steamWindowOpen"), { icon: "info" })
+    }
+    function hideSteamWindow() {
+        if (!steamWindow) return
+        steamWindow = false
+        steamWindowEnd.stop()
+        gamescopeFocus()
+    }
+    readonly property Timer steamWindowEnd: Timer { interval: 90000; onTriggered: app.hideSteamWindow() }
     onRunningChanged: gamescopeFocus()
     onInGameChanged: gamescopeFocus()
     // The window maps a moment after start; mark it once it's there.
@@ -419,6 +439,11 @@ QtObject {
     // Every console action from the keyboard (Main.qml) or a controller (gamepad.rs).
     function handle(action, repeat) {
         if (sleeping) { sleeping(); return }
+        // Steam's window has the controls; the Steam and Home buttons bring Vanta back.
+        if (steamWindow) {
+            if (action === "mainMenu" || action === "home") hideSteamWindow()
+            return
+        }
         if (busy) return
         const t = top()
         if (t && t.handleAction && t.handleAction(action)) return

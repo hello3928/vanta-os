@@ -423,6 +423,8 @@ Screen {
             VListItem {
                 label: I18n.t("storage")
                 detail: System.storageInfo.total ? I18n.t("storageVal", { free: parent.bytes(System.storageInfo.free), total: parent.bytes(System.storageInfo.total) }) : ""
+                chevron: true
+                onActivated: App.open("storage")
             }
             VListItem { label: I18n.t("software"); detail: "Fedora Atomic (bootc) · Mesa RADV · gamescope · Proton" }
         }

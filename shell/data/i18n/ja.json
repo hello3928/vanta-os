@@ -465,5 +465,17 @@
    "NZ": "ニュージーランド",
    "ZA": "南アフリカ"
   }
- }
+ },
+ "downloading": "ダウンロード中",
+ "downloadPaused": "一時停止中",
+ "downloadQueued": "待機中",
+ "installingGame": "インストール中",
+ "bytesOf": "{done} / {total}",
+ "downloadsActive": "{n}件ダウンロード中",
+ "storageGames": "ゲーム",
+ "storageMedia": "スクリーンショットとビデオ",
+ "storageSystem": "システムとその他",
+ "largestGames": "サイズの大きいゲーム",
+ "thisDevice": "このデバイス",
+ "steamWindowOpen": "Steamで続けてください。Steamボタンで戻ります。"
 }

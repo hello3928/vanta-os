@@ -1,0 +1,24 @@
+#!/usr/bin/bash
+# No boot menu: GRUB starts Vanta OS straight away. The menu (earlier versions, firmware settings)
+# shows again after a start that didn't reach the login screen, or when Esc is held while starting.
+#
+# The image's GRUB config shows the menu for a second on every boot and reads
+# /boot/grub2/custom.cfg last. This writes that file (for new installs and ones made before it
+# existed), then marks this boot as one that got this far. custom.cfg clears the mark on the next
+# start, so a start that fails before this runs leaves it cleared.
+set -eu
+
+cfg=/boot/grub2/custom.cfg
+want='# Vanta OS (vanta-boot-menu): no boot menu when the last start reached the login screen.
+if [ "${vanta_booted}" = "1" ]; then
+  set timeout_style=hidden
+  set timeout=1
+fi
+set vanta_booted=0
+save_env vanta_booted'
+
+if [[ ! -f $cfg || "$(cat "$cfg")" != "$want" ]]; then
+	printf '%s\n' "$want" > "$cfg.new"
+	mv "$cfg.new" "$cfg"
+fi
+grub2-editenv /boot/grub2/grubenv set vanta_booted=1

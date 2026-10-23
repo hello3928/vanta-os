@@ -213,12 +213,11 @@ fn steam_games(root: &Path, account: &Value) -> Vec<Value> {
     }
     let mut games: Vec<Value> = folders
         .iter()
-        .filter_map(|f| fs::read_dir(f).ok())
-        .flatten()
-        .flatten()
-        .filter(|e| e.file_name().to_string_lossy().starts_with("appmanifest_"))
-        .filter_map(|e| fs::read_to_string(e.path()).ok())
-        .filter_map(|acf| {
+        .filter_map(|f| fs::read_dir(f).ok().map(|d| (f.clone(), d)))
+        .flat_map(|(f, d)| d.flatten().map(move |e| (f.clone(), e)))
+        .filter(|(_, e)| e.file_name().to_string_lossy().starts_with("appmanifest_"))
+        .filter_map(|(f, e)| fs::read_to_string(e.path()).ok().map(|acf| (f, acf)))
+        .filter_map(|(folder, acf)| {
             let state = parse_vdf(&acf);
             let app = state.get("AppState")?;
             let appid = app.get("appid")?.as_str()?.to_string();
@@ -247,6 +246,15 @@ fn steam_games(root: &Path, account: &Value) -> Vec<Value> {
                 "lastPlayed": last,
                 "minutes": minutes,
                 "sizeBytes": num(app, "SizeOnDisk"),
+                // Downloads (Steam's own progress): StateFlags 1048576 downloading, 2097152
+                // staging, 4194304 committing, 512 paused.
+                "stateFlags": flags,
+                // The Steam library the game is in (a drive or an SD card), for storage.
+                "library": folder.parent().unwrap_or(&folder).display().to_string(),
+                "bytesDownloaded": num(app, "BytesDownloaded"),
+                "bytesToDownload": num(app, "BytesToDownload"),
+                "bytesStaged": num(app, "BytesStaged"),
+                "bytesToStage": num(app, "BytesToStage"),
                 "art": {
                     "capsule": art("library_600x900_2x.jpg", "library_600x900"),
                     "hero": art("library_hero.jpg", "library_hero"),

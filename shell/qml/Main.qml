@@ -216,6 +216,8 @@ Window {
     Component { id: cropOverlay; PhotoCrop {} }
     Component { id: signInOverlay; SignInPanel {} }
     Component { id: propertiesOverlay; GameProperties {} }
+    Component { id: downloadsOverlay; Downloads {} }
+    Component { id: storageOverlay; StoragePanel {} }
 
     // VANTA_SCREENSHOT=/path.png: save one frame once art has had time to load, then quit.
     // VANTA_PAGE=home|library|settings|...: start there (development).
@@ -243,7 +245,8 @@ Window {
             dialog: dialogOverlay, menu: menuOverlay, keyboard: keyboardOverlay, mainMenu: mainMenuOverlay,
             quickAccess: quickAccessOverlay, launch: launchOverlay, black: blackOverlay, welcome: welcomeOverlay,
             tour: tourOverlay, lightbox: lightboxOverlay, profile: profileOverlay, photos: photosOverlay,
-            crop: cropOverlay, signIn: signInOverlay, properties: propertiesOverlay
+            crop: cropOverlay, signIn: signInOverlay, properties: propertiesOverlay,
+            downloads: downloadsOverlay, storage: storageOverlay
         }
         pads.start()
         const page = App.sys.env("VANTA_PAGE")
