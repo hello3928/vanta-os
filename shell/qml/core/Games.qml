@@ -113,7 +113,7 @@ QtObject {
                     id: g.id, appid: g.appid || 0, source: g.source, system: g.system || "", rom: g.rom || "", path: g.path || "",
                     title: g.title, genre: d && d.genres ? d.genres.map(x => x.description).slice(0, 2).join(", ") : "",
                     installed: g.installed !== false, updating: !!g.updating,
-                    stateFlags: g.stateFlags || 0, library: g.library || "",
+                    stateFlags: g.stateFlags || 0, content: g.content || "", rate: g.rate || 0, library: g.library || "",
                     bytesDownloaded: g.bytesDownloaded || 0, bytesToDownload: g.bytesToDownload || 0,
                     bytesStaged: g.bytesStaged || 0, bytesToStage: g.bytesToStage || 0, sizeBytes: g.sizeBytes || 0,
                     lastPlayed: g.lastPlayed || h.last || 0, minutes: g.minutes || h.minutes || 0,
@@ -272,12 +272,22 @@ QtObject {
     // ---------- downloads (Steam's own, read from its manifests) ----------
     // Steam's StateFlags: 512 paused, 1024 update started, 1048576 downloading, 2097152 staging,
     // 4194304 committing.
+    // Steam's state for the game: from its content log while it's working on it (g.content,
+    // "Update Required,Update Running,Downloading,"), else from the manifest's saved flags, where
+    // 1024 (update started) covers the whole download.
     function downloadState(g) {
-        const f = g.stateFlags || 0
+        const f = g.stateFlags || 0, c = g.content || ""
+        if (c) {
+            if (/Paused|Suspended/.test(c)) return "paused"
+            if (/Staging|Committing|Verifying|Validating|Preallocating/.test(c)) return "installing"
+            if (/Downloading|Running/.test(c)) return "downloading"
+            if (/Queued|Update Required/.test(c)) return "queued"
+            return ""
+        }
         if (f & 512) return "paused"
-        if (f & 1048576) return "downloading"
         if (f & (2097152 | 4194304)) return "installing"
-        if ((f & 1024) || (g.updating && g.bytesToDownload > 0)) return "queued"
+        if (f & (1048576 | 1024)) return "downloading"
+        if (g.updating && g.bytesToDownload > 0) return "queued"
         return ""
     }
     function downloadProgress(g) {
@@ -285,7 +295,12 @@ QtObject {
         if (g.bytesToStage > 0) return g.bytesStaged / g.bytesToStage
         return 0
     }
-    function downloads() { return all.filter(g => g.source === "steam" && downloadState(g) !== "") }
+    // What Steam is working on first, then paused, then queued.
+    function downloads() {
+        const rank = { downloading: 0, installing: 1, paused: 2, queued: 3 }
+        return all.filter(g => g.source === "steam" && downloadState(g) !== "")
+                  .sort((a, b) => rank[downloadState(a)] - rank[downloadState(b)])
+    }
     // While anything downloads, Steam's manifests are read every two seconds.
     readonly property Timer downloadWatch: Timer {
         interval: 2000

@@ -258,6 +258,13 @@ Window {
         if (page && page in App.screens) App.go(page, pageParams, { replace: true })
         else if (!Settings.setupDone || !Profiles.list.length) App.go("setup", {}, { replace: true })
         else App.go("users", {}, { replace: true })
+        // The boot jingle, once per boot: not when the shell restarts, and not in first-time setup,
+        // which has its own. The mark is in the session's runtime folder, emptied at shutdown.
+        const bootMark = (App.sys.env("XDG_RUNTIME_DIR") || "/tmp") + "/vanta-booted"
+        if (Settings.setupDone && !App.sys.exists(bootMark) && !App.sys.screenshotPath) {
+            App.sys.writeText(bootMark, "")
+            App.later(600, () => { Sound.play("boot"); Haptics.play("boot") })
+        }
         const overlay = App.sys.env("VANTA_OVERLAY")
         if (overlay) App.later(300, () => App.open(overlay, {}))
         // VANTA_KEYS="down down accept wait:800 back": console actions played in order (testing).

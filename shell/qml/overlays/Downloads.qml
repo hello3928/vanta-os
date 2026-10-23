@@ -15,7 +15,9 @@ VPanel {
         const label = s === "paused" ? I18n.t("downloadPaused") : s === "installing" ? I18n.t("installingGame")
                     : s === "queued" ? I18n.t("downloadQueued") : I18n.t("downloading")
         if (s !== "downloading" || !g.bytesToDownload) return label
-        return label + " · " + I18n.t("bytesOf", { done: Games.sizeText(g.bytesDownloaded) || "0 MB", total: Games.sizeText(g.bytesToDownload) })
+        const parts = [label, I18n.t("bytesOf", { done: Games.sizeText(g.bytesDownloaded) || "0 MB", total: Games.sizeText(g.bytesToDownload) })]
+        if (g.rate >= 1e5) parts.push((g.rate / 1e6).toFixed(1) + " MB/s")
+        return parts.join(" · ")
     }
 
     VText {
@@ -35,14 +37,15 @@ VPanel {
                 width: parent.width
                 label: modelData.title
                 detail: d.stateText(modelData)
-                trailText: Games.downloadState(modelData) === "downloading" ? Math.round(Games.downloadProgress(modelData) * 100) + "%" : ""
+                trailText: ["downloading", "installing"].indexOf(Games.downloadState(modelData)) >= 0 && Games.downloadProgress(modelData) > 0
+                           ? Math.round(Games.downloadProgress(modelData) * 100) + "%" : ""
                 chevron: true
                 onActivated: { d.close(true); App.openGame(modelData) }
             }
             VProgress {
                 width: parent.width
                 showValue: false
-                indeterminate: Games.downloadState(modelData) === "queued"
+                indeterminate: Games.downloadState(modelData) === "queued" || Games.downloadProgress(modelData) <= 0
                 value: Games.downloadProgress(modelData)
                 tone: Games.downloadState(modelData) === "paused" ? "light" : "accent"
             }

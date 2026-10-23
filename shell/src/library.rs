@@ -49,6 +49,7 @@ use core::pin::Pin;
 use cxx_qt::Threading;
 use cxx_qt_lib::QString;
 use serde_json::{json, Map, Value};
+use std::collections::HashMap;
 use std::{
     env, fs,
     path::{Path, PathBuf},
@@ -183,7 +184,41 @@ fn num(v: &Value, key: &str) -> u64 {
     v.get(key).and_then(Value::as_str).and_then(|s| s.parse().ok()).unwrap_or(0)
 }
 
+/// What Steam is doing with each app right now, from the end of its content log: appid → the last
+/// "state changed" list ("Update Required,Update Running,Downloading,"), and the last download
+/// rate in bytes per second. The manifests only hold the flags Steam saves, which say "update
+/// started" for the whole download.
+fn content_states(log: &str) -> (HashMap<String, String>, u64) {
+    let (mut states, mut rate) = (HashMap::new(), 0);
+    for line in log.lines() {
+        if let Some((_, rest)) = line.split_once("AppID ") {
+            if let Some((id, state)) = rest.split_once(" state changed : ") {
+                if id.chars().all(|c| c.is_ascii_digit()) {
+                    states.insert(id.to_string(), state.trim().to_string());
+                }
+            }
+        } else if let Some((_, r)) = line.split_once("Current download rate: ") {
+            if let Some(mbps) = r.split_whitespace().next().and_then(|v| v.parse::<f64>().ok()) {
+                rate = (mbps * 1e6 / 8.0) as u64;
+            }
+        }
+    }
+    (states, rate)
+}
+
+/// The last 256 KB of a file (Steam's logs grow until Steam rotates them).
+fn tail(path: &Path) -> String {
+    use std::io::{Seek, SeekFrom};
+    let Ok(mut f) = fs::File::open(path) else { return String::new() };
+    let len = f.metadata().map(|m| m.len()).unwrap_or(0);
+    let _ = f.seek(SeekFrom::Start(len.saturating_sub(256 * 1024)));
+    let mut buf = Vec::new();
+    let _ = std::io::Read::read_to_end(&mut f, &mut buf);
+    String::from_utf8_lossy(&buf).into_owned()
+}
+
 fn steam_games(root: &Path, account: &Value) -> Vec<Value> {
+    let (live, rate) = content_states(&tail(&root.join("logs/content_log.txt")));
     // Play time per app for the signed-in account.
     let played: Map<String, Value> = account
         .get("steamId")
@@ -237,6 +272,10 @@ fn steam_games(root: &Path, account: &Value) -> Vec<Value> {
             let minutes = p.map(|p| num(p, "Playtime")).unwrap_or(0);
             // StateFlags 4 = fully installed; anything else is downloading or updating.
             let flags = num(app, "StateFlags");
+            // The log's state only counts while the manifest says something is in progress (an
+            // old log can end mid-download).
+            let content = live.get(&appid).filter(|_| flags != 4).cloned().unwrap_or_default();
+            let rate = if content.contains("Downloading") { rate } else { 0 };
             let art = |file: &str, stem: &str| -> String {
                 cached_art(root, &appid, stem)
                     .map(|p| format!("file://{}", p.display()))
@@ -255,6 +294,10 @@ fn steam_games(root: &Path, account: &Value) -> Vec<Value> {
                 // Downloads (Steam's own progress): StateFlags 1048576 downloading, 2097152
                 // staging, 4194304 committing, 512 paused.
                 "stateFlags": flags,
+                // Steam's current state for it, from logs/content_log.txt, and the download rate
+                // (bytes per second) while it downloads.
+                "content": content,
+                "rate": rate,
                 // The Steam library the game is in (a drive or an SD card), for storage.
                 "library": folder.parent().unwrap_or(&folder).display().to_string(),
                 "bytesDownloaded": num(app, "BytesDownloaded"),
@@ -467,6 +510,20 @@ mod tests {
         assert!(cached_art(&root, "570", "logo").is_some());
         assert!(cached_art(&root, "570", "header").is_none());
         fs::remove_dir_all(&root).unwrap();
+    }
+
+    #[test]
+    fn reads_steams_current_state_from_its_content_log() {
+        let log = "[2026-10-24 10:00:01] AppID 1245620 state changed : Update Required,Update Queued,
+                   [2026-10-24 10:00:05] AppID 1245620 state changed : Update Required,Update Running,Downloading,
+                   [2026-10-24 10:00:06] AppID 1245620 update started : download 0/48219321344, store 0/0
+                   [2026-10-24 10:00:09] Current download rate: 80.000 Mbps
+                   [2026-10-24 10:00:09] AppID 570 state changed : Fully Installed,
+";
+        let (states, rate) = content_states(log);
+        assert_eq!(states["1245620"], "Update Required,Update Running,Downloading,");
+        assert_eq!(states["570"], "Fully Installed,");
+        assert_eq!(rate, 10_000_000);
     }
 
     #[test]
