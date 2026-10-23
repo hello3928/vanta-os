@@ -33,8 +33,9 @@ FROM ${BASE_IMAGE}
 ARG VANTA_VERSION=0.1.0
 ARG VANTA_IMAGE_REF=ghcr.io/hello3928/vanta-os
 
-# Plymouth's script plugin runs the boot splash (image/art/plymouth/vanta.script).
-RUN dnf5 -y install --setopt=install_weak_deps=False plymouth-plugin-script \
+# Plymouth's script plugin runs the boot splash (image/art/plymouth/vanta.script). xcb-util-cursor:
+# Qt's X11 backend, which the shell uses inside gamescope, won't load without it.
+RUN dnf5 -y install --setopt=install_weak_deps=False plymouth-plugin-script xcb-util-cursor \
     && dnf5 clean all \
     && rm -rf /var/log/dnf5.log /var/lib/dnf /run/dnf
 

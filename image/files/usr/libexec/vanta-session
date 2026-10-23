@@ -9,7 +9,11 @@
 
 export VANTA_SESSION=1
 
-[[ -z "$VANTA_KIOSK" ]] && steam -silent &
+if [[ -z "$VANTA_KIOSK" ]]; then
+	# gamescope shows and switches between X11 windows (its Xwayland); it offers no Wayland to apps.
+	export QT_QPA_PLATFORM=xcb
+	steam -silent &
+fi
 
 failures=()
 while true; do

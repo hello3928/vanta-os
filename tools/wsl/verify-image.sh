@@ -29,6 +29,9 @@ echo "=== KDE About page"; cat /etc/xdg/kcm-about-distrorc; grep -c Bazzite /usr
 echo "=== terminal banner"; head -1 /usr/share/ublue-os/motd/template.md
 echo "=== session"; ls -la /usr/libexec/vanta-kiosk; command -v cage vulkaninfo; cat /usr/share/wayland-sessions/gamescope-session-ogui-steam.desktop; ls -la /usr/libexec/vanta-session /usr/share/gamescope-session-plus/sessions.d/ogui-steam
 grep -h Session /usr/lib/sddm/sddm.conf.d/holo.conf
+echo "=== Qt display backends (xcb-util-cursor is loaded at run time, so ldd misses it)"
+for so in /usr/lib64/qt6/plugins/platforms/libqxcb.so /usr/lib64/qt6/plugins/platforms/libqwayland.so; do printf "%s: " "$(basename $so)"; ldd "$so" | grep -c "not found"; done
+rpm -q xcb-util-cursor
 echo "=== shell"; ls -la /usr/bin/vanta-shell; du -sh /usr/share/vanta; ldd /usr/bin/vanta-shell | grep -c "not found"
 echo "=== shell: run tools/wsl/run-in-image.sh for a screenshot (software renderer; containers have no GPU)"
 '
