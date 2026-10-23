@@ -33,7 +33,11 @@ if [[ ${1:-} == --test ]]; then
 	user=$(sed -n 's/^name = "\(.*\)"/\1/p' "$cfg" | head -1)
 	pass=$(sed -n 's/^password = "\(.*\)"/\1/p' "$cfg" | head -1)
 	sed -i 's/^graphical$/text/' "$ks"
-	cat >> "$ks" <<EOF
+	# Commands go before the %post section.
+	post=$(grep -n '^%post' "$ks" | cut -d: -f1)
+	{
+		head -n $((post - 1)) "$ks"
+		cat <<EOF
 lang en_US.UTF-8
 keyboard us
 timezone UTC
@@ -43,7 +47,10 @@ clearpart --all --initlabel
 autopart
 rootpw --lock
 user --name=$user --groups=wheel --password=$pass --plaintext
+
 EOF
+		tail -n +"$post" "$ks"
+	} > "$ks.new" && mv "$ks.new" "$ks"
 	cmdline="$cmdline console=tty0 console=ttyS0,115200"
 	out=vanta-os-netinstall-test.iso
 fi

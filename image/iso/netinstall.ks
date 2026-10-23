@@ -6,3 +6,10 @@
 graphical
 ostreecontainer --url=ghcr.io/hello3928/vanta-os:stable --transport=registry --no-signature-verification
 reboot --eject
+# Start the login screen (and so game mode) on boot. Without this, an install done in text mode
+# leaves the system at a text login.
+xconfig --startxonboot
+
+%post
+systemctl set-default graphical.target
+%end
