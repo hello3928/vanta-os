@@ -295,6 +295,33 @@ QtObject {
         if (g.bytesToStage > 0) return g.bytesStaged / g.bytesToStage
         return 0
     }
+    // While Steam downloads, its manifests change every few seconds, but only in the download
+    // numbers. Those are written into the games already listed, and only downloadRevision moves;
+    // a full build (revision) would recreate every tile on Home and in the Library.
+    property int downloadRevision: 0
+    property string shapeKey: ""
+    readonly property var downloadFields: ["stateFlags", "content", "rate", "bytesDownloaded", "bytesToDownload", "bytesStaged", "bytesToStage", "sizeBytes"]
+    function shapeOf(list) {
+        return JSON.stringify(list.map(g => { const o = Object.assign({}, g); downloadFields.forEach(k => delete o[k]); return o }))
+    }
+    function patchDownloads() {
+        if (sample) return false
+        let real = []
+        try { real = JSON.parse(lib.gamesJson) } catch (e) { return false }
+        const key = shapeOf(real)
+        if (key !== shapeKey) { shapeKey = key; return false }
+        const byId = {}
+        real.forEach(g => byId[g.id] = g)
+        all.forEach(g => {
+            const n = byId[g.id]
+            if (!n) return
+            downloadFields.forEach(k => g[k] = n[k] || (k === "content" ? "" : 0))
+            g.size = sizeText(g.sizeBytes)
+        })
+        downloadRevision++
+        return true
+    }
+
     // What Steam is working on first, then paused, then queued.
     function downloads() {
         const rank = { downloading: 0, installing: 1, paused: 2, queued: 3 }
@@ -305,7 +332,7 @@ QtObject {
     readonly property Timer downloadWatch: Timer {
         interval: 2000
         repeat: true
-        running: { games.revision; return !games.sample && (games.downloads().length > 0 || App.steamWindow) }
+        running: { games.revision; games.downloadRevision; return !games.sample && (games.downloads().length > 0 || App.steamWindow) }
         onTriggered: games.lib.refresh()
     }
 
@@ -404,7 +431,11 @@ QtObject {
 
     readonly property Connections onLibrary: Connections {
         target: games.lib
-        function onGamesJsonChanged() { games.build(); games.loadStore() }
+        function onGamesJsonChanged() {
+            if (games.patchDownloads()) return
+            games.build()
+            games.loadStore()
+        }
     }
     // Store details and the owned list that failed while offline (right after start, before
     // Wi-Fi connects) are fetched again once the network is up.

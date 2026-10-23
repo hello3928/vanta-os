@@ -8,7 +8,7 @@ VPanel {
     id: d
 
     title: I18n.t("downloads")
-    readonly property var list: { Games.revision; return Games.downloads() }
+    readonly property var list: { Games.revision; Games.downloadRevision; return Games.downloads() }
 
     function stateText(g) {
         const s = Games.downloadState(g)

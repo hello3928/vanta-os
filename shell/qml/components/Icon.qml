@@ -1,6 +1,7 @@
 // An icon from the shared set (Phosphor, MIT): data/icons/<name>.svg, tinted to `color`.
+// Drawn by the icon provider (src/icons.cpp), so each name, colour and size is rendered once and
+// shared by every Icon showing it.
 import QtQuick
-import QtQuick.Controls.impl
 import dev.vanta.shell
 
 Item {
@@ -13,11 +14,12 @@ Item {
     width: size
     height: size
 
-    IconImage {
+    Image {
         anchors.fill: parent
         sourceSize: Qt.size(Math.ceil(icon.size * 2), Math.ceil(icon.size * 2))
-        source: icon.name ? "file://" + App.sys.dataDir + "/icons/" + icon.name + ".svg" : ""
-        color: icon.color
+        // "#aarrggbb" without the '#', which a URL would read as a fragment.
+        source: icon.name ? "image://icon/" + icon.name + "/" + String(icon.color).slice(1) : ""
         fillMode: Image.PreserveAspectFit
+        smooth: true
     }
 }

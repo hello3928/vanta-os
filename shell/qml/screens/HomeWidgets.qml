@@ -16,7 +16,7 @@ VRow {
     readonly property int achAll: achGames.reduce((a, g) => a + g.ach[1], 0)
     readonly property int notInstalled: { Games.revision; return Games.all.filter(g => !g.installed).length }
     readonly property int updating: { Games.revision; return Games.all.filter(g => g.updating).length }
-    readonly property int active: { Games.revision; return Games.downloads().length }
+    readonly property int active: { Games.revision; Games.downloadRevision; return Games.downloads().length }
     readonly property var friends: Games.sample ? [
         { name: "rook", color: "#3d5a80", game: "Helldivers 2" },
         { name: "mira", color: "#7a3e52", game: null },

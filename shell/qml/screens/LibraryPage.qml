@@ -18,6 +18,10 @@ Screen {
             return true
         }).sort((a, b) => a.title.localeCompare(b.title))
     }
+    // Tiles within about a screen of the view are drawn (VTile.live); the band moves in half
+    // screens so scrolling doesn't re-check every tile each frame.
+    readonly property real bandH: Math.max(1, height / 2)
+    readonly property int band: Math.floor(scroll.contentY / bandH)
     readonly property var systemsWithGames: { Games.revision; return Games.systems.filter(s => Games.all.some(g => g.system === s.id)) }
 
     shell: ({ title: I18n.t("library"), hints: [["accept", I18n.t("open")], ["tabs", I18n.t("switchTab")], ["back", I18n.t("back")]] })
@@ -137,6 +141,10 @@ Screen {
                             src: modelData.art.capsule || ""
                             fit: modelData.source === "emu" ? "box" : "cover"
                             badge: lib.badgeFor(modelData)
+                            live: {
+                                const top = col.y + gridArea.y + flow.y + y
+                                return top + height > (lib.band - 2) * lib.bandH && top < (lib.band + 4) * lib.bandH
+                            }
                             onActivated: App.openGame(modelData)
                         }
                     }

@@ -21,6 +21,12 @@ VFocusable {
     property var game: null
     // Grids set the width to fill their columns; shelves use the shared capsule size.
     property real artWidth: 0
+    // Long grids (the Library) set this false for tiles far off screen: they keep their place
+    // for navigation but draw nothing, and their art loads once they come near.
+    property bool live: true
+    property bool seen: false
+    onLiveChanged: if (live) seen = true
+    Component.onCompleted: if (live) seen = true
 
     readonly property real artW: artWidth > 0 ? artWidth : more ? Theme.capsule * 0.66 : shape === "landscape" ? Theme.capsule * 1.95 : shape === "card" ? Theme.capsule * 2.2 : Theme.capsule
     readonly property real artH: shape === "capsule" ? artW * 1.5 : artW * 9 / 16
@@ -34,6 +40,7 @@ VFocusable {
         id: art
         width: tile.artW
         height: tile.artH
+        visible: tile.live
         scale: tile.pressed ? 1.03 : tile.focused ? 1.05 : 1
         Behavior on scale { NumberAnimation { duration: tile.pressed ? Theme.tInstant : Theme.tBase; easing.type: Easing.OutCubic } }
 
@@ -44,7 +51,7 @@ VFocusable {
             color: tile.more ? (tile.focused ? Theme.surface : Theme.bg2) : Theme.surface
             border.width: tile.more ? 1 : 0
             border.color: Theme.line
-            layer.enabled: true
+            layer.enabled: tile.live
             layer.effect: MultiEffect {
                 maskEnabled: true
                 maskSource: mask
@@ -56,7 +63,7 @@ VFocusable {
                 anchors.fill: parent
                 anchors.margins: -parent.width * 0.15
                 visible: tile.fit === "box" && status === Image.Ready
-                source: tile.fit === "box" ? tile.src : ""
+                source: tile.fit === "box" && tile.seen ? tile.src : ""
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
                 sourceSize.width: 200
@@ -76,7 +83,7 @@ VFocusable {
                 anchors.rightMargin: anchors.leftMargin
                 anchors.topMargin: tile.fit === "box" ? parent.height * 0.1 : 0
                 anchors.bottomMargin: anchors.topMargin
-                source: tile.src
+                source: tile.seen ? tile.src : ""
                 fillMode: tile.fit === "box" ? Image.PreserveAspectFit : Image.PreserveAspectCrop
                 asynchronous: true
                 sourceSize.width: Math.ceil(tile.artW * 2)
@@ -85,7 +92,7 @@ VFocusable {
             }
             Connections {
                 target: System
-                function onNetEpochChanged() { App.reloadIfFailed(img, () => tile.src) }
+                function onNetEpochChanged() { App.reloadIfFailed(img, () => tile.seen ? tile.src : "") }
             }
             // Where the art can't load, the title stands in for it.
             VText {
@@ -125,7 +132,7 @@ VFocusable {
             anchors.fill: parent
             radius: Theme.rMd
             visible: false
-            layer.enabled: true
+            layer.enabled: tile.live
         }
 
         // Badges wait for the art, so a tile never shows a tag over an empty frame.

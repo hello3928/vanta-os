@@ -5,6 +5,7 @@
 pub mod deckbuttons;
 pub mod gamepad;
 pub mod gamescope;
+pub mod icons;
 pub mod library;
 pub mod netcache;
 pub mod sys;
@@ -26,6 +27,7 @@ fn main() {
     let mut engine = QQmlApplicationEngine::new();
     if let Some(mut engine) = engine.as_mut() {
         netcache::ffi::install_disk_cache(engine.as_mut(), &QString::from(&netcache::dir()));
+        icons::ffi::install_icon_provider(engine.as_mut(), &QString::from(&icons::dir()));
         // A QML error leaves no window; exit instead of sitting on an empty event loop.
         engine
             .as_mut()
