@@ -103,6 +103,12 @@ pub mod qobject {
         /// Seconds since the Unix epoch.
         #[qinvokable]
         fn now(self: &Sys) -> f64;
+
+        /// In game mode, asks gamescope to show the first of these apps that has a window
+        /// (`appIdsJson`, a JSON array of numbers; 0 means Vanta). False outside gamescope.
+        #[qinvokable]
+        #[cxx_name = "gamescopeShow"]
+        fn gamescope_show(self: &Sys, app_ids_json: &QString) -> bool;
     }
 
     impl cxx_qt::Threading for Sys {}
@@ -336,6 +342,15 @@ impl qobject::Sys {
 
     pub fn now(&self) -> f64 {
         SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_secs_f64()).unwrap_or(0.0)
+    }
+
+    pub fn gamescope_show(&self, app_ids_json: &QString) -> bool {
+        let ids: Vec<u32> = serde_json::from_str::<Vec<u32>>(&app_ids_json.to_string())
+            .unwrap_or_default()
+            .into_iter()
+            .map(|id| if id == 0 { crate::gamescope::VANTA_APP_ID } else { id })
+            .collect();
+        crate::gamescope::show(&ids)
     }
 }
 

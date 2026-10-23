@@ -3,6 +3,7 @@
 //! to check layouts without a display); VANTA_PAGE picks the page it opens on.
 
 pub mod gamepad;
+pub mod gamescope;
 pub mod library;
 pub mod sys;
 

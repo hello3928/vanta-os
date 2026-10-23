@@ -55,6 +55,18 @@ QtObject {
     property real shellStrip: 0
     property bool shellScrolled: false
 
+    // ---------- what gamescope shows ----------
+    // In game mode gamescope only puts listed apps on screen (src/gamescope.rs): Vanta, or a
+    // running Steam game in front of it while it's in view. Steam's own windows stay hidden.
+    function gamescopeFocus() {
+        const g = running && running.source === "steam" && running.appid ? running.appid : 0
+        sys.gamescopeShow(JSON.stringify(!g ? [0] : inGame ? [g, 0] : [0, g]))
+    }
+    onRunningChanged: gamescopeFocus()
+    onInGameChanged: gamescopeFocus()
+    // The window maps a moment after start; mark it once it's there.
+    Component.onCompleted: { later(800, gamescopeFocus); later(4000, gamescopeFocus) }
+
     // ---------- timers ----------
     function later(ms, fn) {
         const t = Qt.createQmlObject("import QtQuick; Timer { repeat: false }", app, "later")
