@@ -39,6 +39,11 @@ BOOTLOADER_NAME="Vanta OS ${VANTA_VER}"
 IMAGE_ID="vanta-os-${VANTA_VER}"
 EOF
 
+# fedora-release (also /etc/system-release): bootupd names the firmware boot entry from it, which is
+# what a PC's or the Steam Deck's boot menu shows. "release <n>" stays for tools that read the
+# Fedora version from it.
+echo "Vanta OS release ${VERSION_ID}" > /usr/lib/fedora-release
+
 # ---- image info (read by Bazzite's update and session scripts) ----
 info=/usr/share/ublue-os/image-info.json
 # image-name and image-vendor stay: Bazzite's scripts check image-name for "deck" (autologin into
