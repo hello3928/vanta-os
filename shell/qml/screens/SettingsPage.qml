@@ -207,6 +207,12 @@ Screen {
         Column {
             width: parent ? parent.width : 0
             VSlider { label: I18n.t("brightness"); from: 10; to: 100; step: 5; key: "brightness" }
+            VDropdown {
+                label: I18n.t("uiScale")
+                detail: I18n.t("uiScaleDetail")
+                options: [85, 90, 100, 110, 120, 135].map(n => ({ value: n, label: n + "%" }))
+                key: "uiScale"
+            }
             VToggle { label: I18n.t("vrr"); key: "vrr"; unsupported: System.unsupported("vrr") }
             VToggle { label: I18n.t("hdr"); key: "hdr"; unsupported: System.unsupported("hdr") }
             PerfUpscaling { key: "upscaling" }

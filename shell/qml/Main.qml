@@ -21,14 +21,16 @@ Window {
 
     FontLoader { source: "file://" + App.sys.dataDir + "/fonts/Figtree.ttf" }
 
-    // Root font size: clamp(13px, 0.5vw + 9.5px, 20px), 8% larger on handhelds.
+    // Root font size: clamp(13px, 0.5vw + 9.5px, 20px), 8% larger on handhelds, times the
+    // player's UI scale (Settings > Display).
     function scaleType() {
         Theme.width = width
         Theme.height = height
-        Theme.rem = Math.max(13, Math.min(20, width * 0.005 + 9.5)) * (System.handheld ? 1.08 : 1)
+        Theme.rem = Math.max(13, Math.min(20, width * 0.005 + 9.5)) * (System.handheld ? 1.08 : 1) * (Settings.uiScale || 100) / 100
     }
     onWidthChanged: scaleType()
     Connections { target: System; function onHandheldChanged() { window.scaleType() } }
+    Connections { target: Settings; function onUiScaleChanged() { window.scaleType() } }
     onHeightChanged: scaleType()
 
     Gamepads {

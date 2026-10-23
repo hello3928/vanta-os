@@ -193,6 +193,9 @@ QtObject {
         repeat: true
         onTriggered: { sys.readBattery(); sys.readWifi() }
     }
+    // Wi-Fi usually connects a few seconds after the shell starts. `nmcli monitor` prints a line
+    // on every change in NetworkManager, so the shell knows at once instead of at the next poll.
+    readonly property Timer wifiChanged: Timer { interval: 300; onTriggered: sys.readWifi() }
 
     // ---------- network ----------
     // nmcli's terse output escapes ':' inside fields as '\:'.
@@ -366,7 +369,10 @@ QtObject {
 
     readonly property Connections replies: Connections {
         target: App.sys
-        function onLine(tag, text) { if (tag === "update-install") sys.updateLine(text) }
+        function onLine(tag, text) {
+            if (tag === "update-install") sys.updateLine(text)
+            else if (tag === "nm-monitor") sys.wifiChanged.restart()
+        }
         function onFinished(tag, code, out, err) {
             if (tag === "wifi-state") {
                 sys.hasNetworkManager = code === 0
@@ -436,6 +442,9 @@ QtObject {
     Component.onCompleted: {
         readDevice()
         readWifi()
+        // stdbuf: nmcli buffers what it prints to a pipe.
+        if (os.which("stdbuf")) App.sys.stream("nm-monitor", "stdbuf", JSON.stringify(["-oL", "nmcli", "monitor"]))
+        else App.sys.stream("nm-monitor", "nmcli", JSON.stringify(["monitor"]))
         App.query("tdp-min", "steamosctl", ["get-tdp-limit-min"])
         App.query("tdp-max", "steamosctl", ["get-tdp-limit-max"])
         App.query("perf-profiles", "steamosctl", ["get-available-performance-profiles"])

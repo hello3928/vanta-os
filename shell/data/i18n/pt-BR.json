@@ -497,5 +497,7 @@
  "updateBusy": "Outra atualização já está em andamento. Tente novamente quando ela terminar.",
  "minLeft": "Cerca de {n} min restantes",
  "lessThanMin": "Menos de um minuto restante",
- "updateInProgress": "Atualização em andamento"
+ "updateInProgress": "Atualização em andamento",
+ "uiScale": "Escala da interface",
+ "uiScaleDetail": "Tamanho do texto e dos controles"
 }

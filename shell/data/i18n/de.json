@@ -497,5 +497,7 @@
  "updateBusy": "Es läuft bereits ein anderes Update. Versuche es erneut, wenn es fertig ist.",
  "minLeft": "Noch etwa {n} Min.",
  "lessThanMin": "Noch weniger als eine Minute",
- "updateInProgress": "Update läuft"
+ "updateInProgress": "Update läuft",
+ "uiScale": "Skalierung der Oberfläche",
+ "uiScaleDetail": "Größe von Text und Bedienelementen"
 }

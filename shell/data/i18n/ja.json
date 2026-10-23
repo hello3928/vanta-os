@@ -498,5 +498,7 @@
  "updateBusy": "別のアップデートが実行中です。終わってからもう一度お試しください。",
  "minLeft": "残り約{n}分",
  "lessThanMin": "残り1分未満",
- "updateInProgress": "アップデート中"
+ "updateInProgress": "アップデート中",
+ "uiScale": "UIの大きさ",
+ "uiScaleDetail": "文字とボタンの大きさ"
 }

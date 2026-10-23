@@ -12,7 +12,9 @@ export VANTA_SESSION=1
 if [[ -z "$VANTA_KIOSK" ]]; then
 	# gamescope shows and switches between X11 windows (its Xwayland); it offers no Wayland to apps.
 	export QT_QPA_PLATFORM=xcb
-	steam -silent &
+	# Steam starts in offline mode if the network isn't up yet, and Wi-Fi usually connects a few
+	# seconds after login. Wait for it (up to 45 s) so Steam signs in normally.
+	( nm-online -q -t 45; exec steam -silent ) &
 fi
 
 failures=()

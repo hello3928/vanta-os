@@ -497,5 +497,7 @@
  "updateBusy": "Ya hay otra actualización en curso. Vuelve a intentarlo cuando termine.",
  "minLeft": "Quedan unos {n} min",
  "lessThanMin": "Queda menos de un minuto",
- "updateInProgress": "Actualización en curso"
+ "updateInProgress": "Actualización en curso",
+ "uiScale": "Escala de la interfaz",
+ "uiScaleDetail": "Tamaño del texto y los controles"
 }

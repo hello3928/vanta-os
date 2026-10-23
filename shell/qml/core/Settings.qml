@@ -46,12 +46,13 @@ QtObject {
     property string scheduler: "scx_lavd"
     property bool gamemode: true
     property string channel: "Stable"
+    property int uiScale: 100           // percent of the automatic size (Main.qml)
 
     readonly property var keys: ["setupDone", "tourDone", "timeAuto", "tzAuto", "timeZone", "clock24", "region",
         "steamAchievements", "steamScreenshots", "steamFriends", "vantaSync", "language", "accent", "brightness",
         "volume", "sfx", "sfxVolume", "haptics", "menuHaptics", "glyphs", "gameMusic", "musicVolume", "trailerVideo",
         "tdp", "tdpLimit", "fpsLimit", "upscaling", "overlay", "vrr", "hdr", "wifi", "bluetooth", "airplane", "epp",
-        "scheduler", "gamemode", "channel"]
+        "scheduler", "gamemode", "channel", "uiScale"]
 
     property bool loaded: false
     readonly property Sys sys: Sys {}

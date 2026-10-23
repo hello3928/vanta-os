@@ -497,5 +497,7 @@
  "updateBusy": "Une autre mise à jour est déjà en cours. Réessayez quand elle sera terminée.",
  "minLeft": "Environ {n} min restantes",
  "lessThanMin": "Moins d'une minute restante",
- "updateInProgress": "Mise à jour en cours"
+ "updateInProgress": "Mise à jour en cours",
+ "uiScale": "Échelle de l'interface",
+ "uiScaleDetail": "Taille du texte et des commandes"
 }

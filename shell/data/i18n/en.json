@@ -483,5 +483,7 @@
  "updateBusy": "Another update is already running. Try again when it's finished.",
  "minLeft": "About {n} min left",
  "lessThanMin": "Less than a minute left",
- "updateInProgress": "Update in progress"
+ "updateInProgress": "Update in progress",
+ "uiScale": "UI scale",
+ "uiScaleDetail": "Size of text and controls"
 }
