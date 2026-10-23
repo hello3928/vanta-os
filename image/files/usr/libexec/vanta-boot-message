@@ -1,0 +1,17 @@
+#!/usr/bin/bash
+# Shows a line under the boot splash while Bazzite's hardware setup does its first-boot work
+# (run before bazzite-hardware-setup.service). The same check as the setup script: it does the
+# work only when its version, the image or the Fedora release changed since it last ran.
+
+info=/usr/share/ublue-os/image-info.json
+script=/usr/libexec/bazzite-hardware-setup
+ver=$(grep -oP '^HWS_VER=\K\d+' "$script")
+
+if [[ "$(cat /etc/bazzite/hws_version 2>/dev/null)" == "$ver" &&
+      "$(cat /etc/bazzite/image_name 2>/dev/null)" == "$(jq -r '."image-name"' "$info")" &&
+      "$(cat /etc/bazzite/image_branch 2>/dev/null)" == "$(jq -r '."image-branch"' "$info")" &&
+      "$(cat /etc/bazzite/fedora_version 2>/dev/null)" == "$(jq -r '."fedora-version"' "$info")" ]]; then
+	exit 0
+fi
+
+plymouth display-message --text="Running first boot hardware setup"

@@ -20,7 +20,8 @@ Screen {
 
     shell: ({
         title: "",
-        hints: [["accept", I18n.t("open")], ["options", I18n.t("trailer")], ["qam", I18n.t("quickAccess")], ["mainMenu", I18n.t("menu")]]
+        hints: [["accept", I18n.t("open")]].concat(Games.all.length ? [["options", I18n.t("trailer")]] : [])
+               .concat([["qam", I18n.t("quickAccess")], ["mainMenu", I18n.t("menu")]])
     })
 
     function enter() {
@@ -273,8 +274,26 @@ Screen {
                     if (g.minutes) parts.push({ text: I18n.t("hoursPlayed", { n: Math.round(g.minutes / 60) }) })
                     meta.model = parts
                 }
+                // No games yet: where they come from.
+                Column {
+                    visible: home.recent.length === 0
+                    x: Theme.gutter
+                    width: Math.min(34 * Theme.rem, parent.width - 2 * Theme.gutter)
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: Theme.s2
+                    spacing: Theme.s3
+                    VText { text: I18n.t("homeEmptyTitle"); size: Theme.tXl; weight: Font.DemiBold; color: Theme.fg }
+                    VText { width: parent.width; text: I18n.t("homeEmptyBody"); color: Theme.fg2; wrapMode: Text.Wrap }
+                    VButton {
+                        visible: !(Profiles.current && Profiles.current.steam)
+                        label: I18n.t("signInSteam")
+                        variant: "primary"
+                        onActivated: App.go("settings", { section: "accounts" })
+                    }
+                }
                 Column {
                     id: introCol
+                    visible: home.recent.length > 0
                     x: Theme.gutter
                     width: parent.width - 2 * Theme.gutter
                     anchors.bottom: parent.bottom

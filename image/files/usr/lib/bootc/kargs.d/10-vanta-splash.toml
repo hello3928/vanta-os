@@ -1,0 +1,2 @@
+# Quiet boot: the Vanta splash instead of kernel and service messages, and no text cursor.
+kargs = ["rhgb", "quiet", "splash", "loglevel=3", "rd.udev.log_level=3", "vt.global_cursor_default=0"]

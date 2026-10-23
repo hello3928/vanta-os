@@ -1,7 +1,7 @@
 // Vanta account: email and password, then create an account or sign in (the mockup's
 // Accounts.js vantaSignIn). The password is never kept. The account service isn't running yet:
-// set VANTA_ACCOUNT_URL to point at one; without it, inside the Vanta session the form says so,
-// and in development the mockup's simulated sign-in runs.
+// set VANTA_ACCOUNT_URL to point at one. Without it the option isn't offered (App.vantaAccounts),
+// except with VANTA_SAMPLE=1, where the mockup's simulated sign-in runs.
 import QtQuick
 import dev.vanta.shell
 
@@ -20,7 +20,7 @@ Column {
         const problem = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value) ? I18n.t("emailInvalid")
             : password.value.length < 8 ? I18n.t("passwordShort") : ""
         if (problem) return fail(problem)
-        if (App.real && !service) return fail(I18n.t("vantaUnavailable"))
+        if (!App.sample && !service) return fail(I18n.t("vantaUnavailable"))
         busy = true
         message = ""
         if (!service) {

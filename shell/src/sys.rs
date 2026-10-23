@@ -54,6 +54,17 @@ pub mod qobject {
         #[cxx_name = "writeText"]
         fn write_text(self: &Sys, path: &QString, text: &QString) -> bool;
 
+        /// Like writeText, but only the user can read the file (sign-in tokens).
+        #[qinvokable]
+        #[cxx_name = "writePrivate"]
+        fn write_private(self: &Sys, path: &QString, text: &QString) -> bool;
+
+        /// A QR code for `text`: JSON { size, bits } where bits is size×size "1"s and "0"s,
+        /// row by row, without the quiet zone.
+        #[qinvokable]
+        #[cxx_name = "qrCode"]
+        fn qr_code(self: &Sys, text: &QString) -> QString;
+
         /// A file's bytes as hex (EDID and other small binary files).
         #[qinvokable]
         #[cxx_name = "readHex"]
@@ -145,6 +156,23 @@ fn os_pretty_name() -> String {
         .unwrap_or_else(|| "Vanta OS".into())
 }
 
+/// Writes through a temporary file and a rename, creating folders as needed.
+fn write_file(path: &str, text: &str, mode: u32) -> bool {
+    use std::os::unix::fs::OpenOptionsExt;
+    let path = PathBuf::from(path);
+    let tmp = path.with_extension("tmp");
+    let write = || -> std::io::Result<()> {
+        if let Some(dir) = path.parent() {
+            fs::create_dir_all(dir)?;
+        }
+        let mut f = fs::OpenOptions::new().write(true).create(true).truncate(true).mode(mode).open(&tmp)?;
+        f.write_all(text.as_bytes())?;
+        f.sync_all()?;
+        fs::rename(&tmp, &path)
+    };
+    write().is_ok()
+}
+
 fn args_of(json: &QString) -> Vec<String> {
     serde_json::from_str::<Vec<String>>(&json.to_string()).unwrap_or_default()
 }
@@ -204,18 +232,19 @@ impl qobject::Sys {
     }
 
     pub fn write_text(&self, path: &QString, text: &QString) -> bool {
-        let path = PathBuf::from(path.to_string());
-        let tmp = path.with_extension("tmp");
-        let write = || -> std::io::Result<()> {
-            if let Some(dir) = path.parent() {
-                fs::create_dir_all(dir)?;
-            }
-            let mut f = fs::File::create(&tmp)?;
-            f.write_all(text.to_string().as_bytes())?;
-            f.sync_all()?;
-            fs::rename(&tmp, &path)
+        write_file(&path.to_string(), &text.to_string(), 0o644)
+    }
+
+    pub fn write_private(&self, path: &QString, text: &QString) -> bool {
+        write_file(&path.to_string(), &text.to_string(), 0o600)
+    }
+
+    pub fn qr_code(&self, text: &QString) -> QString {
+        let Ok(code) = qrcode::QrCode::new(text.to_string().as_bytes()) else {
+            return q("{}");
         };
-        write().is_ok()
+        let bits: String = code.to_colors().iter().map(|c| if *c == qrcode::Color::Dark { '1' } else { '0' }).collect();
+        q(serde_json::json!({ "size": code.width(), "bits": bits }).to_string())
     }
 
     pub fn read_hex(&self, path: &QString) -> QString {

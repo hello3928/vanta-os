@@ -1,11 +1,29 @@
 #!/usr/bin/bash
-# The Vanta OS game mode client, started by gamescope-session-plus (sessions.d/ogui-steam).
-# Steam runs in the background without its own UI, for games, downloads and sign-in. The Vanta
+# The Vanta OS game mode client, started by gamescope-session-plus (sessions.d/ogui-steam) or by
+# vanta-kiosk. Steam runs in the background without its own UI, for games and downloads. The Vanta
 # shell is what's on screen; games Steam starts take focus in gamescope and Vanta comes back when
 # they end.
+#
+# The shell is never left closed: if it exits or crashes it starts again. If it fails five times
+# within a minute, something is wrong with it, so desktop mode opens instead of a black screen.
 
 export VANTA_SESSION=1
 
-steam -silent &
+[[ -z "$VANTA_KIOSK" ]] && steam -silent &
 
-exec /usr/bin/vanta-shell
+failures=()
+while true; do
+	/usr/bin/vanta-shell
+	now=$(date +%s)
+	failures+=("$now")
+	recent=0
+	for t in "${failures[@]}"; do
+		(( now - t < 60 )) && recent=$((recent + 1))
+	done
+	if (( recent >= 5 )); then
+		echo "vanta-session: the shell keeps closing, switching to desktop mode" >&2
+		steamosctl switch-to-desktop-mode 2>/dev/null || steamos-session-select plasma
+		exit 1
+	fi
+	sleep 1
+done

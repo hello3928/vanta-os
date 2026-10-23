@@ -5,8 +5,8 @@
 //     ach: [got, total] | null, art: { capsule, hero, logo, header, box, snap } }
 // Real data: library.rs (Steam's files and the ROM folders), Steam store details for trailers,
 // screenshots and genres (fetched once per game and cached in ~/.cache/vanta/store), and
-// ~/.config/vanta/history.json for emulated play time. With neither Steam nor ROMs
-// (development) it shows the mockup's sample library (data/sample-library.json).
+// ~/.config/vanta/history.json for emulated play time. With VANTA_SAMPLE=1 (screenshot and
+// flow-check tools) it shows the mockup's sample library (data/sample-library.json) instead.
 pragma Singleton
 import QtQuick
 import dev.vanta.shell
@@ -24,6 +24,9 @@ QtObject {
     readonly property var biosLabel: sampleData.bios
     readonly property bool sample: lib.sample
     readonly property var account: { try { return JSON.parse(lib.accountJson) } catch (e) { return null } }
+    // The Steam account whose owned games are listed: the current profile's, or the one just
+    // signed in during setup.
+    readonly property string steamId: (Profiles.current && Profiles.current.steam && Profiles.current.steam.steamId) || Steam.lastId
     property var store: ({})       // appid → store details
     property var history: ({})     // id → { last, minutes } for emulated games
     property var daily: ({})       // "2026-10-22" → minutes played that day (counted while a game runs)
@@ -79,6 +82,19 @@ QtObject {
         } else {
             let real = []
             try { real = JSON.parse(lib.gamesJson) } catch (e) {}
+            // Games the signed-in Steam account owns but hasn't installed (Steam.qml).
+            const have = {}
+            real.forEach(g => { if (g.appid) have[g.appid] = g })
+            Steam.cachedOwned(steamId).forEach(o => {
+                const g = have[o.appid]
+                if (g) {
+                    g.minutes = g.minutes || o.minutes
+                    g.lastPlayed = g.lastPlayed || o.lastPlayed
+                    return
+                }
+                real.push({ id: "steam-" + o.appid, appid: o.appid, source: "steam", title: o.name, installed: false,
+                            lastPlayed: o.lastPlayed, minutes: o.minutes, sizeBytes: 0 })
+            })
             list = real.map(g => {
                 const d = g.appid ? store[g.appid] : null
                 const h = history[g.id] || {}
@@ -201,6 +217,7 @@ QtObject {
     function start(g) {
         if (g.source === "steam") {
             if (sample) return true
+            if (App.kiosk) return false
             return lib.steam("rungameid/" + g.appid)
         }
         if (sample) return true
@@ -219,8 +236,8 @@ QtObject {
         return true
     }
 
-    function install(g) { if (!sample && g.appid) lib.steam("install/" + g.appid) }
-    function uninstall(g) { if (!sample && g.appid) lib.steam("uninstall/" + g.appid) }
+    function install(g) { if (!sample && !App.kiosk && g.appid) lib.steam("install/" + g.appid) }
+    function uninstall(g) { if (!sample && !App.kiosk && g.appid) lib.steam("uninstall/" + g.appid) }
     function focusGame(g) {}
 
     // Close the running game: Steam's reaper and everything under it, or the emulator.
@@ -297,6 +314,11 @@ QtObject {
         target: games.lib
         function onGamesJsonChanged() { games.build(); games.loadStore() }
     }
+    readonly property Connections onOwned: Connections {
+        target: Steam
+        function onOwnedChanged() { if (!games.sample) { games.build(); games.loadStore() } }
+    }
+    onSteamIdChanged: if (!sample && steamId) { build(); Steam.loadOwned(steamId) }
 
     Component.onCompleted: {
         try { history = JSON.parse(sys.readText(sys.configDir + "/history.json") || "{}") } catch (e) { history = {} }
@@ -305,5 +327,6 @@ QtObject {
         if (!sample) checkBios()
         build()
         loadStore()
+        if (!sample && steamId) Steam.loadOwned(steamId)
     }
 }

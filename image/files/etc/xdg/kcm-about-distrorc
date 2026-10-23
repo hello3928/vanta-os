@@ -1,0 +1,5 @@
+[General]
+LogoPath=/usr/share/pixmaps/system-logo-white.png
+Name=Vanta OS
+Website=https://github.com/hello3928/vanta-os
+UseOSReleaseVersion=true

@@ -8,6 +8,9 @@
 //
 // `real` is true inside the Vanta session (VANTA_SESSION=1). Outside it (development), commands
 // that change the machine (power, Wi-Fi, time zone, language) are printed instead of run.
+// Everything shown is always read from the machine: Wi-Fi networks, the Steam library and
+// account, storage, updates. `sample` (VANTA_SAMPLE=1, set only by the screenshot and flow-check
+// tools) swaps in the mockup's sample library, networks and simulated sign-ins instead.
 pragma Singleton
 import QtQuick
 import dev.vanta.shell
@@ -17,6 +20,13 @@ QtObject {
 
     readonly property Sys sys: Sys {}
     readonly property bool real: sys.env("VANTA_SESSION") === "1"
+    readonly property bool sample: sys.env("VANTA_SAMPLE") === "1"
+    // The shell alone without gamescope (vanta-kiosk): no Steam client, since its windows would
+    // cover the shell and games can't run.
+    readonly property bool kiosk: sys.env("VANTA_KIOSK") === "1"
+    // Vanta accounts need the account service (VANTA_ACCOUNT_URL), which isn't running yet; until
+    // it is, the option isn't offered.
+    readonly property bool vantaAccounts: sample || sys.env("VANTA_ACCOUNT_URL") !== ""
 
     // Set by Main.qml
     property var stage: null

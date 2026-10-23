@@ -24,13 +24,19 @@ RUN cd /src/shell \
 
 COPY brand /src/brand
 COPY image/art /src/art
-RUN bash /src/art/render.sh /src/brand /src/art /out
+RUN bash /src/art/render.sh /src/brand /src/art /out \
+    && install -Dm644 /src/shell/data/fonts/Figtree.ttf /out/usr/share/fonts/vanta/Figtree.ttf
 
 # ---- The image ----
 FROM ${BASE_IMAGE}
 
 ARG VANTA_VERSION=0.1.0
 ARG VANTA_IMAGE_REF=ghcr.io/hello3928/vanta-os
+
+# Plymouth's script plugin runs the boot splash (image/art/plymouth/vanta.script).
+RUN dnf5 -y install --setopt=install_weak_deps=False plymouth-plugin-script \
+    && dnf5 clean all \
+    && rm -rf /var/log/dnf5.log /var/lib/dnf /run/dnf
 
 COPY --from=shell /out/ /
 COPY image/files/ /

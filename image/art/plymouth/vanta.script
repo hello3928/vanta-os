@@ -1,0 +1,81 @@
+# Vanta OS boot splash (Plymouth script plugin). Black screen, the Orbit logo draws itself in
+# like the welcome screen at the end of setup, then its rings turn, stop with a small recoil, rest
+# and turn again until the system has started. Every frame is drawn ahead of time (frames.py).
+# Messages sent with `plymouth display-message` show under the logo in Figtree.
+
+Window.SetBackgroundTopColor(0, 0, 0);
+Window.SetBackgroundBottomColor(0, 0, 0);
+
+# Same proportion as the welcome logo: 132 px on an 800 px tall screen.
+screen_w = Window.GetWidth();
+screen_h = Window.GetHeight();
+size = Math.Int(Math.Min(screen_w, screen_h) * 0.165);
+left = Window.GetX() + Math.Int((screen_w - size) / 2);
+top = Window.GetY() + Math.Int((screen_h - size) / 2);
+
+# Frames come in two sizes (192 and 384 px); the closer one keeps scaling small, so edges stay
+# smooth.
+if (size <= 260) set = "s";
+else set = "l";
+fun frame_name(prefix, i) {
+    if (i < 10) return global.set + "-" + prefix + "-0" + i + ".png";
+    return global.set + "-" + prefix + "-" + i + ".png";
+}
+
+DRAW_FRAMES = 71;
+SPIN_FRAMES = 92;
+for (i = 0; i < DRAW_FRAMES; i++) draw[i] = Image(frame_name("draw", i)).Scale(size, size);
+for (i = 0; i < SPIN_FRAMES; i++) spin[i] = Image(frame_name("spin", i)).Scale(size, size);
+
+logo = Sprite(draw[0]);
+logo.SetPosition(left, top, 1);
+frame = 0;
+
+fun refresh_callback() {
+    # Callbacks only change globals through the global. prefix.
+    if (global.frame < DRAW_FRAMES) logo.SetImage(draw[global.frame]);
+    else logo.SetImage(spin[(global.frame - DRAW_FRAMES) % SPIN_FRAMES]);
+    global.frame = global.frame + 1;
+}
+Plymouth.SetRefreshFunction(refresh_callback);
+
+# ---------- messages (first boot hardware setup) ----------
+font = "Figtree Medium " + Math.Int(Math.Max(11, screen_h / 54));
+message_sprite = Sprite();
+
+fun message_callback(text) {
+    if (text == "") {
+        message_sprite.SetOpacity(0);
+        return;
+    }
+    image = Image.Text(text, 0.8, 0.82, 0.86, 1, font);
+    message_sprite.SetImage(image);
+    message_sprite.SetPosition(Window.GetX() + Math.Int((screen_w - image.GetWidth()) / 2), top + size + Math.Int(size * 0.42), 4);
+    message_sprite.SetOpacity(1);
+}
+Plymouth.SetMessageFunction(message_callback);
+
+# ---------- disk password (encrypted installs) ----------
+prompt_sprite = Sprite();
+bullets_sprite = Sprite();
+
+fun display_password_callback(prompt, bullets) {
+    text = prompt;
+    if (text == "") text = "Password";
+    prompt_image = Image.Text(text, 1, 1, 1, 1, font);
+    prompt_sprite.SetImage(prompt_image);
+    prompt_sprite.SetPosition(Window.GetX() + (screen_w - prompt_image.GetWidth()) / 2, top + size + size / 3, 4);
+    dots = "";
+    for (i = 0; i < bullets; i++) dots = dots + "●";
+    if (dots == "") dots = " ";
+    bullets_image = Image.Text(dots, 1, 1, 1, 1, font);
+    bullets_sprite.SetImage(bullets_image);
+    bullets_sprite.SetPosition(Window.GetX() + (screen_w - bullets_image.GetWidth()) / 2, top + size + size / 3 + prompt_image.GetHeight() * 2, 4);
+}
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+
+fun display_normal_callback() {
+    prompt_sprite.SetImage(Image.Text(" ", 0, 0, 0, 0));
+    bullets_sprite.SetImage(Image.Text(" ", 0, 0, 0, 0));
+}
+Plymouth.SetDisplayNormalFunction(display_normal_callback);

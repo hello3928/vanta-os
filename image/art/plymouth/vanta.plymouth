@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Vanta OS
+Description=The Orbit logo draws in, then its rings turn while the system starts.
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/vanta
+ScriptFile=/usr/share/plymouth/themes/vanta/vanta.script

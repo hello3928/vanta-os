@@ -79,7 +79,7 @@ Screen {
         { ssid: "Home-5G", signal: 90, secured: true }, { ssid: "Home-2.4G", signal: 70, secured: true },
         { ssid: "Upstairs", signal: 45, secured: true }, { ssid: "CoffeeShop-Guest", signal: 20, secured: false }
     ]
-    readonly property var networks: App.real || System.networks.length ? System.networks : sampleNetworks
+    readonly property var networks: App.sample ? sampleNetworks : System.networks
     function signalIcon(n) { return n >= 75 ? "wifi" : n >= 50 ? "network_wifi_3_bar" : n >= 30 ? "network_wifi_2_bar" : "network_wifi_1_bar" }
 
     function askPassword(n) {
@@ -106,8 +106,8 @@ Screen {
             Sound.play("toggleOn")
             App.later(500, () => go(step + 1))
         }
-        // WPA2 passwords are 8 to 63 characters. Development has no NetworkManager to ask.
-        if (!App.real) App.later(1400, () => done(!password || password.length >= 8, true))
+        // WPA2 passwords are 8 to 63 characters. The sample networks have no NetworkManager to ask.
+        if (App.sample) App.later(1400, () => done(!password || password.length >= 8, true))
         else System.connect(n.ssid, password || "", done)
     }
 
@@ -121,7 +121,7 @@ Screen {
         busy = true
         osState = "checking"
         steamState = "waiting"
-        if (!App.real) {
+        if (App.sample) {
             // The mockup's simulated check and download, in uneven steps as real downloads go.
             App.later(1600, () => { osState = "downloading"; simulate("os") })
             return
@@ -145,7 +145,7 @@ Screen {
     }
     Connections {
         target: System
-        enabled: page.stepId === "updates" && App.real
+        enabled: page.stepId === "updates" && !App.sample
         function onUpdateStateChanged() {
             const s = System.updateState
             if (s === "available") { page.osState = "downloading"; System.installUpdate() }
@@ -157,7 +157,8 @@ Screen {
     // Steam comes preinstalled and updates itself on first start.
     function updateSteam() {
         steamState = "updating"
-        if (!App.real) return simulate("steam")
+        if (App.sample) return simulate("steam")
+        if (App.kiosk) { steamState = "done"; return finishUpdates() }
         if (!App.sys.which("steam")) { steamState = "missing"; return finishUpdates() }
         App.sys.spawn("steam", JSON.stringify(["-silent"]))
         steamWait.start()
@@ -302,6 +303,17 @@ Screen {
                         busy: true
                         focusable: false
                     }
+                    // Nothing found, or no Wi-Fi adapter at all (a desktop on a cable shows the
+                    // wired row above instead).
+                    VListItem {
+                        visible: page.stepId === "network" && !App.sample && !System.scanning && page.networks.length === 0
+                        label: System.hasWifi ? I18n.t("noNetworks") : I18n.t("noWifiAdapter")
+                        icon: "wifiOff"
+                        detail: System.hasWifi ? I18n.t("searchAgain") : ""
+                        chevron: System.hasWifi
+                        focusable: System.hasWifi
+                        onActivated: System.scan()
+                    }
                     Repeater {
                         model: page.stepId === "network" ? page.networks : []
                         VListItem {
@@ -355,21 +367,22 @@ Screen {
                             spacing: Theme.s4
                             VProgress {
                                 size: "lg"
-                                indeterminate: page.osState === "checking" || (App.real && page.osState === "downloading")
+                                indeterminate: page.osState === "checking" || (!App.sample && page.osState === "downloading")
                                 value: page.osState === "done" || page.osState === "none" ? 1 : page.osProgress
                                 tone: page.osState === "done" || page.osState === "none" ? "good" : "accent"
-                                showValue: !App.real
+                                showValue: App.sample
                                 label: page.osState === "checking" ? I18n.t("checkingUpdates")
-                                     : page.osState === "downloading" ? I18n.t("downloadingUpdate", { version: App.real ? "" : "0.1.1" }).trim()
-                                     : page.osState === "done" ? I18n.t(App.real ? "updateStaged" : "updateInstalled", { version: "0.1.1" })
+                                     : page.osState === "downloading" ? I18n.t("downloadingUpdate", { version: App.sample ? "0.1.1" : System.updateVersion }).trim()
+                                     : page.osState === "done" ? I18n.t(App.sample ? "updateInstalled" : "updateStaged", { version: "0.1.1" })
                                      : page.osState === "none" ? I18n.t("latest") : I18n.t("updateFailed")
                             }
                             VProgress {
+                                visible: !App.kiosk
                                 size: "lg"
-                                indeterminate: page.steamState === "waiting" || (App.real && page.steamState === "updating")
+                                indeterminate: page.steamState === "waiting" || (!App.sample && page.steamState === "updating")
                                 value: page.steamState === "done" ? 1 : page.steamProgress
                                 tone: page.steamState === "done" ? "good" : "accent"
-                                showValue: !App.real
+                                showValue: App.sample
                                 label: page.steamState === "waiting" ? I18n.t("steamWaitingUpdate") : page.steamState === "updating" ? I18n.t("updatingSteam")
                                      : page.steamState === "missing" ? I18n.t("steamMissing") : I18n.t("steamUpToDate")
                             }
@@ -388,7 +401,7 @@ Screen {
                         onActivated: if (!page.accounts.steam) { page.accountView = "steam" }
                     }
                     VListItem {
-                        visible: page.stepId === "account" && page.accountView === "choose"
+                        visible: page.stepId === "account" && page.accountView === "choose" && App.vantaAccounts
                         label: I18n.t("vantaAccount")
                         detail: page.accounts.vanta ? page.accounts.vanta.email : I18n.t("vantaOptionDetail")
                         chevron: !page.accounts.vanta

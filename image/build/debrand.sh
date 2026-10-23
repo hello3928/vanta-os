@@ -16,7 +16,7 @@ IMAGE_REF=${VANTA_IMAGE_REF:-ghcr.io/hello3928/vanta-os}
 . /usr/lib/os-release
 cat > /usr/lib/os-release <<EOF
 NAME="Vanta OS"
-VERSION="${VANTA_VER} (F${VERSION_ID})"
+VERSION="${VANTA_VER}"
 ID=${ID}
 ID_LIKE="${ID_LIKE}"
 VERSION_ID=${VERSION_ID}
@@ -41,10 +41,12 @@ EOF
 
 # ---- image info (read by Bazzite's update and session scripts) ----
 info=/usr/share/ublue-os/image-info.json
+# image-name and image-vendor stay: Bazzite's scripts check image-name for "deck" (autologin into
+# game mode, hardware setup, return-to-gamemode) and treat any other name as a desktop image.
 # Unverified until the image carries a signing policy for its own key (CI signs with keyless cosign).
 jq --arg ver "$VANTA_VER" --arg ref "ostree-unverified-registry:${IMAGE_REF}" \
-	'.["image-name"] = "vanta-os" | .["image-vendor"] = "hello3928" | .["image-ref"] = $ref
-	 | .["version"] = $ver | .["version-pretty"] = ("Vanta OS " + $ver)' "$info" > "$info.new"
+	'.["image-ref"] = $ref | .["version"] = $ver | .["version-pretty"] = ("Vanta OS " + $ver)' \
+	"$info" > "$info.new"
 mv "$info.new" "$info"
 
 # ---- hostname ----
@@ -64,6 +66,16 @@ for app in io.github.rfrench3.bazzite-updater.desktop io.github.ublue_os.yafti_g
 	[[ -f $f ]] && sed -i '0,/^\[Desktop Entry\]/s//[Desktop Entry]\nNoDisplay=true/' "$f"
 done
 
+# Discover lists installed apps from their metainfo, menu entry or not.
+rm -f /usr/share/metainfo/io.github.rfrench3.bazzite-updater.metainfo.xml \
+	/usr/share/metainfo/io.github.ublue_os.yafti_gtk.metainfo.xml
+
+# Password prompts show the action's vendor and messages. Action IDs (org.bazzite.*) stay.
+for f in /usr/share/polkit-1/actions/org.bazzite.*.policy; do
+	[[ -f $f ]] || continue
+	sed -i -E 's#<vendor_url>[^<]*</vendor_url>#<vendor_url>https://github.com/hello3928/vanta-os</vendor_url>#; s/Bazzite/Vanta OS/g' "$f"
+done
+
 # ---- terminal: fetch logo and tips ----
 rm -f /etc/profile.d/bazzite-neofetch.sh /usr/share/fish/vendor_conf.d/bazzite-neofetch.fish
 rm -f /usr/share/ublue-os/motd/tips/*bazzite* /usr/share/ublue-os/motd/tips/*/*bazzite*
@@ -78,4 +90,15 @@ rm -rf /usr/share/wallpapers/bazzite
 rm -f /usr/share/wallpapers/convergence.jxl /usr/share/wallpapers/giants.jxl
 
 # ---- session files copied from image/files ----
-chmod 755 /usr/libexec/vanta-session /usr/share/gamescope-session-plus/sessions.d/ogui-steam
+chmod 755 /usr/libexec/vanta-session /usr/libexec/vanta-kiosk /usr/libexec/vanta-boot-message /usr/share/gamescope-session-plus/sessions.d/ogui-steam
+
+# ---- boot splash ----
+# Vanta's Plymouth theme (image/art/plymouth) instead of the firmware logo and Fedora's spinner.
+sed -i 's/^Theme=.*/Theme=vanta/' /usr/share/plymouth/plymouthd.defaults
+plymouth-set-default-theme vanta
+
+# ---- initramfs ----
+# Bazzite's initramfs carries its os-release (the hostname set at boot, which systemd keeps after
+# switching root) and its boot splash watermark. Rebuilt the way Bazzite builds it.
+kver=$(ls /usr/lib/modules)
+dracut --no-hostonly --kver "$kver" --reproducible --zstd --add ostree -f "/usr/lib/modules/$kver/initramfs.img"

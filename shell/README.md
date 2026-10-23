@@ -45,17 +45,27 @@ Renders offscreen at 1280×800 through OpenGL (Mesa llvmpipe), starting from a c
 
 | Variable | Use |
 |---|---|
-| `VANTA_SESSION=1` | Set by the Vanta session. Without it, commands that change the machine (power, Wi-Fi, time zone, language, updates) are printed instead of run. |
+| `VANTA_SESSION=1` | Set by the Vanta session. Without it, commands that change the machine (power, Wi-Fi, time zone, language, updates) are printed instead of run. What's shown is always real either way: Wi-Fi networks, the Steam library and account, storage, updates. |
+| `VANTA_SAMPLE=1` | Show the mockup's sample library, networks and simulated sign-ins instead of this machine's. Set by the screenshot tools (`tools/wsl/shot-shell.sh`; `VANTA_SAMPLE=0` there shows the real machine). |
+| `VANTA_KIOSK=1` | Set by `vanta-kiosk` (no gamescope): Steam isn't started. |
 | `VANTA_DATA` | Folder with `icons/`, `fonts/`, `sounds/`, `i18n/`. Default `/usr/share/vanta`. |
 | `VANTA_CONFIG` | Settings and profiles. Default `~/.config/vanta`. |
 | `VANTA_ROMS` | An extra ROM folder (besides `~/Games/roms` and `~/Emulation/roms`). |
-| `VANTA_ACCOUNT_URL` | Vanta account service. Not running yet. |
+| `VANTA_ACCOUNT_URL` | Vanta account service. Not running yet, so the Vanta account option is hidden. |
 | `VANTA_SCREENSHOT` | Save one frame to this path and quit (`VANTA_SHOT_DELAY` ms, default 5000). |
 | `VANTA_PAGE`, `VANTA_GAME`, `VANTA_STEP`, `VANTA_OVERLAY` | Open on a page (`home`, `library`, `game`, `settings`, `users`, `setup`), game, setup step or overlay. |
 | `VANTA_KEYS` | Console actions to play, for testing: `"down down accept wait:800 back"`. |
 | `VANTA_PAD` | Show a controller's prompts: `xbox`, `ps`, `nintendo`, `deck`. |
 
 Pass `--window` to run in a window instead of fullscreen.
+
+## Steam
+
+Sign-in is Steam's own QR flow through its Web API (`qml/core/Steam.qml`): Vanta shows the QR
+code, the Steam Mobile App approves it, and the refresh token is kept in
+`~/.config/vanta/steam/<steamid>.json` (mode 600). Vanta lists every owned game with
+`IPlayerService/GetOwnedGames`, merged with what's installed (`src/library.rs`). The Steam client
+signs in separately, in its own window, before the first download.
 
 ## Notes
 

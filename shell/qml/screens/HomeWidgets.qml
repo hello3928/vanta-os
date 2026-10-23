@@ -21,7 +21,7 @@ VRow {
         { name: "mira", color: "#7a3e52", game: null },
         { name: "jaxx", color: "#2f6f69", game: "Balatro" }
     ] : []
-    readonly property var storage: Games.sample ? { free: 412e9, total: 1e12 } : System.storageInfo
+    readonly property var storage: App.sample ? { free: 412e9, total: 1e12 } : System.storageInfo
 
     function bytes(n) {
         if (n >= 1e12) return (Math.round(n / 1e11) / 10) + " TB"

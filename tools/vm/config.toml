@@ -1,0 +1,16 @@
+# bootc-image-builder settings for test VMs (tools/wsl/make-disk.sh). Not for real installs.
+# Test account: logs in automatically into game mode; the password is only for desktop mode and sudo.
+[[customizations.user]]
+name = "vanta"
+password = "vanta-test"
+groups = ["wheel"]
+
+# The image is about 13 GB; leave room for Steam and a game or two.
+[[customizations.filesystem]]
+mountpoint = "/"
+minsize = "60 GiB"
+
+# Boot messages and a login prompt on the serial port too, so tests can read logs from outside.
+# Plymouth would show text on every console once there is a serial one; ignore it for the splash.
+[customizations.kernel]
+append = "console=ttyS0,115200 console=tty0 plymouth.ignore-serial-consoles"

@@ -7,8 +7,8 @@
 //! - emulated games: one folder per system under ~/Games/roms (EmuDeck's ~/Emulation/roms too)
 //! Steam games launch, install and uninstall through the Steam client (steam:// links), which
 //! handles Proton, cloud saves and downloads. Store details (trailers, screenshots, genres) are
-//! fetched by the QML side. Without Steam or ROMs (development), `sample` is true and the QML
-//! side shows data/sample-library.json instead.
+//! fetched by the QML side. With VANTA_SAMPLE=1 (screenshot and flow-check tools only),
+//! `sample` is true and the QML side shows data/sample-library.json instead.
 
 #[cxx_qt::bridge]
 pub mod qobject {
@@ -118,7 +118,7 @@ fn scan() -> Scan {
         games.extend(steam_games(r, &account));
     }
     games.extend(rom_games());
-    let sample = games.is_empty() && root.is_none();
+    let sample = env::var("VANTA_SAMPLE").as_deref() == Ok("1");
     Scan {
         games: Value::Array(games),
         account,

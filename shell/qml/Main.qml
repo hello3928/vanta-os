@@ -16,6 +16,8 @@ Window {
     visibility: Qt.platform.os === "linux" && Qt.application.arguments.indexOf("--window") < 0 && !App.sys.screenshotPath ? Window.FullScreen : Window.Windowed
     color: Theme.bg
     title: App.sys.osName
+    // In the Vanta session nothing closes the shell (the compositor's close request included).
+    onClosing: close => { if (App.real) close.accepted = false }
 
     FontLoader { source: "file://" + App.sys.dataDir + "/fonts/Figtree.ttf" }
 

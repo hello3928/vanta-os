@@ -47,11 +47,13 @@ QtObject {
     property bool wired: false
     property var networks: []          // [{ ssid, signal, secured, active }]
     property bool scanning: false
+    property bool hasWifi: true        // a Wi-Fi adapter is present (from nmcli's device list)
     // Without a running NetworkManager (development) there's nothing to ask, so the bar shows connected.
     property bool hasNetworkManager: false
 
     // ---------- updates ----------
     property string updateState: ""    // "" | checking | available | none | failed | downloading | ready
+    property string updateVersion: ""  // the available image's version, from rpm-ostree's check
 
     readonly property var deviceNames: ({
         "RC72LA": "ROG Ally X", "RC71L": "ROG Ally", "Jupiter": "Steam Deck", "Galileo": "Steam Deck OLED",
@@ -287,6 +289,7 @@ QtObject {
             if (tag === "wifi-state") {
                 sys.hasNetworkManager = code === 0
                 sys.wired = out.split("\n").some(l => { const f = sys.fields(l); return f[0] === "ethernet" && f[1].indexOf("connected") === 0 })
+                sys.hasWifi = out.split("\n").some(l => sys.fields(l)[0] === "wifi")
             } else if (tag === "wifi-active") {
                 const act = out.split("\n").map(sys.fields).find(f => f[0] === "yes")
                 sys.wifiSsid = act ? act[1] : ""
@@ -308,7 +311,10 @@ QtObject {
                 out.split("\n").map(sys.fields).filter(f => f[1] === "802-11-wireless")
                     .forEach(f => App.system("wifi-forget", "nmcli", ["connection", "delete", f[0]]))
             } else if (tag === "update-check") {
-                // rpm-ostree: 0 = an update is available, 77 = already up to date.
+                // rpm-ostree: 0 = an update is available, 77 = already up to date. The new image's
+                // version is on its "Version:" line.
+                const ver = /Version:\s*(\S+)/.exec(out)
+                sys.updateVersion = ver ? ver[1] : ""
                 sys.updateState = code === 0 ? "available" : code === 77 ? "none" : "failed"
             } else if (tag === "update-install") {
                 sys.updateState = code === 0 ? "ready" : "failed"

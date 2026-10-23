@@ -6,6 +6,18 @@
 STEAM_SESSION_FILE=/usr/share/gamescope-session-plus/sessions.d/steam
 [[ -f "${STEAM_SESSION_FILE}" ]] && . "${STEAM_SESSION_FILE}"
 
+# gamescope needs a Vulkan GPU. Without one (only Mesa's software renderer, as in a VM), it can
+# never start, so the shell runs on its own in the kiosk session instead.
+if ! vulkaninfo --summary 2>/dev/null | grep -qE 'PHYSICAL_DEVICE_TYPE_(INTEGRATED|DISCRETE|VIRTUAL)_GPU'; then
+	exec /usr/libexec/vanta-kiosk
+fi
+
+# After five quick failures gamescope-session-plus calls this. Steam's version wipes Steam back to
+# its bootstrap and switches to desktop mode; Vanta keeps Steam and opens the kiosk session.
+short_session_recover() {
+	exec /usr/libexec/vanta-kiosk
+}
+
 # Steam's hook copies startup videos into Steam's UI, which this session doesn't show.
 post_gamescope_start() {
 	:

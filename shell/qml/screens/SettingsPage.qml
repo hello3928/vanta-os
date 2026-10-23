@@ -150,7 +150,10 @@ Screen {
                 label: I18n.t("signOutSteam")
                 chevron: true
                 onActivated: App.confirm({ title: I18n.t("signOutSteamQ"), body: I18n.t("signOutSteamBody"), confirmLabel: I18n.t("signOut"), danger: true },
-                                         () => Profiles.update(Profiles.current.id, { steam: null }))
+                                         () => {
+                                             Steam.forget(Profiles.current.steam.steamId)
+                                             Profiles.update(Profiles.current.id, { steam: null })
+                                         })
             }
             VListItem {
                 visible: !!parent.me && !parent.me.steam
@@ -159,7 +162,7 @@ Screen {
                 chevron: true
                 onActivated: App.open("signIn", { kind: "steam" })
             }
-            Label { visible: !!parent.me; text: I18n.t("vantaAccount") }
+            Label { visible: !!parent.me && App.vantaAccounts; text: I18n.t("vantaAccount") }
             VListItem {
                 visible: !!parent.me && !!parent.me.vanta
                 label: parent.me && parent.me.vanta ? parent.me.vanta.email : ""
@@ -175,7 +178,7 @@ Screen {
                                          () => Profiles.update(Profiles.current.id, { vanta: null }))
             }
             VListItem {
-                visible: !!parent.me && !parent.me.vanta
+                visible: !!parent.me && !parent.me.vanta && App.vantaAccounts
                 label: I18n.t("vantaAccount")
                 detail: I18n.t("vantaOptionDetail")
                 chevron: true

@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+# Vanta OS without gamescope: the shell alone, full screen, in cage (a kiosk compositor that shows
+# one app and has no way to close it or switch away). Used when the machine has no Vulkan GPU for
+# gamescope, or gamescope keeps failing. Games need gamescope, so Steam isn't started here.
+
+export VANTA_KIOSK=1
+export QT_QPA_PLATFORM=wayland
+# Draw the pointer into the frame instead of on a hardware cursor plane (QEMU's 3D display shows
+# that plane upside down; it costs nothing here).
+export WLR_NO_HARDWARE_CURSORS=1
+exec cage -d -- /usr/libexec/vanta-session

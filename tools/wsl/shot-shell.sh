@@ -3,7 +3,10 @@
 # Starts from a copy of dev-config (setup done, one profile; VANTA_DEV_CONFIG=dev-config-ja for
 # Japanese) unless VANTA_CONFIG is set.
 # Extra environment (VANTA_GAME, VANTA_SHOT_DELAY, QSG_INFO=1, ...) passes through.
+# Shows the mockup's sample library and accounts (VANTA_SAMPLE=1) unless VANTA_SAMPLE=0, which
+# shows what this machine really has (in WSL: no Steam, no Wi-Fi).
 set -e
+export VANTA_SAMPLE=${VANTA_SAMPLE:-1}
 OUT=${1:-/tmp/vanta-shot.png}
 cd /mnt/c/Users/Thomas/Documents/VantaOS/shell
 if [ -z "$VANTA_CONFIG" ]; then
