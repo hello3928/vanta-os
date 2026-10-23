@@ -26,6 +26,9 @@ QtObject {
     property real target: 0             // seconds: where the music starts and loops back to
     property bool av1Failed: false
     property bool triedHls: false
+    // Waiting for a trailer start() asked for. The player also reports "loaded" for the trailer
+    // being stopped, which must not start anything.
+    property bool loading: false
     readonly property bool visible: playing && (Settings.trailerVideo || expanded)
     readonly property real progress: player.duration > 0 ? player.position / player.duration : 0
 
@@ -78,12 +81,14 @@ QtObject {
         if (!g || !game || g.id !== game.id) return
         triedHls = av1Failed
         target = g.trailerStart !== undefined ? g.trailerStart : -1
+        loading = true
         player.source = streamOf(g, av1Failed ? "hls" : "av1")
     }
 
     // Loaded: jump to the start point, then fade in.
     function ready() {
-        if (!game || playing) return
+        if (!game || playing || !loading) return
+        loading = false
         if (target < 0) {
             const total = player.duration / 1000
             target = total > 0 ? Math.max(startAt, Math.min(total * startShare, total - 20)) : startAt
@@ -96,7 +101,7 @@ QtObject {
     }
 
     function failed(message) {
-        if (!game) return
+        if (!game || !loading) return
         if (!triedHls) {
             // AV1 didn't work here: use H.264 for the rest of the session.
             av1Failed = true
@@ -105,6 +110,7 @@ QtObject {
             return
         }
         console.log("vanta: trailer unavailable: " + message)
+        loading = false
         stop(true)
     }
 
@@ -118,6 +124,7 @@ QtObject {
 
     function stop(now) {
         settle.stop()
+        loading = false
         if (!playing) { player.stop(); return }
         playing = false
         if (now) { fader.stop(); audio.volume = 0; player.stop(); return }
