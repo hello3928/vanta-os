@@ -1,4 +1,4 @@
-// Region, time zone and clock format (the mockup's core/Region.js).
+// Region, time zone and clock format.
 // The zone and NTP are set on the real system with timedatectl, the language with localectl
 // (see System.qml). The clock here formats with the chosen zone's offset, so it is right the
 // moment the zone changes.

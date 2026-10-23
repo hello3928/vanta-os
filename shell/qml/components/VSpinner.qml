@@ -1,4 +1,4 @@
-// Spinning wheel for short waits (the mockup's VSpinner). size: sm | md | lg.
+// Spinning wheel for short waits. size: sm | md | lg.
 // tone: accent | light | muted. Use VProgress when progress is known.
 import QtQuick
 import QtQuick.Shapes

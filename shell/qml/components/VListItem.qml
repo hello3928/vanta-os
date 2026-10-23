@@ -1,4 +1,4 @@
-// A row in a list or menu (the mockup's VListItem): optional second line, a value on the right,
+// A row in a list or menu: optional second line, a value on the right,
 // a badge, a chevron, or a check mark for the chosen item in setup lists.
 import QtQuick
 import dev.vanta.shell

@@ -1,4 +1,4 @@
-// Library (the mockup's screens/Library.js): tabs (All games, Installed, Steam, Emulation) over
+// Library: tabs (All games, Installed, Steam, Emulation) over
 // a grid of capsules. Emulation adds a row of system filters. LB/RB switch tabs.
 import QtQuick
 import dev.vanta.shell

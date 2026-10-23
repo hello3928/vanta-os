@@ -1,5 +1,4 @@
-// Edit a profile, or create one from "Who's playing?" (the mockup's ProfileEditor.js and
-// Users.js addUser): name, picture, and Delete. Edits save as you make them.
+// Edit a profile, or create one from "Who's playing?": name, picture, and Delete. Edits save as you make them.
 import QtQuick
 import dev.vanta.shell
 

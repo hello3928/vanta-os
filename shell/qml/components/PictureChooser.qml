@@ -1,4 +1,4 @@
-// Profile picture choices (the mockup's ProfileEditor.js pictureChooser): colour swatches with
+// Profile picture choices: colour swatches with
 // the name's initial, plus "Upload a photo" (from Pictures, Steam screenshots or a USB drive,
 // then positioned in a round crop) and "Remove photo". Edits `draft` ({ name, color, photo })
 // and emits changed() after every change.

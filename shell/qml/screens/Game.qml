@@ -1,4 +1,4 @@
-// Game page (the mockup's screens/Game.js): hero with logo, the play bar, screenshots, then the
+// Game page: hero with logo, the play bar, screenshots, then the
 // game's performance profile beside plain details. The game's music keeps playing from Home.
 // The profile is saved per game (Games.profile) for vantad to apply at launch.
 import QtQuick

@@ -1,4 +1,4 @@
-// A game's properties (the mockup's Game.js properties()): how it runs, cloud saves, files,
+// A game's properties: how it runs, cloud saves, files,
 // and Uninstall (through the Steam client).
 import QtQuick
 import dev.vanta.shell

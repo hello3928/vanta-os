@@ -1,4 +1,4 @@
-// A short tour of Home after setup (the mockup's Tour.js): each step puts a spotlight on one area
+// A short tour of Home after setup: each step puts a spotlight on one area
 // and names its button with the controller's own glyph. B skips; Settings > System shows it again.
 import QtQuick
 import dev.vanta.shell

@@ -1,4 +1,4 @@
-// A Home widget card, like the PS5's (the mockup's screens/widgets.js): a label on top and a
+// A Home widget card, like the PS5's: a label on top and a
 // value, chart or list underneath. Focusable like tiles: a white ring and a slight lift.
 import QtQuick
 import dev.vanta.shell

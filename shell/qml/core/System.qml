@@ -1,4 +1,4 @@
-// The device and what it can do (the mockup's core/Device.js), and the settings that change the
+// The device and what it can do, and the settings that change the
 // real system. Everything goes through the system's own tools:
 //   Wi-Fi and radios: nmcli · Bluetooth: bluetoothctl · volume: wpctl (PipeWire)
 //   brightness: logind SetBrightness on the backlight · time: timedatectl · language: localectl

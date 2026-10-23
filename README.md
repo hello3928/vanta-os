@@ -1,35 +1,79 @@
 # Vanta OS
 
-A console-style gaming OS for x86 PCs and handhelds. It boots straight into a controller-first interface, plays Steam games through Proton, and keeps emulated games in the same library.
+A console-style operating system for gaming PCs and handhelds. It starts into a full-screen
+interface made for controllers, with Steam games and emulated games in one library. Steam runs
+in the background for downloads, cloud saves and launching games.
 
-**Status:** design phase. This repo holds the tech stack, the interactive UI mockup and the logo directions.
+Vanta OS is built on Bazzite's handheld image (Fedora Atomic), so it gets Bazzite's drivers,
+kernel and gaming fixes, and updates as a whole image.
 
-## What's here
+**Status:** early. The image builds and installs, and it boots into the Vanta interface in a
+virtual machine. Game mode on real hardware (gamescope, running games) hasn't been tested yet.
 
-| Path | What it is |
+## Repository
+
+| Folder | Contents |
 |---|---|
-| [docs/TECH_STACK.md](docs/TECH_STACK.md) | Recommended stack, gaming tweaks, interface direction, roadmap |
-| [docs/COMPONENTS.md](docs/COMPONENTS.md) | The reusable UI components and controls |
-| [mockup/](mockup/) | Clickable UI mockup (plain HTML/CSS/JS modules, no build step) |
-| [brand/](brand/) | Logo directions (wordmarks) as SVG, generated from `mockup/js/brand.js` |
-| [tools/export-logos.mjs](tools/export-logos.mjs) | Regenerates `brand/` |
+| [shell/](shell/) | The interface: Qt 6 / QML with Rust. Home, library, game pages, settings, first-time setup, profiles, Steam sign-in |
+| [image/](image/) | The OS image: Containerfile, session files, branding, boot splash, installer settings |
+| [brand/](brand/) | The Orbit logo as SVG |
+| [tools/](tools/) | Build and test scripts: `wsl/` for building on Windows through WSL, `vm/` for the QEMU test machine |
+| [.github/workflows/](.github/workflows/) | Builds and publishes the image |
 
-## Run the mockup
+## Install
 
-The mockup uses ES modules, so serve it over HTTP rather than opening the file directly:
+Download the installer ISO, write it to a USB drive of 16 GB or more with Fedora Media Writer
+(or Rufus in DD mode), and start the PC from it. The installer asks for the disk to install to
+and for a user account, then restarts into Vanta OS. Installing erases the chosen disk.
 
-```bash
-npx http-server@14.1.1 mockup -p 4173 -c-1
+A PC already running Bazzite can switch to Vanta OS instead:
+
+```
+sudo bootc switch ghcr.io/hello3928/vanta-os:stable
 ```
 
-Then open http://localhost:4173. The first start runs first-time setup (language, Wi-Fi, controller, profile); after that you land on "Who's playing?". Use a controller, the keyboard (arrows, Enter, Esc, Q, M, [ ]), a mouse or touch. `logos.html` compares the three logo directions.
+Updates come from `ghcr.io/hello3928/vanta-os:stable`. The device downloads a new image in the
+background and uses it after the next restart. Settings shows the state under System updates, and
+the previous version stays available to roll back to.
 
-## Regenerate the logo files
+## Build
 
-```bash
-node tools/export-logos.mjs
+The shell (Fedora 44 with Rust and Qt 6 development packages):
+
+```
+cd shell
+QMAKE=qmake6 cargo build --release
 ```
 
-## Game art
+The image, from the repository root:
 
-The mockup uses real games so the screens look like they will on a device. Their art loads live from Steam's CDN, and retro box art from [libretro-thumbnails](https://github.com/libretro-thumbnails) (what RetroArch uses). Selecting a game plays its official Steam trailer as menu music and a moving background, like the PS5 home screen (streamed with hls.js). No images or video are stored in this repo. Without network access, or in the published preview (which blocks outside images), each game falls back to generated stand-in art. Play times and achievements are sample values.
+```
+podman build -f image/Containerfile -t vanta-os .
+```
+
+The installer ISO, after building the image, in WSL (bootc-image-builder needs root):
+
+```
+sudo bash tools/wsl/make-iso.sh localhost/vanta-os
+```
+
+The workflow in `.github/workflows/build-image.yml` builds the image on every change to `shell/`,
+`image/` or `brand/`, and weekly for Bazzite's updates. It publishes `:stable` and a dated tag and
+signs them with cosign.
+
+## Test machine
+
+`tools/vm/` runs the image in QEMU on Windows with Windows Hypervisor Platform, and can push a new
+shell into the running machine without rebuilding the image. See [tools/vm/README.md](tools/vm/README.md).
+Game mode needs a Vulkan GPU, which the virtual machine doesn't have, so there the shell runs on
+its own without gamescope.
+
+## Credits
+
+- [Bazzite](https://github.com/ublue-os/bazzite) and [Universal Blue](https://universal-blue.org),
+  the base image (Apache 2.0)
+- [Figtree](https://github.com/erikdkennedy/figtree), the typeface (SIL Open Font License)
+- [Phosphor Icons](https://phosphoricons.com) (MIT)
+- [gamescope](https://github.com/ValveSoftware/gamescope) and Steam, from Valve
+
+Vanta OS isn't affiliated with Valve or the Bazzite project.

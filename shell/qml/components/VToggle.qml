@@ -1,4 +1,4 @@
-// On/off row (the mockup's VToggle). `key` ties it to a setting; otherwise it keeps `value`.
+// On/off row. `key` ties it to a setting; otherwise it keeps `value`.
 // Separate sounds for on and off, played after the change so turning sounds on is audible.
 import QtQuick
 import dev.vanta.shell

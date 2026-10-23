@@ -1,4 +1,4 @@
-// The one button used everywhere (the mockup's VButton).
+// The one button used everywhere.
 // variant: primary | play | secondary | ghost | danger    size: sm | md | lg
 // Icon-only when there is no label. Focused buttons invert to near-white; primary and play keep
 // their colour and gain a white ring.

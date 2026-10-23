@@ -1,4 +1,4 @@
-// On-screen keyboard, Steam Deck style (the mockup's VKeyboard). Slides up from the bottom with a
+// On-screen keyboard, Steam Deck style. Slides up from the bottom with a
 // preview of the text.
 // Controller: D-pad moves between keys, A types, B deletes, X adds a space, Start finishes,
 // LB/RB move the cursor. Physical keyboard: typing goes straight in; Enter finishes, Esc closes.

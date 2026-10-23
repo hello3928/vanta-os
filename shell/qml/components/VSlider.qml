@@ -1,4 +1,4 @@
-// Numeric setting (the mockup's VSlider). Left/right step the value while focused; drag or tap
+// Numeric setting. Left/right step the value while focused; drag or tap
 // the track with a pointer. The tick sound rises in pitch with the value.
 import QtQuick
 import dev.vanta.shell

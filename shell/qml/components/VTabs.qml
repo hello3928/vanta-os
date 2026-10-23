@@ -1,4 +1,4 @@
-// A row of tabs (the mockup's VTabs). A selects; LB/RB step through them with step().
+// A row of tabs. A selects; LB/RB step through them with step().
 // variant: line (underline) | chips (small filters) | rail (vertical icons, quick access)
 // tabs: [{ id, label, icon }]
 import QtQuick

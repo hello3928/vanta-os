@@ -1,4 +1,4 @@
-// Small status label (the mockup's VBadge). tone: default | accent | good | warn | bad | muted.
+// Small status label. tone: default | accent | good | warn | bad | muted.
 import QtQuick
 import dev.vanta.shell
 

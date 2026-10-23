@@ -1,11 +1,11 @@
-// Game music, PS5 style (the mockup's core/GameMusic.js): when a game stays selected for a
+// Game music, PS5 style: when a game stays selected for a
 // moment, its official trailer fades in behind the hero art and its audio becomes the menu music.
 // Moving on fades it out. One player follows you between screens: Home and the game page attach
 // their VideoOutput, so opening a game's page keeps the same music without a restart.
 //
 // Streams: Steam publishes each trailer as AV1 (DASH) and H.264 (HLS) at the same bitrates. AV1
 // is sharper, so it's tried first; HLS is the fallback. Playback is FFmpeg through Qt Multimedia.
-// Start point: where the gameplay starts (game.trailerStart, from the mockup's TrailerScan);
+// Start point: where the gameplay starts (game.trailerStart);
 // otherwise skip the rating cards (12 s, or about a fifth of the way in). Looping goes back to
 // that point, not to 0:00.
 pragma Singleton

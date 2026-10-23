@@ -1,4 +1,4 @@
-// Power limit slider (the mockup's perf.js tdpSlider): the device's own range, in watts.
+// Power limit slider: the device's own range, in watts.
 // Disabled with the reason where the device has no power limit to set (desktops).
 import QtQuick
 import dev.vanta.shell

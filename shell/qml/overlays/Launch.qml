@@ -1,4 +1,4 @@
-// Launching a game (the mockup's Launch.js): the hero art pushes in and darkens, the logo
+// Launching a game: the hero art pushes in and darkens, the logo
 // settles in the centre, then the screen fades to black and the game takes over. Vanta asks the
 // Steam client (or the emulator) to start the game; when it can't, the screen comes back with
 // an error instead.

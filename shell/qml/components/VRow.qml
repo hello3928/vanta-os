@@ -1,4 +1,4 @@
-// A titled horizontal shelf (the mockup's VRow). It's a focus group, so it remembers the last
+// A titled horizontal shelf. It's a focus group, so it remembers the last
 // focused item. alignStart keeps the focused item pinned to the left edge, console style.
 // Room above and below the tiles keeps a focused tile's lift from being cut off.
 import QtQuick
@@ -61,6 +61,5 @@ Column {
             spacing: Theme.s3
         }
     }
-    // The mockup's track has margin-bottom: -0.4rem.
     bottomPadding: -0.4 * Theme.rem
 }

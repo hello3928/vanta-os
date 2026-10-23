@@ -1,4 +1,4 @@
-// Profiles for "Who's playing?" (the mockup's core/Profiles.js). Each has a name, a colour, and
+// Profiles for "Who's playing?". Each has a name, a colour, and
 // optionally a cropped photo (a JPEG under ~/.config/vanta/profiles/), plus the Steam and Vanta
 // accounts linked to it. Saved to ~/.config/vanta/profiles.json.
 pragma Singleton

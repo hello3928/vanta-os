@@ -1,4 +1,4 @@
-// Home widgets, like the PS5's (the mockup's screens/widgets.js): play time this week,
+// Home widgets, like the PS5's: play time this week,
 // achievements, friends, downloads and storage. Play time is counted by Vanta while games run;
 // storage is the home drive. Achievements and friends need Steam's Web API, so outside the
 // sample library they stay hidden until that's connected.

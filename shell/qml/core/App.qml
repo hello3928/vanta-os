@@ -1,4 +1,4 @@
-// Router and wiring (the mockup's app.js). Main.qml hands it the layers and component tables;
+// Router and wiring. Main.qml hands it the layers and component tables;
 // screens and overlays call it for navigation, popups and system actions.
 //
 // Screens: App.go(name, params). Each screen is a QML item with `shell` ({ title, hints,
@@ -10,7 +10,7 @@
 // that change the machine (power, Wi-Fi, time zone, language) are printed instead of run.
 // Everything shown is always read from the machine: Wi-Fi networks, the Steam library and
 // account, storage, updates. `sample` (VANTA_SAMPLE=1, set only by the screenshot and flow-check
-// tools) swaps in the mockup's sample library, networks and simulated sign-ins instead.
+// tools) swaps in a sample library, networks and simulated sign-ins instead.
 pragma Singleton
 import QtQuick
 import dev.vanta.shell
@@ -185,7 +185,7 @@ QtObject {
         return d
     }
 
-    // Error and status popups (the mockup's VAlert). onDone gets the action id, or null for B.
+    // Error and status popups. onDone gets the action id, or null for B.
     function alert(tone, opts, onDone) {
         let done = false
         const finish = id => { if (done) return; done = true; if (onDone) onDone(id) }
@@ -346,7 +346,7 @@ QtObject {
     function shutDown() { powerOff("poweroff") }
 
     // A moment of black, then the system restarts or powers off. In development the screen comes
-    // back on "Who's playing?" (after any button, for shut down), as in the mockup.
+    // back on "Who's playing?" (after any button, for shut down),.
     function powerOff(how) {
         running = null
         inGame = false

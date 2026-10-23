@@ -1,5 +1,5 @@
-// A settings row whose value opens a popup list, like Steam Deck dropdowns (the mockup's
-// VDropdown). A opens the list; up/down moves; A picks; B closes without changing anything.
+// A settings row whose value opens a popup list, like Steam Deck dropdowns.
+// A opens the list; up/down moves; A picks; B closes without changing anything.
 // options: ["Off", "Low", "High"] or [{ value, label }]. Values stored in English show translated.
 // `key` ties it to a setting; otherwise it keeps `value` and emits picked(value).
 import QtQuick

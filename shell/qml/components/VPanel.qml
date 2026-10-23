@@ -1,4 +1,4 @@
-// A drawer from the left (main menu) or right (quick access, game options), the mockup's VPanel.
+// A drawer from the left (main menu) or right (quick access, game options).
 // It opens its own focus scope; B or tapping outside closes it and returns focus.
 // Put rows inside it; `header` is shown under the title, `rail` on the outer edge.
 import QtQuick

@@ -1,5 +1,5 @@
 // The page title on the left; on the right, buttons for notifications, Wi-Fi, battery, the clock,
-// your profile and quick access (the mockup's VTopBar). Each opens the matching panel; the same
+// your profile and quick access. Each opens the matching panel; the same
 // button again closes it. Controller: Up from the top of a page moves into the bar; Down or B
 // returns to the page. One bar for every page.
 import QtQuick

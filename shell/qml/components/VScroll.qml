@@ -1,5 +1,5 @@
 // A scrolling area that Nav keeps the focused item inside, with eased scrolling: shelves glide
-// sideways, pages and panels vertically (the mockup's Motion.scrollTo). Drag and touch work too.
+// sideways, pages and panels vertically. Drag and touch work too.
 import QtQuick
 import dev.vanta.shell
 

@@ -1,4 +1,4 @@
-// Main menu (the mockup's Menus.js openMainMenu): the left drawer, opened with Guide/View, M, or
+// Main menu: the left drawer, opened with Guide/View, M, or
 // the profile picture in the top bar. The header is your profile; with a game running it starts
 // with the game and Resume / Exit game.
 import QtQuick

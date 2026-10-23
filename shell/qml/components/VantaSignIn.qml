@@ -1,7 +1,7 @@
-// Vanta account: email and password, then create an account or sign in (the mockup's
-// Accounts.js vantaSignIn). The password is never kept. The account service isn't running yet:
-// set VANTA_ACCOUNT_URL to point at one. Without it the option isn't offered (App.vantaAccounts),
-// except with VANTA_SAMPLE=1, where the mockup's simulated sign-in runs.
+// Vanta account: email and password, then create an account or sign in. The password is never
+// kept. The account service isn't running yet: set VANTA_ACCOUNT_URL to point at one. Without it
+// the option isn't offered (App.vantaAccounts), except with VANTA_SAMPLE=1, where a simulated
+// sign-in runs.
 import QtQuick
 import dev.vanta.shell
 

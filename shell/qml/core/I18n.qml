@@ -1,7 +1,7 @@
-// Interface language (the mockup's core/i18n.js). t("key", { vars }) looks up the current
+// Interface language. t("key", { vars }) looks up the current
 // language; every dictionary already has English filled in for missing keys. The Intl wording
-// the browser gave the mockup (relative days, units, weekdays, region names) comes precomputed
-// in the same files: data/i18n/<lang>.json, written by tools/export-i18n.mjs.
+// a browser would give (relative days, units, weekdays, region names) comes precomputed
+// in the same files: data/i18n/<lang>.json, edited directly.
 // Bindings that call t() update when the language changes, because they read `dict`.
 pragma Singleton
 import QtQuick

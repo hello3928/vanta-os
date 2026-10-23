@@ -1,4 +1,4 @@
-// Home (the mockup's screens/Home.js): hero art for the selected game, Recent games, widgets,
+// Home: hero art for the selected game, Recent games, widgets,
 // Recently added and Emulation. The selected game's trailer becomes the music and, after a
 // moment, the moving background. X opens the trailer full screen: the hero's clip opens to the
 // whole screen, so the art and video never move, rescale or restart.

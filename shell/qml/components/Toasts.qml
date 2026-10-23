@@ -1,4 +1,4 @@
-// Short notifications in the bottom-right corner (the mockup's VToast). Not focusable; plays the
+// Short notifications in the bottom-right corner. Not focusable; plays the
 // notify sound and rumble. show(text, { icon, tone, sound, duration })
 import QtQuick
 import dev.vanta.shell

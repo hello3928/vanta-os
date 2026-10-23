@@ -1,7 +1,7 @@
-// Steam sign-in, shared by first-time setup and Settings > Accounts (the mockup's Accounts.js).
+// Steam sign-in, shared by first-time setup and Settings > Accounts.
 // Vanta never handles Steam passwords. It shows Steam's own sign-in QR code (Steam.qml); the
 // player approves it in the Steam Mobile App, and the account's owned games come in through
-// Steam's Web API. With VANTA_SAMPLE=1 (screenshot and flow-check tools) the mockup's simulated
+// Steam's Web API. With VANTA_SAMPLE=1 (screenshot and flow-check tools) a simulated
 // approval runs instead, with its stand-in QR code and sample account.
 import QtQuick
 import dev.vanta.shell
@@ -25,7 +25,7 @@ Column {
         ["syncLibrary", "library", I18n.t("gamesCount", { n: s.ownedCount })]
     ]
     property int synced: 0
-    // The QR code: Steam's (with a two-module quiet zone), or the mockup's stand-in.
+    // The QR code: Steam's (with a two-module quiet zone), or a stand-in (VANTA_SAMPLE).
     readonly property var code: simulated ? null : Steam.qr
 
     width: parent ? parent.width : 0
@@ -187,7 +187,7 @@ Column {
     }
 
     // The first import: profile and library (in the sample, also achievements, screenshots and
-    // friends, as in the mockup).
+    // friends).
     Rectangle {
         visible: s.phase === "sync" || s.phase === "ready"
         width: parent.width

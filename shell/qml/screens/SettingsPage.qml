@@ -1,4 +1,4 @@
-// Settings (the mockup's screens/Settings.js), laid out like SteamOS: a darker category strip on
+// Settings, laid out like SteamOS: a darker category strip on
 // the left running the full height, the focused category's rows on the right. Rows are label +
 // value, with a second line only where it tells you something you need. B in the rows returns
 // to the list; B on the list leaves Settings.

@@ -1,4 +1,4 @@
-// Full-screen screenshot viewer (the mockup's Lightbox.js). Left/right (or swipe) moves between
+// Full-screen screenshot viewer. Left/right (or swipe) moves between
 // shots, A goes to the next one, B closes.
 import QtQuick
 import dev.vanta.shell

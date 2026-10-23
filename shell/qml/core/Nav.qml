@@ -1,4 +1,4 @@
-// Spatial focus navigation for controller and keyboard (the mockup's core/FocusManager.js).
+// Spatial focus navigation for controller and keyboard.
 // - Scopes form a stack: the page is the root scope; panels and dialogs push their own.
 // - Moving picks the nearest focusable item in that direction, scored on screen geometry.
 // - Containers with `focusGroup: true` (rows, lists) remember their last focused item, so

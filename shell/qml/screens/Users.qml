@@ -1,4 +1,4 @@
-// "Who's playing?" (the mockup's screens/Users.js): the first screen after start-up. Pick a
+// "Who's playing?": the first screen after start-up. Pick a
 // profile, play as a guest, or add one. X on a profile edits it. The chosen picture grows a
 // little and the screen fades into Home.
 import QtQuick

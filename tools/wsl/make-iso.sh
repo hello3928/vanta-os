@@ -1,15 +1,16 @@
 #!/bin/bash
 # Builds the Vanta OS installer ISO from the local image with bootc-image-builder.
 # Usage: make-iso.sh [image] [windows folder]
-# The image is tagged as ghcr.io/hello3928/vanta-os:stable first, so installed systems update from
-# there (the package must be public for that). Settings: image/iso/config.toml.
+# The ISO carries image/iso/Containerfile's layer on the image, tagged as
+# ghcr.io/hello3928/vanta-os:stable, so installed systems update from there (the package must be
+# public for that). Installer settings: image/iso/config.toml.
 set -e
 IMG=${1:-localhost/vanta-os:dev}
 WINDIR=${2:-/mnt/c/Users/Thomas/VantaVM}
 REF=ghcr.io/hello3928/vanta-os:stable
 OUT=/root/vanta-iso
 mkdir -p "$OUT" "$WINDIR"
-podman tag "$IMG" "$REF"
+podman build --pull=never --build-arg IMAGE="$IMG" -f /mnt/c/Users/Thomas/Documents/VantaOS/image/iso/Containerfile -t "$REF" /mnt/c/Users/Thomas/Documents/VantaOS/image/iso 2>&1 | tail -3
 podman run --rm --privileged --pull=newer --security-opt label=type:unconfined_t \
   -v /mnt/c/Users/Thomas/Documents/VantaOS/image/iso/config.toml:/config.toml:ro \
   -v "$OUT":/output \

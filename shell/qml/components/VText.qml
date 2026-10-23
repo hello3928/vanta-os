@@ -1,4 +1,4 @@
-// Text in the UI typeface. size and weight follow the mockup's type scale (Theme.t*).
+// Text in the UI typeface. size and weight follow the type scale (Theme.t*).
 import QtQuick
 import dev.vanta.shell
 

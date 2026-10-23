@@ -1,4 +1,4 @@
-// Button prompts along the bottom (the mockup's VHintBar). Glyphs follow the input in use.
+// Button prompts along the bottom. Glyphs follow the input in use.
 // hints: [[action, label], ...]; "tabs" shows both bumpers.
 import QtQuick
 import dev.vanta.shell

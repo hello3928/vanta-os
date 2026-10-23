@@ -1,4 +1,4 @@
-// The Vanta OS logo, Orbit (the mockup's brand.js): three arcs of falling radius around a centre
+// The Vanta OS logo, Orbit: three arcs of falling radius around a centre
 // point, the middle one a shade dimmer. Geometry on a 100×100 grid. draw() plays the welcome
 // draw-in: the arcs stroke in one after another while the mark turns into place, then the core
 // pops in.

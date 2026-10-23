@@ -1,4 +1,4 @@
-// An inline message inside a page or panel, not a popup (the mockup's VBanner).
+// An inline message inside a page or panel, not a popup.
 // tone: error | warning | info | success.
 import QtQuick
 import dev.vanta.shell

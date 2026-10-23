@@ -1,4 +1,4 @@
-// Position a photo inside a round mask (the mockup's PhotoCrop.js). Drag to move, wheel or pinch
+// Position a photo inside a round mask. Drag to move, wheel or pinch
 // to zoom, or with a controller: the D-pad moves the photo while the stage is selected and the
 // slider zooms. "Use photo" saves a 320×320 JPEG under ~/.config/vanta/profiles/.
 import QtQuick

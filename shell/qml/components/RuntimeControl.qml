@@ -1,4 +1,4 @@
-// How a game runs (the mockup's perf.js runtimeControl): the Proton version for Windows games,
+// How a game runs: the Proton version for Windows games,
 // the emulator for retro games, and a plain line for native Linux games (nothing to choose).
 import QtQuick
 import dev.vanta.shell

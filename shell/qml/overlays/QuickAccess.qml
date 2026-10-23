@@ -1,4 +1,4 @@
-// Quick access (the mockup's Menus.js openQuickAccess): the right drawer with an icon rail for
+// Quick access: the right drawer with an icon rail for
 // notifications, quick settings and performance. Like a console quick menu, focusing a rail icon
 // switches the page straight away. LB/RB step through the pages. Performance applies to the
 // running game when there is one, so its runtime decides what's available.

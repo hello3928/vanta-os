@@ -1,8 +1,8 @@
-// A button prompt (the mockup's core/glyphs.js). The style follows the controller in use:
+// A button prompt. The style follows the controller in use:
 // Xbox (coloured letters), PlayStation (cross, circle, square, triangle), Nintendo (letters in
 // Nintendo positions), Steam Deck (white letters), and keycaps for the keyboard. Settings >
 // Controllers can force one style. Prompts name actions, not buttons: Glyph { action: "accept" }
-// draws whatever button accepts on that pad. Drawn on the mockup's 24-unit grid, then scaled.
+// draws whatever button accepts on that pad. Drawn on a 24-unit grid, then scaled.
 import QtQuick
 import QtQuick.Shapes
 import dev.vanta.shell

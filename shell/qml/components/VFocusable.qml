@@ -1,4 +1,4 @@
-// Base for everything you can focus (the mockup's VComponent): focus, activation, sound and
+// Base for everything you can focus: focus, activation, sound and
 // haptics behave the same everywhere. Subclasses build their look from `focused` and `pressed`
 // and override activate(), handleDirection() or handleBack() where they differ.
 // The mouse moves focus only after it really moves (Nav.device becomes "pointer"), so a resting
@@ -21,7 +21,7 @@ Item {
     property string activateHaptic: "select"
     property bool pressed: false
     property bool tapToFocusFirst: false
-    // Focusing this item scrolls its page back to the top (the mockup's data-scroll-top).
+    // Focusing this item scrolls its page back to the top.
     property bool scrollTop: false
 
     signal activated()

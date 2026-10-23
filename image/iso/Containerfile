@@ -1,0 +1,12 @@
+# The image the installer ISO carries (tools/wsl/make-iso.sh): Vanta OS with only Fedora's own
+# package repositories enabled. bootc-image-builder builds the installer from the image's
+# repositories and can't read the signing keys Bazzite's extra ones (Terra, the akmods COPR)
+# point to. The installer doesn't need them, and an installed system gets the normal image, with
+# them on, from its first update.
+ARG IMAGE=localhost/vanta-os:dev
+FROM ${IMAGE}
+RUN for f in /etc/yum.repos.d/*.repo; do \
+        case "$(basename "$f")" in fedora.repo|fedora-updates.repo|fedora-updates-archive.repo) ;; \
+        *) sed -i 's/^enabled=1/enabled=0/' "$f" ;; esac; \
+    done \
+    && bootc container lint

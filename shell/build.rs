@@ -1,7 +1,5 @@
 // Builds the QML module dev.vanta.shell: every .qml file under qml/ plus the Rust QObjects in
 // src/. Files that start with `pragma Singleton` are registered as singletons (Theme, App, ...).
-// Ported from the web mockup (mockup/): Theme.qml is mockup/styles/tokens.css, and each
-// component keeps the mockup's name (VTile.qml is mockup/js/components/VTile.js).
 
 use cxx_qt_build::{CxxQtBuilder, QmlFile, QmlModule};
 use std::{fs, path::Path};

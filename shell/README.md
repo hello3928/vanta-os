@@ -1,7 +1,6 @@
 # Vanta shell
 
-The console UI: Qt 6 / QML with Rust (cxx-qt 0.10). Every page, panel and control is a port of
-`mockup/`, with the same names (`VTile.js` → `VTile.qml`).
+The console UI: Qt 6 / QML with Rust (cxx-qt 0.10).
 
 ## Layout
 
@@ -9,28 +8,27 @@ The console UI: Qt 6 / QML with Rust (cxx-qt 0.10). Every page, panel and contro
 |---|---|
 | `src/` | Rust: `sys.rs` (files, commands, /proc), `gamepad.rs` (controllers and rumble through gilrs), `library.rs` (Steam's files and ROM folders) |
 | `qml/core/` | Singletons: `App` (router, overlays, power), `Nav` (spatial focus), `Settings`, `Profiles`, `I18n`, `Region`, `Games`, `System` (device and system settings), `Sound`, `Haptics`, `Music` (game music), `Notifications`, `Theme` |
-| `qml/components/` | The mockup's components: `VButton`, `VTile`, `VRow`, `VTabs`, `VListItem`, `VToggle`, `VSlider`, `VDropdown`, `VTextField`, `VPanel`, `VDialog`, `VTopBar`, `VHintBar`, `Glyph`, `Logo`, ... |
+| `qml/components/` | Controls and building blocks: `VButton`, `VTile`, `VRow`, `VTabs`, `VListItem`, `VToggle`, `VSlider`, `VDropdown`, `VTextField`, `VPanel`, `VDialog`, `VTopBar`, `VHintBar`, `Glyph`, `Logo`, ... |
 | `qml/screens/` | Home, Library, Game, Settings, Users ("Who's playing?"), Setup |
 | `qml/overlays/` | Main menu, Quick access, dropdown menu, keyboard, launch, welcome, tour, screenshot viewer, profile editor, photo picker and crop, sign-in, game properties |
 | `data/` | Icons, Figtree, UI sounds, translations, the sample library |
 
-Assets come from the mockup so the two can't drift:
+Translations are `data/i18n/<lang>.json` (English, Spanish, French, German, Brazilian
+Portuguese, Japanese). Add a string to all six. Icons are Phosphor (`data/icons/LICENSE.txt`),
+the typeface is Figtree (`data/fonts/OFL.txt`). `data/setup-wall.jpg` is made by
+`tools/wsl/render-setup-wall.sh`.
 
-| Asset | Made by |
-|---|---|
-| `data/icons` | `node tools/export-icons.mjs` |
-| `data/i18n` | `node tools/export-i18n.mjs` (shell-only strings in `tools/i18n-shell.json`) |
-| `data/sample-library.json` | `node tools/export-sample-library.mjs` |
-| `data/sounds` | `tools/render-sounds.js` in the mockup page, saved by `tools/sound-sink.mjs` |
+## Build
 
-## Build (WSL, Fedora 44)
+On Fedora 44 with Rust and the Qt 6 development packages (base, declarative, svg, multimedia,
+shadertools) and `systemd-devel`:
 
 ```
-wsl -d FedoraLinux-44 -- bash /mnt/c/Users/Thomas/Documents/VantaOS/tools/wsl/build-shell.sh
+QMAKE=qmake6 cargo build --release
 ```
 
-Build output goes to `~/vanta-target/shell` inside WSL. Needs Qt 6 (base, declarative, svg,
-multimedia), libudev (`systemd-devel`) and Rust.
+`tools/wsl/build-shell.sh` does the same in WSL, with the build output in `~/vanta-target/shell`.
+The image builds it inside its own build stage, against the image's Qt.
 
 ## Screenshots without a display
 
@@ -46,7 +44,7 @@ Renders offscreen at 1280×800 through OpenGL (Mesa llvmpipe), starting from a c
 | Variable | Use |
 |---|---|
 | `VANTA_SESSION=1` | Set by the Vanta session. Without it, commands that change the machine (power, Wi-Fi, time zone, language, updates) are printed instead of run. What's shown is always real either way: Wi-Fi networks, the Steam library and account, storage, updates. |
-| `VANTA_SAMPLE=1` | Show the mockup's sample library, networks and simulated sign-ins instead of this machine's. Set by the screenshot tools (`tools/wsl/shot-shell.sh`; `VANTA_SAMPLE=0` there shows the real machine). |
+| `VANTA_SAMPLE=1` | Show a sample library, networks and simulated sign-ins instead of this machine's. Set by the screenshot tools (`tools/wsl/shot-shell.sh`; `VANTA_SAMPLE=0` there shows the real machine). |
 | `VANTA_KIOSK=1` | Set by `vanta-kiosk` (no gamescope): Steam isn't started. |
 | `VANTA_DATA` | Folder with `icons/`, `fonts/`, `sounds/`, `i18n/`. Default `/usr/share/vanta`. |
 | `VANTA_CONFIG` | Settings and profiles. Default `~/.config/vanta`. |

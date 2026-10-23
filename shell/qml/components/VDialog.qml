@@ -1,4 +1,4 @@
-// A centred modal with a title, message and action buttons (the mockup's VDialog and VAlert).
+// A centred modal with a title, message and action buttons.
 // icon + tone (error | warning | info | success) draw a status badge above the title; code adds
 // a small reference line. Error dialogs shake once and play the error sound.
 // actions: [{ label, variant, icon, run }]; `stack` puts them one per line (the power menu).
@@ -113,7 +113,7 @@ Overlay {
                 width: parent.width
                 spacing: Theme.s2
                 layoutDirection: d.stack ? Qt.LeftToRight : Qt.RightToLeft
-                // Right to left keeps the mockup's order (first action on the left) when reversed.
+                // Right to left keeps the design's order (first action on the left) when reversed.
                 Repeater {
                     id: buttons
                     model: d.stack ? d.actions : d.actions.slice().reverse()

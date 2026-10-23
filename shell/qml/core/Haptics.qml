@@ -1,4 +1,4 @@
-// Controller haptics (the mockup's core/Haptics.js). Each pattern is a list of
+// Controller haptics. Each pattern is a list of
 // [durationMs, weak, strong] pulses and gaps (numbers, in ms), played through gamepad.rs.
 // Rumble motors can't render very short or very light pulses, so menu ticks are lifted to what
 // a controller can actually play.

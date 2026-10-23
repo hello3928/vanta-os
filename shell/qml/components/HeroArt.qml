@@ -1,8 +1,7 @@
-// A game's wide art, cropped to fill like the mockup's heroes (object-fit: cover, centred
-// horizontally, `focusY` down from the top). Steam games use their library hero. Emulated games
-// have no hero, so like Steam does for games without art it's built from what exists: the box
-// art blurred into a colour wash, with the real game screen on top in a frame, scaled without
-// smoothing so pixels stay square.
+// A game's wide art, cropped to fill (centred horizontally, `focusY` down from the top). Steam
+// games use their library hero. Emulated games have no hero, so like Steam does for games without
+// art it's built from what exists: the box art blurred into a colour wash, with the real game
+// screen on top in a frame, scaled without smoothing so pixels stay square.
 import QtQuick
 import QtQuick.Effects
 import dev.vanta.shell

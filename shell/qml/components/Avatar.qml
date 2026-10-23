@@ -1,4 +1,4 @@
-// Round profile picture (the mockup's avatarEl): the cropped photo if there is one, otherwise
+// Round profile picture: the cropped photo if there is one, otherwise
 // the name's first letter on the profile colour. No profile (guest) shows a person icon;
 // `empty` draws an outlined circle with an icon (Add user).
 import QtQuick

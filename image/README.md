@@ -58,10 +58,8 @@ doesn't have). See `tools/vm/README.md`.
 
 - Game mode on real hardware: gamescope, the shell as the session client and Steam in the
   background are untested outside containers and the VM.
-
 - Signed updates: the image doesn't yet carry a policy that checks Vanta's signature, so updates
   come from the unverified registry. Needs a cosign key pair and a policy file.
 - Steam's own startup videos (`/usr/share/ublue-os/bazzite/*.webm`) still have Bazzite's logo.
   Vanta's session never shows them; Steam Big Picture in desktop mode could.
-- `ujust` recipes and polkit prompts in desktop mode still say Bazzite in places.
-- An installer ISO.
+- `ujust` recipes in desktop mode still say Bazzite in places.

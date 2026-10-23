@@ -1,5 +1,4 @@
-// UI sounds (the mockup's core/Sound.js). The WAVs in data/sounds are the mockup's own sound
-// models rendered once (tools/render-sounds.js): dry, tactile clicks, no reverb or melodies.
+// UI sounds. The WAVs in data/sounds are dry, tactile clicks, no reverb or melodies.
 // Navigation and keys have a few takes so repeats don't sound mechanical; the slider tick rises
 // in pitch with the value (play("slider", { t: 0..1 })). System volume is PipeWire's; the
 // interface volume setting scales these on top.

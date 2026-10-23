@@ -1,4 +1,4 @@
-// The row every list and setting uses (the mockup's .v-control): icon, label, an optional second
+// The row every list and setting uses: icon, label, an optional second
 // line, and something on the right (a value, switch, badge or chevron). SteamOS lists: a hairline
 // between rows; the focused row fills instead.
 import QtQuick

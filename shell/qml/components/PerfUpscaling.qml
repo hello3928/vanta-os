@@ -1,4 +1,4 @@
-// System upscaling (FSR through gamescope), the mockup's perf.js upscaling(). The second line
+// System upscaling (FSR through gamescope).js upscaling(). The second line
 // shows the resolution the game renders at. Emulated games scale with the emulator's internal
 // resolution instead, so it's disabled for them.
 import QtQuick

@@ -1,4 +1,4 @@
-// The shell window (the mockup's index.html and app.js wiring): one page at a time under a
+// The shell window: one page at a time under a
 // shared top bar and hint bar, an overlay layer for panels and dialogs, and toasts.
 // Input: the keyboard here and controllers in gamepad.rs both become console actions that
 // App.handle() routes (up/down/left/right, accept, back, options, qam, mainMenu, tabs, home, power).
@@ -21,7 +21,7 @@ Window {
 
     FontLoader { source: "file://" + App.sys.dataDir + "/fonts/Figtree.ttf" }
 
-    // The mockup's root font size: clamp(13px, 0.5vw + 9.5px, 20px).
+    // Root font size: clamp(13px, 0.5vw + 9.5px, 20px).
     function scaleType() {
         Theme.width = width
         Theme.height = height
@@ -117,7 +117,7 @@ Window {
             anchors.fill: parent
         }
 
-        // Development: the "game" is its hero art, full screen, as in the mockup. In the Vanta
+        // Development: the "game" is its hero art, full screen,. In the Vanta
         // session the game's own window covers the shell.
         Item {
             anchors.fill: parent

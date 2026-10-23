@@ -1,4 +1,4 @@
-// Loading bar (the mockup's VProgress): determinate (value 0..1) or indeterminate (a moving
+// Loading bar: determinate (value 0..1) or indeterminate (a moving
 // segment), with an optional label and percentage. tone: accent | good | light.
 import QtQuick
 import dev.vanta.shell

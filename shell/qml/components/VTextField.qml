@@ -1,4 +1,4 @@
-// A text row (the mockup's VTextField). A opens the on-screen keyboard; the row updates as you
+// A text row. A opens the on-screen keyboard; the row updates as you
 // type. password: true shows dots.
 import QtQuick
 import dev.vanta.shell

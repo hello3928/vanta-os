@@ -1,4 +1,4 @@
-// Settings store (the mockup's core/Settings.js). Quick access, the Settings page and game pages
+// Settings store. Quick access, the Settings page and game pages
 // all read and write these properties, so a change in one place shows everywhere. Saved to
 // ~/.config/vanta/settings.json a moment after any change. Effects on the real system (volume,
 // brightness, Wi-Fi...) are applied by System.qml when a value changes.

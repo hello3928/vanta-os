@@ -1,4 +1,4 @@
-// A piece of art you can focus (the mockup's VTile): game capsules (2:3), landscape tiles and
+// A piece of art you can focus: game capsules (2:3), landscape tiles and
 // cards (16:9, with text underneath), and the small "Library" tile at the end of a shelf.
 // Focus lifts it slightly with a 3 px white ring drawn inside the art, so it's never clipped.
 // fit "box": retro box art shown whole over a blurred, darkened copy of itself.

@@ -1,4 +1,4 @@
-// First-time setup (the mockup's screens/Setup.js), laid out like SteamOS's: the step title
+// First-time setup, laid out like SteamOS's: the step title
 // centred on the left, the choices in a full-height panel on the right. No step counter.
 // Steps: language, network, time zone, updates, sign-in, controller, profile, done.
 // It configures the real system as it goes and sticks: the language and time zone are set with
@@ -122,7 +122,7 @@ Screen {
         osState = "checking"
         steamState = "waiting"
         if (App.sample) {
-            // The mockup's simulated check and download, in uneven steps as real downloads go.
+            // A simulated check and download, in uneven steps as real downloads go.
             App.later(1600, () => { osState = "downloading"; simulate("os") })
             return
         }

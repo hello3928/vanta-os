@@ -1,4 +1,4 @@
-// The end of first-time setup (the mockup's Tour.js playWelcome): the Orbit logo draws itself
+// The end of first-time setup: the Orbit logo draws itself
 // in with the welcome jingle, then the tour of Home starts.
 import QtQuick
 import dev.vanta.shell

@@ -1,11 +1,11 @@
-// Vanta design tokens: the QML twin of mockup/styles/tokens.css. Keep the two in step.
+// Vanta design tokens: colours, type scale, spacing, corner radii and motion.
 pragma Singleton
 import QtQuick
 
 QtObject {
-    // 1 rem in pixels. Main.qml sets it from the window width, as the mockup's root font size does.
+    // 1 rem in pixels. Main.qml sets it from the window width.
     property real rem: 16
-    // Window size. Main.qml keeps these current, like the viewport units in the mockup.
+    // Window size. Main.qml keeps these current.
     property real width: 1280
     property real height: 800
 
@@ -74,7 +74,7 @@ QtObject {
     readonly property real s6: 2 * rem
     readonly property real s7: 3 * rem
     readonly property real s8: 4 * rem
-    // Page side margin (the mockup's --pad): clamp(16px, 3.5vw, 56px).
+    // Page side margin: clamp(16px, 3.5vw, 56px).
     readonly property real gutter: Math.max(16, Math.min(56, 0.035 * width))
 
     // Shape: SteamOS radii. Only switches and avatars are round.

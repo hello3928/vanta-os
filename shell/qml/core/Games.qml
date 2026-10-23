@@ -1,4 +1,4 @@
-// The game library as the screens see it (the mockup's data.js and art/). One list of plain
+// The game library as the screens see it. One list of plain
 // objects, the same shape for Steam and emulated games:
 //   { id, appid, source: "steam"|"emu", system, rom, path, title, genre, installed, lastPlayed,
 //     minutes, size, recent, added, native, upscalers, shots, trailer, trailerStart,
@@ -6,7 +6,7 @@
 // Real data: library.rs (Steam's files and the ROM folders), Steam store details for trailers,
 // screenshots and genres (fetched once per game and cached in ~/.cache/vanta/store), and
 // ~/.config/vanta/history.json for emulated play time. With VANTA_SAMPLE=1 (screenshot and
-// flow-check tools) it shows the mockup's sample library (data/sample-library.json) instead.
+// flow-check tools) it shows a sample library (data/sample-library.json) instead.
 pragma Singleton
 import QtQuick
 import dev.vanta.shell
