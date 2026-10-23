@@ -339,7 +339,55 @@ QtObject {
     // Both open a dialog in Steam's window (App.showSteamWindow), which closes again once Steam's
     // manifests show the result.
     property var steamAction: null      // { appid, kind: "install" | "uninstall" }
-    function install(g) { steamDialog(g, "install") }
+    // Installing without Steam's window: a stub manifest in Steam's main library ("update
+    // required, update started"), which Steam takes as a download to finish and queues on its own.
+    // Steam has no supported way for other programs to install, so if it hasn't taken the stub up
+    // within 20 seconds (its manifest gets the real size, or its log a new download state),
+    // the stub goes and Steam's install dialog opens instead.
+    property var pendingInstall: null   // { appid, path, log, at }
+    // Size of Steam's content log: only lines written after the install started count.
+    function contentLogSize() {
+        const f = JSON.parse(sys.listDir(lib.steamRoot + "/logs")).find(e => e.name === "content_log.txt")
+        return f ? f.size : 0
+    }
+    function install(g) {
+        if (sample || App.kiosk || !g.appid) return
+        const path = lib.steamRoot + "/steamapps/appmanifest_" + g.appid + ".acf"
+        if (!lib.steamRoot || sys.exists(path) || !sys.writeText(path, stubManifest(g))) return steamDialog(g, "install")
+        pendingInstall = { appid: g.appid, path: path, log: contentLogSize(), at: Date.now() }
+        lib.refresh()
+        installCheck.start()
+    }
+    function stubManifest(g) {
+        const clean = v => String(v).replace(/["\\]/g, "")
+        const fields = [["appid", g.appid], ["Universe", 1], ["name", clean(g.title)], ["StateFlags", 1026],
+                        ["installdir", clean(g.title).replace(/[\/:*?<>|]/g, "").trim()], ["LastUpdated", 0],
+                        ["SizeOnDisk", 0], ["buildid", 0], ["LastOwner", steamId || 0], ["BytesToDownload", 0],
+                        ["BytesDownloaded", 0], ["AutoUpdateBehavior", 0], ["AllowOtherDownloadsWhileRunning", 0],
+                        ["ScheduledAutoUpdate", 0]]
+        return "\"AppState\"\n{\n" + fields.map(f => "\t\"" + f[0] + "\"\t\t\"" + f[1] + "\"").join("\n") + "\n}\n"
+    }
+    readonly property Timer installCheck: Timer {
+        interval: 2000
+        repeat: true
+        onTriggered: {
+            const p = games.pendingInstall
+            if (!p) return stop()
+            games.lib.refresh()
+            const g = games.all.find(x => x.appid === p.appid)
+            const logged = games.contentLogSize() > p.log && /Queued|Running|Downloading|Preallocating/.test(g ? g.content : "")
+            if (g && (g.installed || g.bytesToDownload > 0 || logged)) {
+                games.pendingInstall = null
+                stop()
+            } else if (Date.now() - p.at > 20000) {
+                games.pendingInstall = null
+                stop()
+                games.sys.remove(p.path)
+                games.lib.refresh()
+                if (g) games.steamDialog(g, "install")
+            }
+        }
+    }
     function uninstall(g) { steamDialog(g, "uninstall") }
     function steamDialog(g, kind) {
         if (sample || App.kiosk || !g.appid) return
