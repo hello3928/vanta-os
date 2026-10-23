@@ -154,21 +154,39 @@ QtObject {
         }
     }
 
+    // Trailers, screenshots and genres come from the store, one game at a time (it limits how
+    // fast it's asked). Installed games and the ten played most recently are fetched up front;
+    // any other game when it's selected (wantStore). Answers are cached on disk.
+    signal storeLoaded(int appid)
+
     function loadStore() {
         if (sample) return
         let real = []
         try { real = JSON.parse(lib.gamesJson) } catch (e) {}
+        const owned = Steam.cachedOwned(steamId).slice().sort((a, b) => b.lastPlayed - a.lastPlayed)
         const next = Object.assign({}, store)
         const wanted = []
-        for (const g of real) {
-            if (!g.appid || next[g.appid]) continue
-            const text = sys.readText(cacheDir + "/store/" + g.appid + ".json")
-            if (text) { try { next[g.appid] = JSON.parse(text) } catch (e) {} }
-            if (!next[g.appid]) wanted.push(g.appid)
+        const fetchNow = {}
+        real.forEach(g => { if (g.appid) fetchNow[g.appid] = true })
+        owned.slice(0, 10).forEach(g => fetchNow[g.appid] = true)
+        for (const appid of Object.keys(fetchNow).concat(owned.map(g => String(g.appid)))) {
+            if (next[appid]) continue
+            const text = sys.readText(cacheDir + "/store/" + appid + ".json")
+            if (text) { try { next[appid] = JSON.parse(text) } catch (e) {} }
+            if (!next[appid] && fetchNow[appid] && queue.indexOf(Number(appid)) < 0) wanted.push(Number(appid))
         }
+        const changed = Object.keys(next).length !== Object.keys(store).length
         store = next
+        if (changed) build()
         queue = queue.concat(wanted)
         if (queue.length) fetcher.start()
+    }
+
+    // A game on screen without store details: fetch them next.
+    function wantStore(g) {
+        if (sample || !g || !g.appid || store[g.appid]) return
+        queue = [g.appid].concat(queue.filter(id => id !== g.appid))
+        fetcher.start()
     }
 
     function fetchStore(appid) {
@@ -185,6 +203,7 @@ QtObject {
                 next[appid] = keep
                 store = next
                 build()
+                storeLoaded(appid)
             } catch (e) {}
         }
         xhr.open("GET", "https://store.steampowered.com/api/appdetails?appids=" + appid + "&l=english")

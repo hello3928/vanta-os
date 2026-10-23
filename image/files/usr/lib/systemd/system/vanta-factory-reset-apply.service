@@ -1,0 +1,17 @@
+# Does a requested factory reset early in boot, before networking, Bluetooth, hardware setup and
+# the login screen start.
+[Unit]
+Description=Factory reset
+ConditionPathExists=/var/lib/vanta/factory-reset
+DefaultDependencies=no
+After=local-fs.target systemd-tmpfiles-setup.service
+Before=sysinit.target NetworkManager.service bluetooth.service systemd-user-sessions.service display-manager.service bazzite-hardware-setup.service bazzite-autologin.service
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/vanta-factory-reset apply
+TimeoutStartSec=infinity
+
+[Install]
+WantedBy=sysinit.target

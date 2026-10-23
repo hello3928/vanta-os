@@ -317,7 +317,7 @@
  "tourTrailer": "Pulsa {options} en Inicio para ver el tráiler de un juego a pantalla completa.",
  "resetSystem": "Restablecer sistema",
  "resetSystemQ": "¿Restablecer este dispositivo?",
- "resetSystemBody": "Se borrarán todos los perfiles, cuentas, ajustes y redes Wi-Fi guardadas, y se volverá a iniciar la configuración inicial. Los juegos instalados se conservan.",
+ "resetSystemBody": "Se borra todo lo que hay en este dispositivo: perfiles, cuentas, Steam y los juegos instalados con él, redes guardadas y ajustes. El dispositivo se reinicia y la configuración empieza de nuevo. Los juegos en otras unidades se conservan.",
  "opt": {
   "Off": "Desactivado",
   "Low": "Baja",

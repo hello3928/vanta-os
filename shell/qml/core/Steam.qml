@@ -137,13 +137,34 @@ QtObject {
     }
 
     // ---------- profile and games ----------
+    // Name and picture: the Web API first, then the account's community profile (its name and
+    // picture are public even when the rest of the profile is private).
     function profile(id, done) {
         accessToken(id, token => {
-            if (!token) return done(null)
+            if (!token) return communityProfile(id, done)
             call("GET", "/ISteamUser/GetPlayerSummaries/v2/", { access_token: token, steamids: id }, res => {
-                done(res && res.players && res.players.length ? res.players[0] : null)
+                const p = res && res.players && res.players.length ? res.players[0] : null
+                if (p && p.avatarfull) done(p)
+                else communityProfile(id, done)
             })
         })
+    }
+
+    function communityProfile(id, done) {
+        const xhr = new XMLHttpRequest()
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState !== XMLHttpRequest.DONE) return
+            const text = xhr.status === 200 ? xhr.responseText : ""
+            const field = name => {
+                const m = new RegExp("<" + name + ">(?:<!\\[CDATA\\[)?([^<\\]]*)").exec(text)
+                return m ? m[1].trim() : ""
+            }
+            const since = /(\d{4})/.exec(field("memberSince"))
+            done(field("steamID") ? { personaname: field("steamID"), avatarfull: field("avatarFull"),
+                                      timecreated: since ? Date.UTC(parseInt(since[1]), 0, 1) / 1000 : 0 } : null)
+        }
+        xhr.open("GET", "https://steamcommunity.com/profiles/" + id + "/?xml=1")
+        xhr.send()
     }
 
     // Every game the account owns: [{ appid, name, playtime_forever (minutes), rtime_last_played }].

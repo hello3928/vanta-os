@@ -1,0 +1,78 @@
+#!/usr/bin/bash
+# Factory reset: puts the device back to how it was installed, keeping the installed OS version.
+#
+#   vanta-factory-reset request   from Settings > System > Reset system (vanta-factory-reset.service):
+#                                 marks the reset and restarts
+#   vanta-factory-reset apply     early in the next boot (vanta-factory-reset-apply.service)
+#
+# What it erases:
+# - every user's home folder (Vanta profiles and sign-ins, Steam and the games installed there,
+#   desktop mode files and settings); the first user's comes back empty from /etc/skel, other users
+#   are removed
+# - saved Wi-Fi and other network connections, Bluetooth pairings, Flatpak permission overrides
+# - time zone, language and keyboard layout (back to the image's)
+# - Bazzite's first-boot markers, so hardware setup runs again
+# What it keeps: the OS and its updates, the user account the system logs in with, disks and
+# mounts, games on other drives.
+set -u
+marker=/var/lib/vanta/factory-reset
+
+case "${1:-}" in
+request)
+	mkdir -p "$(dirname "$marker")"
+	date -u +%FT%TZ > "$marker"
+	sync
+	systemctl reboot
+	;;
+
+apply)
+	[[ -f $marker ]] || exit 0
+	# Gone first: if something below fails, the next boot is a normal one, not a loop.
+	rm -f "$marker"
+	plymouth display-message --text="Restoring factory settings" 2>/dev/null
+
+	# Users: the first one (the account game mode logs in with) gets a new home, the rest go.
+	first=$(getent passwd | awk -F: '$3 >= 1000 && $3 < 60000 { print $3":"$1":"$6 }' | sort -n | head -1)
+	getent passwd | awk -F: '$3 > 1000 && $3 < 60000 { print $1 }' | while read -r user; do
+		[[ $user == "$(cut -d: -f2 <<<"$first")" ]] && continue
+		userdel -r -f "$user" 2>/dev/null
+	done
+	if [[ -n $first ]]; then
+		IFS=: read -r uid user home <<<"$first"
+		home=$(realpath -m "$home")
+		if [[ $home == /var/home/* || $home == /home/* ]]; then
+			rm -rf --one-file-system "$home"
+			mkdir -p "$home"
+			cp -a /etc/skel/. "$home/"
+			chown -R "$uid:$(id -g "$user")" "$home"
+			chmod 700 "$home"
+			restorecon -R "$home" 2>/dev/null
+		fi
+	fi
+
+	# Settings in /etc that people change: back to the image's copy (or gone, if it has none).
+	restore() {
+		local p
+		for p in "$@"; do
+			rm -rf "/etc/$p"
+			[[ -e /usr/etc/$p ]] && cp -a "/usr/etc/$p" "/etc/$p"
+			restorecon -R "/etc/$p" 2>/dev/null
+		done
+	}
+	restore NetworkManager/system-connections localtime locale.conf vconsole.conf \
+		X11/xorg.conf.d/00-keyboard.conf bazzite
+	mkdir -p /etc/NetworkManager/system-connections
+	chmod 700 /etc/NetworkManager/system-connections
+
+	# State outside /etc.
+	rm -rf /var/lib/bluetooth/* /var/lib/flatpak/overrides/* /var/lib/AccountsService/users/* \
+		/var/lib/AccountsService/icons/* /var/lib/systemd/coredump/* 2>/dev/null
+
+	plymouth display-message --text= 2>/dev/null
+	;;
+
+*)
+	echo "usage: $0 request|apply" >&2
+	exit 2
+	;;
+esac

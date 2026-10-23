@@ -90,7 +90,10 @@ rm -rf /usr/share/wallpapers/bazzite
 rm -f /usr/share/wallpapers/convergence.jxl /usr/share/wallpapers/giants.jxl
 
 # ---- session files copied from image/files ----
-chmod 755 /usr/libexec/vanta-session /usr/libexec/vanta-kiosk /usr/libexec/vanta-boot-message /usr/share/gamescope-session-plus/sessions.d/ogui-steam
+chmod 755 /usr/libexec/vanta-session /usr/libexec/vanta-kiosk /usr/libexec/vanta-boot-message /usr/libexec/vanta-factory-reset /usr/share/gamescope-session-plus/sessions.d/ogui-steam
+
+# ---- factory reset (Settings > System > Reset system) ----
+systemctl enable vanta-factory-reset-apply.service
 
 # ---- boot splash ----
 # Vanta's Plymouth theme (image/art/plymouth) instead of the firmware logo and Fedora's spinner.

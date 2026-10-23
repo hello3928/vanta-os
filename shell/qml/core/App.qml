@@ -361,18 +361,22 @@ QtObject {
         })
     }
 
-    // Reset system: erase profiles, accounts, settings and saved networks, keep installed games,
-    // then start again at first-time setup.
+    // Reset system: a factory reset of the whole device (vanta-factory-reset in the image: users'
+    // files, Steam, networks, Bluetooth, system settings), done early in the next boot. Then
+    // first boot setup and first-time setup run again. In development only the shell's own
+    // settings are erased.
     function resetSystem() {
         closeAll()
         Music.release()
         const black = open("black", {})
         later(900, () => {
-            System.forgetNetworks()
+            if (real) {
+                sys.exec("power", "systemctl", JSON.stringify(["start", "--no-block", "vanta-factory-reset.service"]))
+                return
+            }
             sys.remove(sys.configDir)
             Settings.reload()
             Profiles.reload()
-            if (real) { sys.exec("power", "systemctl", JSON.stringify(["reboot"])); return }
             Settings.setupDone = false
             go("setup", {}, { replace: true })
             black.fadeOut()

@@ -19,7 +19,12 @@ Screen {
 
     function enter() {
         Nav.focus(play, true)
+        Games.wantStore(game)
         if (!running) Music.attach(video, game)
+    }
+    Connections {
+        target: Games
+        function onStoreLoaded(appid) { if (page.game && page.game.appid === appid && !page.running) Music.attach(video, page.game) }
     }
     function onOptions() { properties() }
     function properties() { App.open("properties", { game: game }) }

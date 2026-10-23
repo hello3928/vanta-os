@@ -4,7 +4,9 @@
 # The overlay lasts until the VM restarts.
 #   .\push.ps1            pack and push
 #   .\push.ps1 -NoBuild   push the last archive again
-param([switch]$NoBuild)
+#   .\push.ps1 -Persist   keep the changes across restarts (ostree's hotfix mode), for things that
+#                         run at boot; they last until the next image is deployed
+param([switch]$NoBuild, [switch]$Persist)
 
 $root = Split-Path (Split-Path $PSScriptRoot)
 if (-not $NoBuild) {
@@ -16,8 +18,10 @@ if (-not $NoBuild) {
 $server = Start-Process python -ArgumentList "-I", "-m", "http.server", "8766", "--bind", "127.0.0.1", "--directory", "$root\build\push" -PassThru -WindowStyle Hidden
 try {
     Start-Sleep -Seconds 1
-    python "$PSScriptRoot\vmctl.py" root ("rpm-ostree usroverlay >/dev/null 2>&1; " +
+    $unlock = if ($Persist) { "ostree admin unlock --hotfix >/dev/null 2>&1; " } else { "rpm-ostree usroverlay >/dev/null 2>&1; " }
+    python "$PSScriptRoot\vmctl.py" root ($unlock +
         "curl -sf http://10.0.2.2:8766/vanta-push.tgz | tar xzf - -C / --no-same-owner --no-overwrite-dir && " +
+        "systemctl daemon-reload; systemctl enable vanta-factory-reset-apply.service 2>/dev/null; " +
         "pkill -x vanta-shell; echo pushed") 90
 } finally {
     Stop-Process -Id $server.Id -ErrorAction SilentlyContinue

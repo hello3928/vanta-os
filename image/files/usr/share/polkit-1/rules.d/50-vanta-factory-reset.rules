@@ -1,0 +1,10 @@
+// The person at the device can start a factory reset from Settings without a password, like the
+// other game mode actions. Only this one unit.
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units" &&
+        action.lookup("unit") == "vanta-factory-reset.service" &&
+        action.lookup("verb") == "start" &&
+        subject.local && subject.active) {
+        return polkit.Result.YES;
+    }
+});

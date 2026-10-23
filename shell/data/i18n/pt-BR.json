@@ -317,7 +317,7 @@
  "tourTrailer": "Aperte {options} no Início para ver o trailer de um jogo em tela cheia.",
  "resetSystem": "Redefinir sistema",
  "resetSystemQ": "Redefinir este dispositivo?",
- "resetSystemBody": "Todos os perfis, contas, configurações e redes Wi-Fi salvas serão apagados, e a configuração inicial começará de novo. Os jogos instalados são mantidos.",
+ "resetSystemBody": "Tudo neste dispositivo é apagado: perfis, contas, a Steam e os jogos instalados com ela, redes salvas e configurações. O dispositivo reinicia e a configuração começa de novo. Jogos em outras unidades são mantidos.",
  "opt": {
   "Off": "Desativado",
   "Low": "Baixa",

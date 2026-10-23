@@ -317,7 +317,7 @@
  "tourTrailer": "Drücke auf der Startseite {options}, um den Trailer eines Spiels im Vollbild zu sehen.",
  "resetSystem": "System zurücksetzen",
  "resetSystemQ": "Dieses Gerät zurücksetzen?",
- "resetSystemBody": "Alle Profile, Konten, Einstellungen und gespeicherten WLAN-Netze werden gelöscht und die Ersteinrichtung startet neu. Installierte Spiele bleiben erhalten.",
+ "resetSystemBody": "Alles auf diesem Gerät wird gelöscht: Profile, Konten, Steam und die damit installierten Spiele, gespeicherte Netzwerke und Einstellungen. Das Gerät startet neu und die Einrichtung beginnt von vorn. Spiele auf anderen Laufwerken bleiben erhalten.",
  "opt": {
   "Off": "Aus",
   "Low": "Niedrig",

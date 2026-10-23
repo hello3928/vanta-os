@@ -317,7 +317,7 @@
  "tourTrailer": "Press {options} on Home to watch a game’s trailer full screen.",
  "resetSystem": "Reset system",
  "resetSystemQ": "Reset this device?",
- "resetSystemBody": "All profiles, accounts, settings and saved Wi-Fi networks are erased, and first-time setup starts again. Installed games are kept.",
+ "resetSystemBody": "Everything on this device is erased: profiles, accounts, Steam and the games installed with it, saved networks and settings. The device restarts and setup starts again. Games on other drives are kept.",
  "opt": {},
  "batteryPct": "{n}% battery",
  "emuMissing": "{emu} isn't installed.",

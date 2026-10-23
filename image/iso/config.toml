@@ -1,0 +1,17 @@
+# bootc-image-builder settings for the installer ISO (tools/wsl/make-iso.sh).
+# The installer is interactive: it asks which disk to use and for the user account (game mode
+# logs in with it automatically). Without a kickstart of our own, bootc-image-builder's default
+# installs unattended onto the first disk it finds, which is not something to put on a USB stick.
+
+[customizations.installer.modules]
+enable = [
+  "org.fedoraproject.Anaconda.Modules.Localization",
+  "org.fedoraproject.Anaconda.Modules.Timezone",
+  "org.fedoraproject.Anaconda.Modules.Users",
+]
+
+[customizations.installer.kickstart]
+contents = """
+graphical
+reboot --eject
+"""

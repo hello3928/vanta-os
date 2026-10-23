@@ -48,9 +48,20 @@ Screen {
         onTriggered: home.render(game, false)
     }
 
+    // Store details (the trailer) for a game that had none yet: play it once it's here.
+    Connections {
+        target: Games
+        function onStoreLoaded(appid) {
+            if (!home.game || home.game.appid !== appid) return
+            home.game = Games.byId(home.game.id)
+            Music.select(home.game)
+        }
+    }
+
     function render(g, instant) {
         if (!g || (game && g.id === game.id)) return
         game = g
+        Games.wantStore(g)
         if (!instant) Music.select(g)
         hero.show(g)
         if (instant) {

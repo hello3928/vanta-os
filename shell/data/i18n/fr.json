@@ -317,7 +317,7 @@
  "tourTrailer": "Appuyez sur {options} sur l’accueil pour voir la bande-annonce d’un jeu en plein écran.",
  "resetSystem": "Réinitialiser le système",
  "resetSystemQ": "Réinitialiser cet appareil ?",
- "resetSystemBody": "Tous les profils, comptes, réglages et réseaux Wi-Fi enregistrés sont effacés, puis la configuration initiale recommence. Les jeux installés sont conservés.",
+ "resetSystemBody": "Tout le contenu de cet appareil est effacé : profils, comptes, Steam et les jeux installés avec, réseaux enregistrés et paramètres. L'appareil redémarre et la configuration recommence. Les jeux sur d'autres disques sont conservés.",
  "opt": {
   "Off": "Désactivé",
   "Low": "Faible",

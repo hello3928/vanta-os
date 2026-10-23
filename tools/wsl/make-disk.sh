@@ -13,5 +13,8 @@ podman run --rm --privileged --pull=newer --security-opt label=type:unconfined_t
   quay.io/centos-bootc/bootc-image-builder:latest \
   --type qcow2 --rootfs btrfs --use-librepo=True "$IMG" 2>&1 | grep -v -E "^\s*$|Downloading|^#" | tail -25
 ls -la "$OUT"/qcow2/
-qemu-img convert -p -O qcow2 "$OUT/qcow2/disk.qcow2" "$WINDIR/vanta-os.qcow2"
+# Written beside the old disk and swapped in, so a running VM's disk is never overwritten; if the VM
+# still has it open the new one waits as vanta-os.qcow2.new.
+qemu-img convert -p -O qcow2 "$OUT/qcow2/disk.qcow2" "$WINDIR/vanta-os.qcow2.new"
+mv -f "$WINDIR/vanta-os.qcow2.new" "$WINDIR/vanta-os.qcow2" 2>/dev/null || echo "VM running: new disk left as vanta-os.qcow2.new"
 ls -la "$WINDIR"

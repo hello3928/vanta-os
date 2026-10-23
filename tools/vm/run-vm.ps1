@@ -3,6 +3,8 @@
 #   .\run-vm.ps1                        window with virgl 3D (the host GPU through OpenGL)
 #   .\run-vm.ps1 -Plain                 plain virtio-vga, no 3D
 #   .\run-vm.ps1 -Headless              no window; screenshots through tools/vm/vmctl.py
+#   .\run-vm.ps1 -Iso <file>            boot an installer ISO, installing onto vanta-install.qcow2
+#                                       (a new empty 64 GB disk if it doesn't exist)
 # The serial console is on TCP 127.0.0.1:4555 (and logged to serial.log next to the disk), QEMU's
 # control socket (QMP) on 4556, and the guest's SSH port on 127.0.0.1:2222.
 param(
@@ -13,17 +15,23 @@ param(
     [string]$IrqChip = "off",
     [switch]$Usb,
     [switch]$Plain,
-    [switch]$Headless
+    [switch]$Headless,
+    [string]$Iso
 )
 
 $qemu = "C:\Program Files\qemu"
 $vmDir = Split-Path $Disk
-$vars = Join-Path $vmDir "efivars.fd"
+if ($Iso -and -not $PSBoundParameters.ContainsKey("Disk")) { $Disk = Join-Path $vmDir "vanta-install.qcow2" }
+if (-not (Test-Path $Disk)) { & "$qemu\qemu-img.exe" create -f qcow2 $Disk 64G | Out-Null }
+# Each disk keeps its own firmware boot entries.
+$vars = if ($Disk -like "*vanta-os.qcow2") { Join-Path $vmDir "efivars.fd" } else { "$Disk.efivars.fd" }
 if (-not (Test-Path $vars)) { Copy-Item "$qemu\share\edk2-i386-vars.fd" $vars }
 
 $display = if ($Headless) { @("-display", "none", "-device", "virtio-vga") }
            elseif ($Plain) { @("-display", "sdl", "-device", "virtio-vga") }
            else { @("-display", "sdl,gl=on", "-device", "virtio-vga-gl") }
+
+$cdrom = if ($Iso) { @("-drive", "file=$Iso,media=cdrom,if=none,id=cd0,readonly=on", "-device", "ide-cd,drive=cd0") } else { @() }
 
 $usbDevices = if ($Usb) { @("-device", "qemu-xhci", "-device", "usb-tablet", "-device", "usb-kbd") } else { @() }
 
@@ -43,7 +51,7 @@ $qemuArgs = @(
     "-serial", "chardev:ser0",
     "-qmp", "tcp:127.0.0.1:4556,server,nowait",
     "-no-reboot"
-) + $usbDevices + $display
+) + $cdrom + $usbDevices + $display
 
 # WHPX can't reset a running guest ("failed to get xsave state"), so QEMU exits when the guest
 # reboots and starts again here. A shutdown ends the loop.

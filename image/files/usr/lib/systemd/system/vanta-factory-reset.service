@@ -1,0 +1,7 @@
+# Started from Settings > System > Reset system: marks a factory reset and restarts.
+[Unit]
+Description=Factory reset (request)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/vanta-factory-reset request
