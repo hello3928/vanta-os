@@ -48,6 +48,10 @@ Item {
         sourceSize: Qt.size(Math.ceil(a.size * 2), Math.ceil(a.size * 2))
         cache: false
     }
+    Connections {
+        target: System
+        function onNetEpochChanged() { App.reloadIfFailed(img, () => a.photo) }
+    }
     MultiEffect {
         anchors.fill: parent
         visible: a.photo !== ""

@@ -38,11 +38,21 @@ QtObject {
     property var process: null
 
     readonly property string cacheDir: sys.env("XDG_CACHE_HOME") ? sys.env("XDG_CACHE_HOME") + "/vanta" : sys.home + "/.cache/vanta"
-    readonly property string steamCdn: "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps"
+    readonly property string steamCdn: "https://shared.steamstatic.com/store_item_assets/steam/apps"
     readonly property string thumbs: "https://raw.githubusercontent.com/libretro-thumbnails"
 
     function systemOf(g) { return g && g.system ? systems.find(s => s.id === g.system) || null : null }
     function byId(id) { return all.find(g => g.id === id) || null }
+
+    // Art the Steam client has on disk (library.rs), looked up once per game. It comes before
+    // Steam's servers, so games show their art offline too.
+    property var localArtFound: ({})
+    function localArt(appid) {
+        if (!(appid in localArtFound)) {
+            try { localArtFound[appid] = JSON.parse(lib.localArt(appid)) } catch (e) { localArtFound[appid] = {} }
+        }
+        return localArtFound[appid]
+    }
 
     function steamArt(appid) {
         const b = steamCdn + "/" + appid + "/"
@@ -93,7 +103,7 @@ QtObject {
                     return
                 }
                 real.push({ id: "steam-" + o.appid, appid: o.appid, source: "steam", title: o.name, installed: false,
-                            lastPlayed: o.lastPlayed, minutes: o.minutes, sizeBytes: 0 })
+                            lastPlayed: o.lastPlayed, minutes: o.minutes, sizeBytes: 0, art: localArt(o.appid) })
             })
             list = real.map(g => {
                 const d = g.appid ? store[g.appid] : null
@@ -332,6 +342,16 @@ QtObject {
     readonly property Connections onLibrary: Connections {
         target: games.lib
         function onGamesJsonChanged() { games.build(); games.loadStore() }
+    }
+    // Store details and the owned list that failed while offline (right after start, before
+    // Wi-Fi connects) are fetched again once the network is up.
+    readonly property Connections onNetwork: Connections {
+        target: System
+        function onNetEpochChanged() {
+            if (games.sample) return
+            games.loadStore()
+            if (games.steamId) Steam.loadOwned(games.steamId)
+        }
     }
     readonly property Connections onOwned: Connections {
         target: Steam

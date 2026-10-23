@@ -24,6 +24,10 @@ Item {
         sourceSize.width: Math.ceil(l.width * 1.5)
         visible: false
     }
+    Connections {
+        target: System
+        function onNetEpochChanged() { App.reloadIfFailed(img, () => l.src) }
+    }
     MultiEffect {
         anchors.fill: img
         source: img

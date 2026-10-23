@@ -30,6 +30,15 @@ Item {
         asynchronous: true
     }
 
+    Connections {
+        target: System
+        function onNetEpochChanged() {
+            App.reloadIfFailed(hero, () => h.game && !h.retro ? h.game.art.hero : "")
+            App.reloadIfFailed(box, () => h.retro ? (h.game.art.box || h.game.art.snap) : "")
+            App.reloadIfFailed(snap, () => h.retro ? h.game.art.snap : "")
+        }
+    }
+
     // Retro: a 16:9 composite that covers the area.
     Item {
         id: comp

@@ -5,6 +5,7 @@
 pub mod gamepad;
 pub mod gamescope;
 pub mod library;
+pub mod netcache;
 pub mod sys;
 
 use cxx_qt_lib::{QGuiApplication, QQmlApplicationEngine, QString, QUrl};
@@ -23,6 +24,7 @@ fn main() {
     }
     let mut engine = QQmlApplicationEngine::new();
     if let Some(mut engine) = engine.as_mut() {
+        netcache::ffi::install_disk_cache(engine.as_mut(), &QString::from(&netcache::dir()));
         // A QML error leaves no window; exit instead of sitting on an empty event loop.
         engine
             .as_mut()

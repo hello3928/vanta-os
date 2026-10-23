@@ -83,6 +83,10 @@ VFocusable {
                 opacity: status === Image.Ready ? 1 : 0
                 Behavior on opacity { NumberAnimation { duration: Theme.tSlow; easing.type: Easing.OutCubic } }
             }
+            Connections {
+                target: System
+                function onNetEpochChanged() { App.reloadIfFailed(img, () => tile.src) }
+            }
             // Where the art can't load, the title stands in for it.
             VText {
                 anchors.fill: parent

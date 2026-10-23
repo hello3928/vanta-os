@@ -26,8 +26,12 @@ fn main() {
         println!("cargo:rerun-if-changed={f}");
     }
     println!("cargo:rerun-if-changed=qml");
+    // netcache.cpp uses QtNetwork (QNetworkDiskCache); as a link argument it comes after the C++
+    // archive that needs it.
+    println!("cargo:rustc-link-arg=-lQt6Network");
     CxxQtBuilder::new_qml_module(module)
         .qt_module("Network")
-        .files(["src/sys.rs", "src/gamepad.rs", "src/library.rs"])
+        .files(["src/sys.rs", "src/gamepad.rs", "src/library.rs", "src/netcache.rs"])
+        .cpp_file("src/netcache.cpp")
         .build();
 }

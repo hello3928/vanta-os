@@ -50,6 +50,11 @@ QtObject {
     property bool hasWifi: true        // a Wi-Fi adapter is present (from nmcli's device list)
     // Without a running NetworkManager (development) there's nothing to ask, so the bar shows connected.
     property bool hasNetworkManager: false
+    // Connected (or no NetworkManager to ask). netEpoch counts reconnections: what failed to load
+    // while offline (art, store details) tries again when it changes.
+    readonly property bool online: !hasNetworkManager || wired || wifiSsid !== ""
+    property int netEpoch: 0
+    onOnlineChanged: if (online) netEpoch++
 
     // ---------- updates ----------
     property string updateState: ""    // "" | checking | available | none | failed | downloading | ready

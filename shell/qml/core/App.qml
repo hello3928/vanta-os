@@ -67,6 +67,14 @@ QtObject {
     // The window maps a moment after start; mark it once it's there.
     Component.onCompleted: { later(800, gamescopeFocus); later(4000, gamescopeFocus) }
 
+    // Loads an Image again if it failed (called when the network comes back), keeping its
+    // source binding.
+    function reloadIfFailed(img, source) {
+        if (img.status !== Image.Error) return
+        img.source = ""
+        img.source = Qt.binding(source)
+    }
+
     // ---------- timers ----------
     function later(ms, fn) {
         const t = Qt.createQmlObject("import QtQuick; Timer { repeat: false }", app, "later")

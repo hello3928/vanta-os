@@ -34,6 +34,12 @@ pub mod qobject {
         /// Open a steam:// link in the Steam client ("rungameid/570", "install/570", ...).
         #[qinvokable]
         fn steam(self: &Self, link: &QString) -> bool;
+
+        /// Art the Steam client has on disk for a game, installed or not: JSON
+        /// { capsule, hero, logo, header } with file:// paths, each only where a file exists.
+        #[qinvokable]
+        #[cxx_name = "localArt"]
+        fn local_art(self: &Self, appid: i64) -> QString;
     }
 
     impl cxx_qt::Threading for Library {}
@@ -50,7 +56,7 @@ use std::{
     thread,
 };
 
-const CDN: &str = "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps";
+const CDN: &str = "https://shared.steamstatic.com/store_item_assets/steam/apps";
 const STEAM_ID_BASE: u64 = 76561197960265728;
 
 pub struct LibraryRust {
@@ -100,6 +106,19 @@ impl qobject::Library {
             .stderr(Stdio::null())
             .spawn()
             .is_ok()
+    }
+
+    pub fn local_art(&self, appid: i64) -> QString {
+        let mut art = serde_json::Map::new();
+        if let Some(root) = steam_root() {
+            let appid = appid.to_string();
+            for (key, stem) in [("capsule", "library_600x900"), ("hero", "library_hero"), ("logo", "logo"), ("header", "header")] {
+                if let Some(p) = cached_art(&root, &appid, stem) {
+                    art.insert(key.into(), Value::String(format!("file://{}", p.display())));
+                }
+            }
+        }
+        QString::from(&Value::Object(art).to_string())
     }
 }
 
@@ -244,10 +263,17 @@ fn steam_games(root: &Path, account: &Value) -> Vec<Value> {
 /// Steam's local art cache. Newer clients keep one folder per game; older ones flat files.
 fn cached_art(root: &Path, appid: &str, stem: &str) -> Option<PathBuf> {
     let cache = root.join("appcache/librarycache");
+    // Newer clients keep one folder per game, some files one folder further down.
+    let mut dirs = vec![cache.join(appid)];
     if let Ok(entries) = fs::read_dir(cache.join(appid)) {
-        for e in entries.flatten() {
-            if e.file_name().to_string_lossy().starts_with(stem) {
-                return Some(e.path());
+        dirs.extend(entries.flatten().filter(|e| e.path().is_dir()).map(|e| e.path()));
+    }
+    for dir in dirs {
+        if let Ok(entries) = fs::read_dir(&dir) {
+            for e in entries.flatten() {
+                if e.path().is_file() && e.file_name().to_string_lossy().starts_with(stem) {
+                    return Some(e.path());
+                }
             }
         }
     }
@@ -408,4 +434,24 @@ pub fn parse_vdf(text: &str) -> Value {
 /// Keys in Steam's files aren't always cased the same ("apps" vs "Apps").
 fn find_key<'a>(v: &'a Value, key: &str) -> Option<&'a Value> {
     v.as_object()?.iter().find(|(k, _)| k.eq_ignore_ascii_case(key)).map(|(_, v)| v)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn finds_art_in_both_cache_layouts() {
+        let root = env::temp_dir().join(format!("vanta-art-{}", std::process::id()));
+        let cache = root.join("appcache/librarycache");
+        fs::create_dir_all(cache.join("1245620/5f2c")).unwrap();
+        fs::write(cache.join("1245620/5f2c/library_600x900.jpg"), b"x").unwrap();
+        fs::write(cache.join("1245620/library_hero.jpg"), b"x").unwrap();
+        fs::write(cache.join("570_logo.png"), b"x").unwrap();
+        assert!(cached_art(&root, "1245620", "library_600x900").unwrap().ends_with("5f2c/library_600x900.jpg"));
+        assert!(cached_art(&root, "1245620", "library_hero").is_some());
+        assert!(cached_art(&root, "570", "logo").is_some());
+        assert!(cached_art(&root, "570", "header").is_none());
+        fs::remove_dir_all(&root).unwrap();
+    }
 }
