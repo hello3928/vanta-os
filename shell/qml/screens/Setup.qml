@@ -151,7 +151,7 @@ Screen {
             if (s === "available") { page.osState = "downloading"; System.installUpdate() }
             else if (s === "ready") { page.osState = "done"; page.updateSteam() }
             else if (s === "none") { page.osState = "none"; page.updateSteam() }
-            else if (s === "failed") { page.osState = "failed"; page.updateSteam() }
+            else if (s === "failed" || s === "installFailed") { page.osState = "failed"; page.updateSteam() }
         }
     }
     // Steam comes preinstalled and updates itself on first start.
@@ -367,10 +367,10 @@ Screen {
                             spacing: Theme.s4
                             VProgress {
                                 size: "lg"
-                                indeterminate: page.osState === "checking" || (!App.sample && page.osState === "downloading")
-                                value: page.osState === "done" || page.osState === "none" ? 1 : page.osProgress
+                                indeterminate: page.osState === "checking" || (!App.sample && page.osState === "downloading" && System.updateProgress <= 0)
+                                value: page.osState === "done" || page.osState === "none" ? 1 : App.sample ? page.osProgress : System.updateProgress
                                 tone: page.osState === "done" || page.osState === "none" ? "good" : "accent"
-                                showValue: App.sample
+                                showValue: App.sample || (page.osState === "downloading" && System.updateProgress > 0)
                                 label: page.osState === "checking" ? I18n.t("checkingUpdates")
                                      : page.osState === "downloading" ? I18n.t("downloadingUpdate", { version: App.sample ? "0.1.1" : System.updateVersion }).trim()
                                      : page.osState === "done" ? I18n.t(App.sample ? "updateInstalled" : "updateStaged", { version: "0.1.1" })

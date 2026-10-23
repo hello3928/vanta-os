@@ -377,12 +377,17 @@ Screen {
                 options: ["Stable", "Beta"]
                 key: "channel"
             }
+            // Once an update is found, the update screen (overlays/Update.qml) takes over.
             VListItem {
-                label: System.updateState === "available" ? I18n.t("installUpdate") : I18n.t("checkUpdates")
+                readonly property string s: System.updateState
+                label: s === "available" || s === "installFailed" ? I18n.t("installUpdate")
+                     : s === "downloading" ? I18n.t("updateInProgress")
+                     : s === "ready" ? I18n.t("restartToUpdate") : I18n.t("checkUpdates")
+                trailText: s === "downloading" && System.updateProgress > 0 ? Math.floor(System.updateProgress * 100) + "%" : ""
                 chevron: true
-                busy: System.updateState === "checking" || System.updateState === "downloading"
+                busy: s === "checking"
                 onActivated: {
-                    if (System.updateState === "available") return System.installUpdate()
+                    if (s === "available" || s === "installFailed" || s === "downloading" || s === "ready") return App.open("update")
                     System.checkUpdates()
                 }
             }
@@ -391,8 +396,7 @@ Screen {
                 function onUpdateStateChanged() {
                     const s = System.updateState
                     if (s === "none") App.toast(I18n.t("latest"), { icon: "checkCircle" })
-                    else if (s === "available") App.toast(I18n.t("updateAvailable"), { icon: "update" })
-                    else if (s === "ready") App.toast(I18n.t("restartToUpdate"), { icon: "restart" })
+                    else if (s === "available" && !App.overlays.some(o => o.isUpdate)) App.open("update")
                     else if (s === "failed") App.toast(I18n.t("updateFailed"), { icon: "warning", tone: "bad" })
                 }
             }

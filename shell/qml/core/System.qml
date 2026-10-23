@@ -57,8 +57,28 @@ QtObject {
     onOnlineChanged: if (online) netEpoch++
 
     // ---------- updates ----------
-    property string updateState: ""    // "" | checking | available | none | failed | downloading | ready
+    // updateState: "" | checking | available | none | failed (the check) | downloading (the whole
+    // install) | ready | installFailed. While downloading, updateStage is preparing | downloading
+    // | installing, read from rpm-ostree's output as it prints it.
+    property string updateState: ""
     property string updateVersion: ""  // the available image's version, from rpm-ostree's check
+    property string updateStage: ""
+    property string updateError: ""    // "busy" (another update is running) or rpm-ostree's last error line
+    property int updateLayers: 0       // image layers to fetch, and fetched so far
+    property int updateFetched: 0
+    property real updateTotal: 0       // bytes to fetch, from rpm-ostree's "layers needed" lines
+    property real updateDone: 0        // bytes in the layers fetched so far
+    property real updatePending: 0     // size of the layer being fetched
+    // rpm-ostree only reports whole layers, and a layer can be over a gigabyte. Between its lines
+    // the bytes received on the network (all interfaces, so an estimate) fill in the bar.
+    property real updateRx: 0
+    property real updateRxStart: 0
+    property real updateSpeed: 0       // bytes per second
+    readonly property real updateDownloaded: updateTotal ? Math.min(updateTotal, Math.max(updateDone, Math.min(updateRx, updatePending ? updateDone + updatePending : updateTotal))) : 0
+    readonly property real updateProgress: updateTotal ? updateDownloaded / updateTotal : updateLayers ? updateFetched / updateLayers : 0
+    // A stand-in rpm-ostree for testing the update screen (tools/wsl/fake-rpm-ostree.sh). With
+    // it set, updates run outside the Vanta session too.
+    readonly property string rpmOstree: os.env("VANTA_RPM_OSTREE") || "rpm-ostree"
 
     readonly property var deviceNames: ({
         "RC72LA": "ROG Ally X", "RC71L": "ROG Ally", "Jupiter": "Steam Deck", "Galileo": "Steam Deck OLED",
@@ -215,12 +235,66 @@ QtObject {
     // ---------- updates ----------
     function checkUpdates() {
         updateState = "checking"
-        App.query("update-check", "rpm-ostree", ["upgrade", "--check"])
+        App.query("update-check", rpmOstree, ["upgrade", "--check"])
     }
     function installUpdate() {
         updateState = "downloading"
-        App.system("update-install", "rpm-ostree", ["upgrade"])
+        updateStage = "preparing"
+        updateError = ""
+        updateLayers = updateFetched = 0
+        updateTotal = updateDone = updatePending = updateRx = updateSpeed = 0
+        updateRxStart = rxBytes()
+        if (!App.real && rpmOstree === "rpm-ostree") return App.system("update-install", "rpm-ostree", ["upgrade"])
+        // rpm-ostree's C parts buffer their output when it goes to a pipe; stdbuf makes them
+        // print each line as it happens.
+        if (os.which("stdbuf")) App.sys.stream("update-install", "stdbuf", JSON.stringify(["-oL", "-eL", rpmOstree, "upgrade"]))
+        else App.sys.stream("update-install", rpmOstree, JSON.stringify(["upgrade"]))
     }
+    // Bytes received on every network interface but loopback.
+    function rxBytes() {
+        return JSON.parse(os.glob("/sys/class/net/*/statistics/rx_bytes"))
+            .filter(p => p.indexOf("/lo/") < 0)
+            .reduce((n, p) => n + (parseFloat(os.readText(p)) || 0), 0)
+    }
+    // "215.3 MB", "1.2 GB", "512 bytes" (GLib's sizes, as rpm-ostree prints them) in bytes.
+    function parseSize(text) {
+        const m = /([\d.]+)\s*([kKMGT]i?B|bytes?)/.exec(text)
+        if (!m) return 0
+        const unit = m[2][0].toLowerCase()
+        const base = m[2][1] === "i" ? 1024 : 1000
+        return parseFloat(m[1]) * Math.pow(base, { b: 0, k: 1, m: 2, g: 3, t: 4 }[unit])
+    }
+    function updateLine(text) {
+        let m
+        if ((m = /layers needed:\s*(\d+)\s*\(([^)]+)\)/.exec(text))) {
+            updateLayers += parseInt(m[1])
+            updateTotal += parseSize(m[2])
+        } else if (/^\s*(\[\d+\/\d+\]\s*)?Fetching\b/.test(text)) {
+            // "Fetching layer 3f2a… (215.3 MB)... done": the line can arrive when the layer
+            // starts or when it ends.
+            updateStage = "downloading"
+            updateDone += updatePending
+            const size = parseSize((/\(([^)]+)\)/.exec(text) || ["", ""])[1])
+            if (/done\s*$/.test(text)) { updateDone += size; updatePending = 0; updateFetched++ }
+            else updatePending = size
+        } else if (/Staging deployment|Writing objects|Checking out|Merging|Pruning/i.test(text)) {
+            updateDone += updatePending
+            updatePending = 0
+            updateStage = "installing"
+        }
+    }
+    readonly property Timer updateMeter: Timer {
+        interval: 1000
+        repeat: true
+        running: sys.updateState === "downloading" && sys.updateStage === "downloading"
+        onTriggered: {
+            const rx = sys.rxBytes() - sys.updateRxStart
+            const step = Math.max(0, rx - sys.updateRx)
+            sys.updateSpeed = sys.updateSpeed ? sys.updateSpeed * 0.7 + step * 0.3 : step
+            sys.updateRx = rx
+        }
+    }
+    onUpdateStateChanged: if (updateState === "ready" && !App.overlays.some(o => o.isUpdate)) App.toast(I18n.t("restartToUpdate"), { icon: "restart" })
     function rollback() { App.system("rollback", "rpm-ostree", ["rollback"]) }
 
     function desktopMode() {
@@ -292,6 +366,7 @@ QtObject {
 
     readonly property Connections replies: Connections {
         target: App.sys
+        function onLine(tag, text) { if (tag === "update-install") sys.updateLine(text) }
         function onFinished(tag, code, out, err) {
             if (tag === "wifi-state") {
                 sys.hasNetworkManager = code === 0
@@ -324,7 +399,15 @@ QtObject {
                 sys.updateVersion = ver ? ver[1] : ""
                 sys.updateState = code === 0 ? "available" : code === 77 ? "none" : "failed"
             } else if (tag === "update-install") {
-                sys.updateState = code === 0 ? "ready" : "failed"
+                if (code === 0) {
+                    sys.updateStage = ""
+                    sys.updateState = /No upgrade available/i.test(out) ? "none" : "ready"
+                    return
+                }
+                const lines = (err || out).trim().split("\n")
+                sys.updateError = /transaction in progress|already running|another transaction/i.test(err) ? "busy" : lines[lines.length - 1].replace(/^error:\s*/i, "")
+                sys.updateStage = ""
+                sys.updateState = "installFailed"
             } else if (tag === "tdp-max" && code === 0) {
                 const n = parseFloat((out.match(/[\d.]+/) || [""])[0])
                 if (n > 0) {

@@ -30,6 +30,16 @@ pub mod qobject {
         #[qinvokable]
         fn exec(self: &Sys, tag: &QString, program: &QString, args_json: &QString);
 
+        /// A line a command started with `stream` has printed (stdout or stderr).
+        #[qsignal]
+        fn line(self: Pin<&mut Sys>, tag: QString, text: QString);
+
+        /// Like exec, but each line of output arrives with `line` as it's printed (lines end at
+        /// \n or \r, so progress redrawn in place comes through too). `finished` follows with
+        /// all of it.
+        #[qinvokable]
+        fn stream(self: &Sys, tag: &QString, program: &QString, args_json: &QString);
+
         /// Start a program and leave it running. Returns its process id, or 0 if it didn't start.
         #[qinvokable]
         fn spawn(self: &Sys, program: &QString, args_json: &QString) -> i32;
@@ -200,6 +210,44 @@ impl qobject::Sys {
                 ),
                 Err(e) => (-1, String::new(), e.to_string()),
             };
+            let _ = qt.queue(move |obj| obj.finished(q(&tag), code, q(&out), q(&err)));
+        });
+    }
+
+    pub fn stream(&self, tag: &QString, program: &QString, args_json: &QString) {
+        let qt = self.qt_thread();
+        let (tag, program, args) = (tag.to_string(), program.to_string(), args_of(args_json));
+        thread::spawn(move || {
+            let child = Command::new(&program)
+                .args(&args)
+                .stdin(Stdio::null())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .spawn();
+            let mut child = match child {
+                Ok(c) => c,
+                Err(e) => {
+                    let _ = qt.queue(move |obj| obj.finished(q(&tag), -1, q(""), q(e.to_string())));
+                    return;
+                }
+            };
+            let read = |pipe: Box<dyn std::io::Read + Send>| {
+                let (qt, tag) = (qt.clone(), tag.clone());
+                thread::spawn(move || {
+                    let mut all = String::new();
+                    split_lines(pipe, |line| {
+                        all.push_str(line);
+                        all.push('\n');
+                        let (tag, line) = (tag.clone(), line.to_string());
+                        let _ = qt.queue(move |obj| obj.line(q(&tag), q(&line)));
+                    });
+                    all
+                })
+            };
+            let out = read(Box::new(child.stdout.take().unwrap()));
+            let err = read(Box::new(child.stderr.take().unwrap()));
+            let (out, err) = (out.join().unwrap_or_default(), err.join().unwrap_or_default());
+            let code = child.wait().ok().and_then(|s| s.code()).unwrap_or(-1);
             let _ = qt.queue(move |obj| obj.finished(q(&tag), code, q(&out), q(&err)));
         });
     }
@@ -423,4 +471,39 @@ fn glob_paths(pattern: &str) -> Vec<String> {
         paths = next;
     }
     paths.into_iter().map(|p| p.display().to_string()).collect()
+}
+
+/// Calls `each` with every line read from `pipe`, as it arrives. Lines end at \n or \r (progress
+/// redrawn in place); empty lines are skipped.
+fn split_lines(mut pipe: impl std::io::Read, mut each: impl FnMut(&str)) {
+    let (mut buf, mut cur) = ([0u8; 4096], Vec::new());
+    let mut flush = |cur: &mut Vec<u8>| {
+        if !cur.is_empty() {
+            each(String::from_utf8_lossy(cur).trim_end());
+            cur.clear();
+        }
+    };
+    while let Ok(n) = pipe.read(&mut buf) {
+        if n == 0 {
+            break;
+        }
+        for &b in &buf[..n] {
+            if b == b'\n' || b == b'\r' {
+                flush(&mut cur);
+            } else {
+                cur.push(b);
+            }
+        }
+    }
+    flush(&mut cur);
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn splits_lines_and_redraws() {
+        let mut got = Vec::new();
+        super::split_lines(&b"Pulling manifest\nFetching 1/3\rFetching 2/3\r\nStaging deployment...done"[..], |l| got.push(l.to_string()));
+        assert_eq!(got, ["Pulling manifest", "Fetching 1/3", "Fetching 2/3", "Staging deployment...done"]);
+    }
 }
