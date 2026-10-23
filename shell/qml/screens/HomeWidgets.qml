@@ -20,7 +20,8 @@ VRow {
         { name: "rook", color: "#3d5a80", game: "Helldivers 2" },
         { name: "mira", color: "#7a3e52", game: null },
         { name: "jaxx", color: "#2f6f69", game: "Balatro" }
-    ] : []
+    ] : Settings.steamFriends ? Steam.friends.filter(f => f.state === "ingame" || f.state === "online")
+            .map(f => ({ name: f.name, photo: f.photo, color: "#4a5262", game: f.game || null })) : []
     readonly property var storage: App.sample ? { free: 412e9, total: 1e12 } : System.storageInfo
 
     function bytes(n) {
@@ -112,7 +113,7 @@ VRow {
             width: parent.width
             spacing: 0.4 * Theme.rem
             Repeater {
-                model: row.friends
+                model: row.friends.slice(0, 3)
                 Row {
                     required property var modelData
                     spacing: Theme.s2

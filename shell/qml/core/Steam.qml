@@ -35,8 +35,9 @@ QtObject {
         const body = Object.keys(fields).map(k => encodeURIComponent(k) + "=" + encodeURIComponent(fields[k])).join("&")
         xhr.onreadystatechange = () => {
             if (xhr.readyState !== XMLHttpRequest.DONE) return
+            // Most answers are wrapped in { response }; a few older ones (GetFriendList) aren't.
             let res = null
-            try { res = JSON.parse(xhr.responseText).response || null } catch (e) {}
+            try { const j = JSON.parse(xhr.responseText); res = j.response !== undefined ? j.response : j } catch (e) {}
             const result = parseInt(xhr.getResponseHeader("x-eresult") || "0")
             done(xhr.status === 200 && result === 1 ? res : null, result, xhr.status)
         }
@@ -193,5 +194,71 @@ QtObject {
                 owned = next
             })
         })
+    }
+
+    // ---------- friends ----------
+    // [{ steamId, name, photo, state: "ingame" | "online" | "away" | "offline", game }], playing
+    // and online first. The list from IFriendsListService (or the older ISteamUser call), names,
+    // pictures and status from GetPlayerSummaries, or from each friend's community profile where
+    // that call doesn't accept this kind of token.
+    property var friends: []
+    readonly property var stateOrder: ({ ingame: 0, online: 1, away: 2, offline: 3 })
+
+    function loadFriends(id) {
+        if (!id || !hasSession(id)) { friends = []; return }
+        accessToken(id, token => {
+            if (!token) return
+            call("GET", "/IFriendsListService/GetFriendsList/v1/", { access_token: token }, res => {
+                const list = res && res.friendslist && res.friendslist.friends
+                if (list) return friendDetails(token, list.filter(f => f.efriendrelationship === 3).map(f => f.ulfriendid))
+                call("GET", "/ISteamUser/GetFriendList/v1/", { access_token: token, steamid: id, relationship: "friend" }, old => {
+                    const l = old && old.friendslist && old.friendslist.friends
+                    if (l) friendDetails(token, l.map(f => f.steamid))
+                })
+            })
+        })
+    }
+
+    function friendDetails(token, ids) {
+        if (!ids.length) { friends = []; return }
+        call("GET", "/ISteamUser/GetPlayerSummaries/v2/", { access_token: token, steamids: ids.slice(0, 100).join(",") }, res => {
+            if (res && res.players && res.players.length) {
+                const state = p => p.gameextrainfo ? "ingame" : p.personastate === 0 ? "offline" : p.personastate >= 2 ? "away" : "online"
+                setFriends(res.players.map(p => ({ steamId: p.steamid, name: p.personaname, photo: p.avatarmedium || p.avatarfull || "",
+                                                   state: state(p), game: p.gameextrainfo || "" })))
+                return
+            }
+            // One community profile per friend, the first 30.
+            const found = []
+            const ask = ids.slice(0, 30)
+            let left = ask.length
+            ask.forEach(fid => communityFriend(fid, f => {
+                if (f) found.push(f)
+                if (--left === 0) setFriends(found)
+            }))
+        })
+    }
+
+    function communityFriend(fid, done) {
+        const xhr = new XMLHttpRequest()
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState !== XMLHttpRequest.DONE) return
+            const text = xhr.status === 200 ? xhr.responseText : ""
+            const field = name => {
+                const m = new RegExp("<" + name + ">(?:<!\\[CDATA\\[)?([^<\\]]*)").exec(text)
+                return m ? m[1].trim() : ""
+            }
+            if (!field("steamID")) return done(null)
+            const online = field("onlineState")
+            const game = online === "in-game" ? field("gameName") : ""
+            done({ steamId: fid, name: field("steamID"), photo: field("avatarMedium"), game: game,
+                   state: game ? "ingame" : online === "online" ? "online" : online === "away" ? "away" : "offline" })
+        }
+        xhr.open("GET", "https://steamcommunity.com/profiles/" + fid + "/?xml=1")
+        xhr.send()
+    }
+
+    function setFriends(list) {
+        friends = list.sort((a, b) => (stateOrder[a.state] - stateOrder[b.state]) || a.name.localeCompare(b.name))
     }
 }

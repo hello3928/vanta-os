@@ -350,14 +350,21 @@ QtObject {
         function onNetEpochChanged() {
             if (games.sample) return
             games.loadStore()
-            if (games.steamId) Steam.loadOwned(games.steamId)
+            if (games.steamId) { Steam.loadOwned(games.steamId); Steam.loadFriends(games.steamId) }
         }
     }
     readonly property Connections onOwned: Connections {
         target: Steam
         function onOwnedChanged() { if (!games.sample) { games.build(); games.loadStore() } }
     }
-    onSteamIdChanged: if (!sample && steamId) { build(); Steam.loadOwned(steamId) }
+    onSteamIdChanged: if (!sample && steamId) { build(); Steam.loadOwned(steamId); Steam.loadFriends(steamId) }
+    // Friends' status every two minutes.
+    readonly property Timer friendsTimer: Timer {
+        interval: 120000
+        repeat: true
+        running: !games.sample && games.steamId !== "" && Settings.steamFriends
+        onTriggered: Steam.loadFriends(games.steamId)
+    }
 
     Component.onCompleted: {
         try { history = JSON.parse(sys.readText(sys.configDir + "/history.json") || "{}") } catch (e) { history = {} }
@@ -366,6 +373,6 @@ QtObject {
         if (!sample) checkBios()
         build()
         loadStore()
-        if (!sample && steamId) Steam.loadOwned(steamId)
+        if (!sample && steamId) { Steam.loadOwned(steamId); Steam.loadFriends(steamId) }
     }
 }
