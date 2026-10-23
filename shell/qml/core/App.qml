@@ -83,10 +83,23 @@ QtObject {
         gamescopeFocus()
     }
     readonly property Timer steamWindowEnd: Timer { interval: 90000; onTriggered: app.hideSteamWindow() }
-    onRunningChanged: gamescopeFocus()
+    onRunningChanged: { gamescopeFocus(); controllerOwner() }
     onInGameChanged: gamescopeFocus()
     // The window maps a moment after start; mark it once it's there.
-    Component.onCompleted: { later(800, gamescopeFocus); later(4000, gamescopeFocus) }
+    Component.onCompleted: { later(800, gamescopeFocus); later(4000, gamescopeFocus); later(1000, controllerOwner) }
+
+    // ---------- the Steam Deck's controller ----------
+    // Vanta's in its menus (the kernel's gamepad, with the Steam and ... buttons); Steam's while a
+    // Steam game runs, so Steam Input works in the game (vanta-controller in the image). Steam
+    // never has it otherwise, so it can't put its desktop layout on Vanta or open Big Picture.
+    property string controllerTo: ""
+    function controllerOwner() {
+        if (!real || System.productName.indexOf("Steam Deck") !== 0) return
+        const to = running && running.source === "steam" ? "steam" : "vanta"
+        if (to === controllerTo) return
+        controllerTo = to
+        sys.exec("controller", "systemctl", JSON.stringify(["start", "--no-block", "vanta-controller@" + to + ".service"]))
+    }
 
     // Loads an Image again if it failed (called when the network comes back), keeping its
     // source binding.

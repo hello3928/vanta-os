@@ -1,0 +1,6 @@
+[Unit]
+Description=Hand the Steam Deck controller to %i
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/vanta-controller %i

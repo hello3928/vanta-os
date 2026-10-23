@@ -1,0 +1,18 @@
+#!/usr/bin/bash
+# Steam settings Vanta needs, written while Steam isn't running (vanta-session calls it first).
+# The Steam overlay off: the Steam button opens Vanta's menu in games, not Steam's.
+for f in "$HOME"/.local/share/Steam/userdata/*/config/localconfig.vdf; do
+	[[ -f "$f" ]] || continue
+	python3 - "$f" <<'PY'
+import re, sys
+path = sys.argv[1]
+text = open(path, encoding="utf-8", errors="surrogateescape").read()
+if re.search(r'"EnableGameOverlay"\s+"\d"', text):
+    new = re.sub(r'("EnableGameOverlay"\s+)"\d"', r'\1"0"', text)
+else:
+    m = re.search(r'\n(\t)"system"\n\t\{\n', text)
+    new = text[:m.end()] + '\t\t"EnableGameOverlay"\t\t"0"\n' + text[m.end():] if m else text
+if new != text:
+    open(path, "w", encoding="utf-8", errors="surrogateescape").write(new)
+PY
+done

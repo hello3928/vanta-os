@@ -1,0 +1,19 @@
+#!/usr/bin/bash
+# Hands the Steam Deck's built-in controller to Steam (`steam`, while a Steam game runs, so Steam
+# Input works in games) or back to Vanta (`vanta`). Sets the flag 72-vanta-deck-controller.rules
+# checks, then reconnects the controller so the rule applies: Steam picks it up as a newly
+# connected controller, or loses it.
+set -e
+case "$1" in
+	steam) mkdir -p /run/vanta; touch /run/vanta/controller-steam ;;
+	vanta) rm -f /run/vanta/controller-steam ;;
+	*) echo "usage: vanta-controller steam|vanta" >&2; exit 2 ;;
+esac
+driver=/sys/bus/hid/drivers/hid-steam
+for dev in "$driver"/*:28DE:1205.*; do
+	[[ -e "$dev" ]] || continue
+	id=${dev##*/}
+	echo "$id" > "$driver/unbind"
+	echo "$id" > "$driver/bind"
+done
+udevadm settle --timeout=5 || true

@@ -14,6 +14,7 @@ if [[ -z "$VANTA_KIOSK" ]]; then
 	export QT_QPA_PLATFORM=xcb
 	# Steam starts in offline mode if the network isn't up yet, and Wi-Fi usually connects a few
 	# seconds after login. Wait for it (up to 45 s) so Steam signs in normally.
+	/usr/libexec/vanta-steam-prefs
 	( nm-online -q -t 45; exec steam -silent ) &
 fi
 

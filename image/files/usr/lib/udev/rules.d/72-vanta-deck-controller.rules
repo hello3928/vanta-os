@@ -1,0 +1,7 @@
+# The Steam Deck's built-in controller is Vanta's in its menus and Steam's while a Steam game runs
+# (vanta-controller). Steam reads the controller's raw HID node; while it does, the kernel's own
+# "Steam Deck" gamepad goes silent, and Steam applies its desktop layout (mouse and keyboard) and
+# opens Big Picture on the Steam button. So the raw node is only open to the user while
+# /run/vanta/controller-steam exists. Runs after steam-devices (60-steam-input.rules) and before
+# the seat rules apply uaccess (73-seat-late.rules).
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="28de", ATTRS{idProduct}=="1205", TEST!="/run/vanta/controller-steam", TAG-="uaccess", MODE="0600", GROUP="root"

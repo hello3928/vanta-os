@@ -1,0 +1,11 @@
+// The shell hands the Steam Deck's controller to Steam when a Steam game starts and takes it back
+// when the game ends (vanta-controller). Only these two units.
+polkit.addRule(function(action, subject) {
+    var unit = action.lookup("unit");
+    if (action.id == "org.freedesktop.systemd1.manage-units" &&
+        (unit == "vanta-controller@steam.service" || unit == "vanta-controller@vanta.service") &&
+        action.lookup("verb") == "start" &&
+        subject.local && subject.active) {
+        return polkit.Result.YES;
+    }
+});

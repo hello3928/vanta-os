@@ -198,19 +198,22 @@ fn steam_games(root: &Path, account: &Value) -> Vec<Value> {
         })
         .unwrap_or_default();
 
-    let mut folders = vec![root.join("steamapps")];
+    let mut paths = vec![root.join("steamapps")];
     if let Ok(vdf) = fs::read_to_string(root.join("steamapps/libraryfolders.vdf")) {
         if let Some(map) = parse_vdf(&vdf).get("libraryfolders").and_then(Value::as_object) {
-            for f in map.values() {
-                if let Some(p) = f.get("path").and_then(Value::as_str) {
-                    let folder = PathBuf::from(p).join("steamapps");
-                    if !folders.contains(&folder) {
-                        folders.push(folder);
-                    }
-                }
-            }
+            paths.extend(map.values().filter_map(|f| f.get("path").and_then(Value::as_str)).map(|p| PathBuf::from(p).join("steamapps")));
         }
     }
+    // The same folder can be listed under two names (~/.steam/steam is a link to
+    // ~/.local/share/Steam), so folders are compared by their real path.
+    let mut folders: Vec<PathBuf> = Vec::new();
+    for p in paths {
+        let real = fs::canonicalize(&p).unwrap_or(p);
+        if !folders.contains(&real) {
+            folders.push(real);
+        }
+    }
+    let mut seen = std::collections::HashSet::new();
     let mut games: Vec<Value> = folders
         .iter()
         .filter_map(|f| fs::read_dir(f).ok().map(|d| (f.clone(), d)))
@@ -221,6 +224,9 @@ fn steam_games(root: &Path, account: &Value) -> Vec<Value> {
             let state = parse_vdf(&acf);
             let app = state.get("AppState")?;
             let appid = app.get("appid")?.as_str()?.to_string();
+            if !seen.insert(appid.clone()) {
+                return None;
+            }
             let name = app.get("name")?.as_str()?.to_string();
             // Proton, runtimes and redistributables are tools, not games.
             if ["Proton", "Steam Linux Runtime", "Steamworks", "Steam Audio"].iter().any(|t| name.starts_with(t)) {
@@ -461,5 +467,34 @@ mod tests {
         assert!(cached_art(&root, "570", "logo").is_some());
         assert!(cached_art(&root, "570", "header").is_none());
         fs::remove_dir_all(&root).unwrap();
+    }
+
+    #[test]
+    fn lists_a_game_once_when_its_library_has_two_names() {
+        // Bazzite: ~/.steam/steam links to ~/.local/share/Steam, and libraryfolders.vdf can name
+        // the link.
+        let home = env::temp_dir().join(format!("vanta-lib-{}", std::process::id()));
+        let root = home.join(".local/share/Steam");
+        fs::create_dir_all(root.join("steamapps")).unwrap();
+        fs::create_dir_all(home.join(".steam")).unwrap();
+        std::os::unix::fs::symlink(&root, home.join(".steam/steam")).unwrap();
+        let link = home.join(".steam/steam").display().to_string();
+        fs::write(root.join("steamapps/libraryfolders.vdf"), format!("\"libraryfolders\"
+{{
+	\"0\"
+	{{
+		\"path\"		\"{link}\"
+	}}
+}}
+")).unwrap();
+        fs::write(root.join("steamapps/appmanifest_570.acf"), "\"AppState\"
+{
+	\"appid\"		\"570\"
+	\"name\"		\"Dota 2\"
+	\"StateFlags\"		\"4\"
+}
+").unwrap();
+        assert_eq!(steam_games(&root, &json!({})).len(), 1);
+        fs::remove_dir_all(&home).unwrap();
     }
 }

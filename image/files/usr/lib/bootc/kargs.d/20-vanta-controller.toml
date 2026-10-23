@@ -1,0 +1,3 @@
+# The Steam Deck's controller acts as a gamepad, not a mouse and keyboard, when Steam isn't using
+# it (hid-steam's lizard mode off). Vanta's menus read it through the kernel's gamepad.
+kargs = ["hid_steam.lizard_mode=0"]

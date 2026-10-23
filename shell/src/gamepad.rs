@@ -126,6 +126,13 @@ fn button_action(b: Button) -> Option<&'static str> {
     })
 }
 
+/// The Deck's "..." button on the kernel's gamepad is BTN_BASE, which has no standard name, so
+/// gilrs passes it on unnamed (its code is the evdev type and code: EV_KEY << 16 | code).
+fn quick_access(b: Button, code: u32) -> Option<&'static str> {
+    const BTN_BASE: u32 = 0x126;
+    (b == Button::Unknown && code & 0xffff == BTN_BASE).then_some("qam")
+}
+
 fn dpad_dir(b: Button) -> Option<&'static str> {
     Some(match b {
         Button::DPadUp => "up",
@@ -145,7 +152,7 @@ impl qobject::Gamepads {
         self.as_mut().rust_mut().rumble_tx = Some(tx);
         let qt = self.qt_thread();
         thread::spawn(move || run(qt, rx));
-        // The Deck's Steam and "..." buttons, which Steam keeps from the virtual pad.
+        // The Deck's Steam and "..." buttons while Steam has the controller (in Steam games).
         if on_steam_deck() {
             let qt = self.qt_thread();
             crate::deckbuttons::watch(move |action| {
@@ -200,8 +207,8 @@ fn run(qt: cxx_qt::CxxQtThread<qobject::Gamepads>, rumble: Receiver<(f32, f32, u
                 let _ = qt.queue(move |obj| obj.action(q(name), repeat));
             };
             match ev.event {
-                EventType::ButtonPressed(b, _) => {
-                    if let Some(a) = button_action(b) {
+                EventType::ButtonPressed(b, code) => {
+                    if let Some(a) = button_action(b).or_else(|| quick_access(b, code.into_u32())) {
                         fire(a, false);
                     }
                 }
