@@ -499,5 +499,6 @@
  "lessThanMin": "Queda menos de un minuto",
  "updateInProgress": "Actualización en curso",
  "uiScale": "Escala de la interfaz",
- "uiScaleDetail": "Tamaño del texto y los controles"
+ "uiScaleDetail": "Tamaño del texto y los controles",
+ "updateKeepsGoing": "Puedes continuar. La actualización se sigue descargando y se aplica al reiniciar."
 }

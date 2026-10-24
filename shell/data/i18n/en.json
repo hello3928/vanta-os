@@ -485,5 +485,6 @@
  "lessThanMin": "Less than a minute left",
  "updateInProgress": "Update in progress",
  "uiScale": "UI scale",
- "uiScaleDetail": "Size of text and controls"
+ "uiScaleDetail": "Size of text and controls",
+ "updateKeepsGoing": "You can continue. The update keeps downloading and is applied when you restart."
 }

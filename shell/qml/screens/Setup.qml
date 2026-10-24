@@ -376,6 +376,15 @@ Screen {
                                      : page.osState === "done" ? I18n.t(App.sample ? "updateInstalled" : "updateStaged", { version: "0.1.1" })
                                      : page.osState === "none" ? I18n.t("latest") : I18n.t("updateFailed")
                             }
+                            VText {
+                                visible: page.osState === "downloading" && !App.sample
+                                width: parent.width
+                                text: (System.updateTotal ? I18n.t("bytesOf", { done: Games.sizeText(System.updateDownloaded) || "0 MB", total: Games.sizeText(System.updateTotal) }) + " · " : "")
+                                      + I18n.t("updateKeepsGoing")
+                                size: Theme.tSm
+                                color: Theme.fg3
+                                wrapMode: Text.Wrap
+                            }
                             VProgress {
                                 visible: !App.kiosk
                                 size: "lg"
@@ -571,13 +580,16 @@ Screen {
                             variant: "ghost"
                             onActivated: if (!page.busy) page.go(page.step + 1)
                         }
+                        // An OS update can take a while; setup can carry on while it downloads.
+                        // It keeps going in the background (System.qml) and asks for a restart
+                        // when it's ready.
                         VButton {
                             id: updatesNext
                             visible: page.stepId === "updates"
                             label: I18n.t("continue")
                             variant: "primary"
-                            disabled: page.busy
-                            onActivated: page.go(page.step + 1)
+                            disabled: page.busy && !(page.osState === "downloading" && !App.sample)
+                            onActivated: { page.busy = false; page.go(page.step + 1) }
                         }
                         VButton {
                             visible: page.stepId === "account"

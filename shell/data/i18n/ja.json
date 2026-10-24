@@ -500,5 +500,6 @@
  "lessThanMin": "残り1分未満",
  "updateInProgress": "アップデート中",
  "uiScale": "UIの大きさ",
- "uiScaleDetail": "文字とボタンの大きさ"
+ "uiScaleDetail": "文字とボタンの大きさ",
+ "updateKeepsGoing": "このまま進めます。アップデートはダウンロードを続け、再起動時に適用されます。"
 }

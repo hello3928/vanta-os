@@ -499,5 +499,6 @@
  "lessThanMin": "Noch weniger als eine Minute",
  "updateInProgress": "Update läuft",
  "uiScale": "Skalierung der Oberfläche",
- "uiScaleDetail": "Größe von Text und Bedienelementen"
+ "uiScaleDetail": "Größe von Text und Bedienelementen",
+ "updateKeepsGoing": "Du kannst fortfahren. Das Update lädt weiter und wird beim Neustart angewendet."
 }
